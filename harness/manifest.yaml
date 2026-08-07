@@ -1,0 +1,42 @@
+schema_version: 1
+
+project:
+  name: "字有方"
+  english_name: "ZiYouFang"
+  tagline: "汉字有形，习字有方。"
+
+source_of_truth:
+  path: "../hanzi.md"
+  language: "zh-CN"
+
+stage:
+  id: "product-definition"
+  status: "active"
+  allowed_deliverable: "harness-and-approved-technology-decision"
+
+gates:
+  prototype_review:
+    status: "pending"
+    record: "reviews/prototype-review.template.md"
+  technology_selection:
+    status: "approved"
+    record: "decisions/technology-selection.md"
+  client_capability_validation:
+    status: "pending"
+    record: "validation/arkui-x-capability-verification.md"
+  development_scaffold:
+    status: "blocked"
+    unblock_when:
+      - "prototype_review.status == approved"
+      - "technology_selection.status == approved"
+      - "client_capability_validation.status == approved"
+
+catalog:
+  product_brief: "briefs/product.md"
+  scope: "briefs/scope.md"
+  mvp_requirements: "requirements/mvp.md"
+  scenarios: "scenarios/core-flows.yaml"
+  fixture_policy: "fixtures/README.md"
+  result_policy: "results/README.md"
+  technology_decision: "decisions/technology-selection.md"
+  client_capability_validation: "validation/arkui-x-capability-verification.md"

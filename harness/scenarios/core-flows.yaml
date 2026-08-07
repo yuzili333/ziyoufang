@@ -1,0 +1,89 @@
+schema_version: 1
+source: "../../hanzi.md"
+
+status_legend:
+  defined: "需求已在原始文档中出现，可用于原型覆盖检查"
+  needs_decision: "目标明确，但规则或指标需在后续阶段确定"
+
+scenarios:
+  - id: "SCN-001"
+    title: "提交汉字书写练习"
+    status: "needs_decision"
+    actor: "学生"
+    given:
+      - "学生已完成一份汉字书写练习"
+    when:
+      - "学生拍照并提交练习图片"
+    then:
+      - "系统接收图片并给出明确的处理状态"
+      - "图片不满足处理要求时，学生获得可行动的反馈"
+    covers: ["CAP-01"]
+
+  - id: "SCN-002"
+    title: "识别并评估书写汉字"
+    status: "needs_decision"
+    actor: "系统"
+    given:
+      - "系统收到可处理的书写图片"
+    when:
+      - "系统完成汉字识别与质量评估"
+    then:
+      - "学生能够看到逐字识别结果"
+      - "学生能够看到可解释的书写质量评价"
+      - "评价以标准宋体字形为原始需求中的参考基线"
+    covers: ["CAP-01", "CAP-02"]
+
+  - id: "SCN-003"
+    title: "发现错字和不美观字"
+    status: "needs_decision"
+    actor: "学生"
+    given:
+      - "系统已完成逐字识别与评估"
+    when:
+      - "学生查看问题字结果"
+    then:
+      - "错字与不美观字可被区分"
+      - "每个问题字包含笔画、偏旁、部首或整体结构层面的可理解说明"
+      - "系统不确定时的表达与后续处理方式可被识别"
+    covers: ["CAP-03", "CAP-04"]
+
+  - id: "SCN-004"
+    title: "对比手写字与模板字"
+    status: "defined"
+    actor: "学生"
+    given:
+      - "某个汉字已被标记为错字或不美观字"
+    when:
+      - "学生查看该字的对比信息"
+    then:
+      - "学生能够区分手写字、模板字和差异信息"
+      - "差异信息能够帮助学生定位主要书写问题"
+    covers: ["CAP-05"]
+
+  - id: "SCN-005"
+    title: "沉淀问题字并发起矫正"
+    status: "defined"
+    actor: "学生"
+    given:
+      - "系统已识别错字或不美观字"
+    when:
+      - "本次评估完成"
+    then:
+      - "错字进入错字记录"
+      - "不美观字进入不美观字记录"
+      - "学生能够围绕具体问题字进行后续练习"
+    covers: ["CAP-06"]
+
+  - id: "SCN-006"
+    title: "跟踪同一问题字的改进"
+    status: "needs_decision"
+    actor: "学生"
+    given:
+      - "学生曾对同一个问题字进行过评估和矫正"
+    when:
+      - "学生再次提交该字的练习"
+    then:
+      - "系统将本次结果关联到该字的矫正过程"
+      - "学生能够理解相较历史记录是否有所改进"
+    covers: ["CAP-07"]
+

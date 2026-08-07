@@ -1,0 +1,9 @@
+.DS_Store
+
+# Harness 运行产物；目录说明文件保留在版本库中。
+harness/results/*
+!harness/results/README.md
+
+# 本阶段不应出现依赖目录；忽略规则仅避免本地工具污染提交。
+node_modules/
+
