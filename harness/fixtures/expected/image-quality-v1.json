@@ -1,0 +1,20 @@
+{
+  "cases" : [
+    {
+      "accepted" : true,
+      "input" : "multi-grid-clear-v1.png",
+      "reason" : null
+    },
+    {
+      "accepted" : false,
+      "input" : "multi-grid-blurred-v1.png",
+      "reason" : "IMAGE_BLUR"
+    },
+    {
+      "accepted" : false,
+      "input" : "multi-grid-cropped-v1.png",
+      "reason" : "GRID_INCOMPLETE"
+    }
+  ],
+  "schemaVersion" : 1
+}

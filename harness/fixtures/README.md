@@ -1,14 +1,27 @@
 # Fixture 约定
 
-当前阶段不创建测试数据。原型和技术选型通过后，fixture 应按实际验收策略补充，并遵循以下规则。
+原型与技术选型门禁已通过，当前建立首个不含真实学生数据的合成测试集 `multi-grid-v1`，用于三端拍照、相册、多字结果、图片质量失败和问题清单验证。
 
-## 建议分类
+## 目录
 
 - `inputs/`：练字图片或其他被确认的输入形式。
 - `expected/`：经人工复核的识别、分类、问题说明与评分期望。
 - `metadata/`：样例来源、授权、脱敏状态、适用场景和版本信息。
 
-这些子目录仅为建议，需在输入形式、数据结构和评测方案确认后再创建。
+- `inputs/multi-grid-clear-v1.png`：4×4 方格、16 个合成手写风格字；目标“山”故意渲染为“出”。
+- `inputs/multi-grid-blurred-v1.png`：高斯模糊负例。
+- `inputs/multi-grid-cropped-v1.png`：右侧方格裁切负例。
+- `expected/multi-grid-clear-v1.assessment.json`：覆盖正常、错字、不美观、待确认四类的预期展示数据。
+- `expected/image-quality-v1.json`：三张图片的质量处理期望。
+- `metadata/multi-grid-v1.json`：来源、字体用途、尺寸和 SHA-256。
+
+使用以下命令可重新生成；生成后必须运行 `cd client && npm test` 校验哈希、尺寸、数据契约与结果覆盖：
+
+```bash
+cd client
+npm run fixtures:generate
+npm test
+```
 
 ## 数据治理
 
@@ -19,3 +32,4 @@
 - 训练数据、演示数据和验收数据必须隔离，避免评估污染。
 - 不用单一“正确答案”掩盖书写评价中的合理主观差异；争议样例应保留复核记录。
 
+`multi-grid-v1` 由仓库脚本在本机生成，不包含姓名、账号或真实书写轨迹。脚本仅将 macOS 系统自带 `HanziPenSC-W3` 栅格化为内部非发布测试图片，不复制或分发字体文件；该夹具不能作为模型准确率或教育评价基线。

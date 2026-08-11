@@ -10,26 +10,32 @@ source_of_truth:
   language: "zh-CN"
 
 stage:
-  id: "product-definition"
+  id: "implementation-validation"
   status: "active"
-  allowed_deliverable: "harness-and-approved-technology-decision"
+  allowed_deliverable: "formal-client-scaffold-and-capability-validation"
 
 gates:
   prototype_review:
-    status: "pending"
-    record: "reviews/prototype-review.template.md"
+    status: "approved"
+    record: "reviews/prototype-review-2026-08-07.md"
   technology_selection:
     status: "approved"
     record: "decisions/technology-selection.md"
   client_capability_validation:
-    status: "pending"
+    status: "in_progress"
     record: "validation/arkui-x-capability-verification.md"
   development_scaffold:
+    status: "active"
+    record: "../client/README.md"
+    authorized_by: "用户明确要求创建正式研发工程并同步开展三端能力验证"
+  privacy_and_data_compliance:
+    status: "pending"
+    record: "reviews/privacy-and-data-compliance.md"
+  release_readiness:
     status: "blocked"
     unblock_when:
-      - "prototype_review.status == approved"
-      - "technology_selection.status == approved"
       - "client_capability_validation.status == approved"
+      - "privacy_and_data_compliance.status == approved"
 
 catalog:
   product_brief: "briefs/product.md"
@@ -37,6 +43,13 @@ catalog:
   mvp_requirements: "requirements/mvp.md"
   scenarios: "scenarios/core-flows.yaml"
   fixture_policy: "fixtures/README.md"
+  synthetic_fixture_metadata: "fixtures/metadata/multi-grid-v1.json"
   result_policy: "results/README.md"
   technology_decision: "decisions/technology-selection.md"
   client_capability_validation: "validation/arkui-x-capability-verification.md"
+  toolchain_recovery: "validation/toolchain-recovery.md"
+  completion_audit: "validation/completion-audit-2026-08-08.md"
+  prototype: "prototypes/mobile-v1.md"
+  prototype_review: "reviews/prototype-review-2026-08-07.md"
+  privacy_and_data_compliance: "reviews/privacy-and-data-compliance.md"
+  client_scaffold: "../client/README.md"

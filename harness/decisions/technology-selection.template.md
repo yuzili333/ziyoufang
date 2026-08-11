@@ -6,7 +6,7 @@
 
 - 记录编号：
 - 日期：
-- 状态：`proposed | approved | superseded`
+- 状态：`proposed | accepted | superseded`
 - 决策人：
 - 关联原型版本：
 
@@ -49,4 +49,3 @@
 - 被否决的主要方案及原因：
 - 需验证的技术风险：
 - 创建研发工程的负责人和计划日期：
-

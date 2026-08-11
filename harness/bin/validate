@@ -15,11 +15,36 @@ required_files=(
   "harness/requirements/mvp.md"
   "harness/scenarios/core-flows.yaml"
   "harness/fixtures/README.md"
+  "harness/fixtures/generate-grid-fixtures.swift"
+  "harness/fixtures/inputs/multi-grid-clear-v1.png"
+  "harness/fixtures/inputs/multi-grid-blurred-v1.png"
+  "harness/fixtures/inputs/multi-grid-cropped-v1.png"
+  "harness/fixtures/expected/multi-grid-clear-v1.assessment.json"
+  "harness/fixtures/expected/image-quality-v1.json"
+  "harness/fixtures/metadata/multi-grid-v1.json"
   "harness/results/README.md"
   "harness/reviews/prototype-review.template.md"
+  "harness/reviews/prototype-review-2026-08-07.md"
+  "harness/reviews/privacy-and-data-compliance.md"
+  "harness/prototypes/mobile-v1.md"
   "harness/decisions/technology-selection.template.md"
   "harness/decisions/technology-selection.md"
   "harness/validation/arkui-x-capability-verification.md"
+  "harness/validation/toolchain-recovery.md"
+  "harness/validation/completion-audit-2026-08-08.md"
+  "client/README.md"
+  "client/ARCHITECTURE.md"
+  "client/package.json"
+  "client/oh-package.json5"
+  "client/AppScope/app.json5"
+  "client/entry/src/main/ets/pages/Index.ets"
+  "client/.arkui-x/arkui-x-config.json5"
+  "client/.arkui-x/android/app/build.gradle"
+  "client/.arkui-x/ios/app.xcodeproj/project.pbxproj"
+  "client/scripts/android-host-validation.mjs"
+  "client/scripts/android-host-validation.gradle"
+  "client/scripts/android-avd-matrix-validation.mjs"
+  "client/scripts/arkui-transform-validation.mjs"
 )
 
 prohibited_paths=(
@@ -30,7 +55,6 @@ prohibited_paths=(
   "backend"
   "server"
   "services"
-  "client"
   "packages"
   "package.json"
   "package-lock.json"
@@ -58,8 +82,18 @@ for relative_path in "${prohibited_paths[@]}"; do
   fi
 done
 
-if ! grep -q 'id: "product-definition"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest stage is not product-definition; update the validator with the approved phase transition" >&2
+if ! grep -q 'id: "implementation-validation"' "${HARNESS_DIR}/manifest.yaml"; then
+  echo "manifest stage is not implementation-validation" >&2
+  failed=1
+fi
+
+if ! grep -q 'record: "reviews/prototype-review-2026-08-07.md"' "${HARNESS_DIR}/manifest.yaml"; then
+  echo "manifest does not reference the approved prototype review" >&2
+  failed=1
+fi
+
+if ! grep -q '^- 评审状态：`approved`$' "${HARNESS_DIR}/reviews/prototype-review-2026-08-07.md"; then
+  echo "prototype review is not approved" >&2
   failed=1
 fi
 
@@ -73,8 +107,8 @@ if ! sed -n '/^  technology_selection:/,/^  client_capability_validation:/p' "${
   failed=1
 fi
 
-if ! grep -q '^- 状态：`approved`$' "${HARNESS_DIR}/decisions/technology-selection.md"; then
-  echo "technology decision is not approved" >&2
+if ! grep -q '^- 状态：`accepted`$' "${HARNESS_DIR}/decisions/technology-selection.md"; then
+  echo "technology decision is not accepted" >&2
   failed=1
 fi
 
@@ -83,9 +117,37 @@ if ! grep -q 'record: "validation/arkui-x-capability-verification.md"' "${HARNES
   failed=1
 fi
 
+if ! grep -q 'record: "../client/README.md"' "${HARNESS_DIR}/manifest.yaml"; then
+  echo "manifest does not reference the formal client scaffold" >&2
+  failed=1
+fi
+
+if ! sed -n '/^  privacy_and_data_compliance:/,/^  release_readiness:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "pending"'; then
+  echo "manifest privacy and data compliance gate must remain pending until formally approved" >&2
+  failed=1
+fi
+
+if ! sed -n '/^  release_readiness:/,/^catalog:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "blocked"'; then
+  echo "release readiness must remain blocked while capability and privacy gates are incomplete" >&2
+  failed=1
+fi
+
+if [[ "${failed}" -eq 0 ]]; then
+  if ! command -v node >/dev/null 2>&1; then
+    echo "node is required for client contract validation" >&2
+    failed=1
+  elif ! node --test "${PROJECT_ROOT}/client/scripts/"*.test.mjs; then
+    echo "client contract and fixture tests failed" >&2
+    failed=1
+  elif ! node "${PROJECT_ROOT}/client/scripts/verify.mjs"; then
+    echo "client cross-platform static verification failed" >&2
+    failed=1
+  fi
+fi
+
 if [[ "${failed}" -ne 0 ]]; then
   echo "harness validation failed" >&2
   exit 1
 fi
 
-echo "harness validation passed: technology decision is approved and development boundaries are intact"
+echo "harness validation passed: prototype review is approved, technology decision is accepted, and formal client boundaries are intact"

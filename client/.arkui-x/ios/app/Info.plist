@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>字有方</string>
+	<key>NSCameraUsageDescription</key>
+	<string>用于拍摄方格练字本并进行书写评测</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于从本地选择练字图片</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>用于保存学生确认保留的练字图片</string>
+</dict>
+</plist>

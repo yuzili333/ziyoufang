@@ -1,0 +1,24 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "汉字书写智能评测与矫正"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "字有方学生端"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "字有方"
+    },
+    {
+      "name": "camera_permission_reason",
+      "value": "用于拍摄方格练字本并进行书写评测"
+    },
+    {
+      "name": "photo_permission_reason",
+      "value": "用于从本地选择练字图片"
+    }
+  ]
+}

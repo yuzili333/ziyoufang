@@ -1,0 +1,13 @@
+{
+  "modelVersion": "5.0.0",
+  "license": "",
+  "devDependencies": {
+    "@ohos/hypium": "1.0.6"
+  },
+  "author": "",
+  "name": "ziyoufang-client",
+  "description": "字有方 ArkUI-X 多端客户端",
+  "main": "",
+  "version": "1.0.0",
+  "dependencies": {}
+}

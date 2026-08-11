@@ -1,0 +1,335 @@
+{
+  "characters" : [
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.072499999999999995,
+        "y" : 0.072499999999999995
+      },
+      "category" : "unattractive",
+      "confidence" : 0.95999999999999996,
+      "expectedCharacter" : "永",
+      "index" : 0,
+      "issues" : [
+        {
+          "detail" : "合成字包含轻微旋转或比例偏移，用于验证问题清单展示。",
+          "id" : "fixture-shape-0",
+          "title" : "结构位置待调整"
+        }
+      ],
+      "recognizedCharacter" : "永",
+      "score" : 82,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请先确认中线与结构比例，再控制笔画位置。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.29749999999999999,
+        "y" : 0.072499999999999995
+      },
+      "category" : "normal",
+      "confidence" : 0.96999999999999997,
+      "expectedCharacter" : "和",
+      "index" : 1,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "和",
+      "score" : 91,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.52249999999999996,
+        "y" : 0.072499999999999995
+      },
+      "category" : "normal",
+      "confidence" : 0.97999999999999998,
+      "expectedCharacter" : "春",
+      "index" : 2,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "春",
+      "score" : 93,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.74750000000000005,
+        "y" : 0.072499999999999995
+      },
+      "category" : "wrong",
+      "confidence" : 0.93000000000000005,
+      "expectedCharacter" : "山",
+      "index" : 3,
+      "issues" : [
+        {
+          "detail" : "夹具故意将目标“山”写成“出”，用于验证错字流程。",
+          "id" : "fixture-wrong-3",
+          "title" : "目标字与字形不一致"
+        }
+      ],
+      "recognizedCharacter" : "出",
+      "score" : 38,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请对照目标字检查关键笔画后重新练习。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.072499999999999995,
+        "y" : 0.29749999999999999
+      },
+      "category" : "normal",
+      "confidence" : 0.96999999999999997,
+      "expectedCharacter" : "日",
+      "index" : 4,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "日",
+      "score" : 90,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.29749999999999999,
+        "y" : 0.29749999999999999
+      },
+      "category" : "unattractive",
+      "confidence" : 0.94999999999999996,
+      "expectedCharacter" : "月",
+      "index" : 5,
+      "issues" : [
+        {
+          "detail" : "合成字包含轻微旋转或比例偏移，用于验证问题清单展示。",
+          "id" : "fixture-shape-5",
+          "title" : "结构位置待调整"
+        }
+      ],
+      "recognizedCharacter" : "月",
+      "score" : 76,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请先确认中线与结构比例，再控制笔画位置。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.52249999999999996,
+        "y" : 0.29749999999999999
+      },
+      "category" : "normal",
+      "confidence" : 0.97999999999999998,
+      "expectedCharacter" : "天",
+      "index" : 6,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "天",
+      "score" : 94,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.74750000000000005,
+        "y" : 0.29749999999999999
+      },
+      "category" : "uncertain",
+      "confidence" : 0.42999999999999999,
+      "expectedCharacter" : "地",
+      "index" : 7,
+      "issues" : [
+        {
+          "detail" : "该项用于验证待确认结果不写入问题字本。",
+          "id" : "fixture-uncertain-7",
+          "title" : "识别证据不足"
+        }
+      ],
+      "recognizedCharacter" : "地",
+      "score" : null,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请确认目标内容或重新拍摄更清晰的图片。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.072499999999999995,
+        "y" : 0.52249999999999996
+      },
+      "category" : "normal",
+      "confidence" : 0.97999999999999998,
+      "expectedCharacter" : "人",
+      "index" : 8,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "人",
+      "score" : 92,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.29749999999999999,
+        "y" : 0.52249999999999996
+      },
+      "category" : "unattractive",
+      "confidence" : 0.93999999999999995,
+      "expectedCharacter" : "心",
+      "index" : 9,
+      "issues" : [
+        {
+          "detail" : "合成字包含轻微旋转或比例偏移，用于验证问题清单展示。",
+          "id" : "fixture-shape-9",
+          "title" : "结构位置待调整"
+        }
+      ],
+      "recognizedCharacter" : "心",
+      "score" : 79,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请先确认中线与结构比例，再控制笔画位置。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.52249999999999996,
+        "y" : 0.52249999999999996
+      },
+      "category" : "normal",
+      "confidence" : 0.97999999999999998,
+      "expectedCharacter" : "正",
+      "index" : 10,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "正",
+      "score" : 95,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.74750000000000005,
+        "y" : 0.52249999999999996
+      },
+      "category" : "normal",
+      "confidence" : 0.96999999999999997,
+      "expectedCharacter" : "学",
+      "index" : 11,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "学",
+      "score" : 89,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.072499999999999995,
+        "y" : 0.74750000000000005
+      },
+      "category" : "unattractive",
+      "confidence" : 0.93000000000000005,
+      "expectedCharacter" : "书",
+      "index" : 12,
+      "issues" : [
+        {
+          "detail" : "合成字包含轻微旋转或比例偏移，用于验证问题清单展示。",
+          "id" : "fixture-shape-12",
+          "title" : "结构位置待调整"
+        }
+      ],
+      "recognizedCharacter" : "书",
+      "score" : 73,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "请先确认中线与结构比例，再控制笔画位置。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.29749999999999999,
+        "y" : 0.74750000000000005
+      },
+      "category" : "normal",
+      "confidence" : 0.96999999999999997,
+      "expectedCharacter" : "法",
+      "index" : 13,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "法",
+      "score" : 92,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.52249999999999996,
+        "y" : 0.74750000000000005
+      },
+      "category" : "normal",
+      "confidence" : 0.95999999999999996,
+      "expectedCharacter" : "美",
+      "index" : 14,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "美",
+      "score" : 90,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    },
+    {
+      "boundingBox" : {
+        "height" : 0.17999999999999999,
+        "width" : 0.17999999999999999,
+        "x" : 0.74750000000000005,
+        "y" : 0.74750000000000005
+      },
+      "category" : "normal",
+      "confidence" : 0.95999999999999996,
+      "expectedCharacter" : "华",
+      "index" : 15,
+      "issues" : [
+
+      ],
+      "recognizedCharacter" : "华",
+      "score" : 88,
+      "standardGlyphVersion" : "songti-sc-system-fixture-v1",
+      "suggestion" : "结构稳定，继续保持。"
+    }
+  ],
+  "idempotencyKey" : "fixture-grid-v1-idempotency",
+  "localTaskId" : "fixture-grid-v1",
+  "status" : "completed"
+}

@@ -1,0 +1,31 @@
+{
+  "containsPersonalData" : false,
+  "files" : [
+    {
+      "name" : "multi-grid-clear-v1.png",
+      "sha256" : "4ed77c38321256bef903282ac19a084f05a3cfc8d2a6834a4df51cf2fdc11546"
+    },
+    {
+      "name" : "multi-grid-blurred-v1.png",
+      "sha256" : "813128443f891c8b889e1430e2212ed1e039b9a8a35e880a21a40a2131de9b64"
+    },
+    {
+      "name" : "multi-grid-cropped-v1.png",
+      "sha256" : "3cc52de29045b187211ae0703518ee13111e9154b5951a4c89f4b450c32aa4b5"
+    }
+  ],
+  "fixtureId" : "multi-grid-v1",
+  "fontPostScriptName" : "HanziPenSC-W3",
+  "fontUse" : "Local macOS system font rasterized for non-shipping test input; no font file is redistributed.",
+  "generator" : "generate-grid-fixtures.swift",
+  "grid" : {
+    "columns" : 4,
+    "rows" : 4,
+    "sourceHeight" : 1600,
+    "sourceWidth" : 1600
+  },
+  "renderedText" : "永和春出日月天地人心正学书法美华",
+  "schemaVersion" : 1,
+  "synthetic" : true,
+  "targetText" : "永和春山日月天地人心正学书法美华"
+}

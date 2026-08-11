@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "framework": {
+    "name": "ArkUI-X",
+    "release": "6.0.0",
+    "sdkBuild": "6.0.0.103",
+    "language": "ArkTS"
+  },
+  "bundleId": "com.ziyoufang.client",
+  "platforms": {
+    "harmonyos": {
+      "minimum": "6.0.0",
+      "api": 20,
+      "capture": "Camera Kit",
+      "captureHost": "cameraPicker system surface",
+      "library": "PhotoAccessHelper"
+    },
+    "android": {
+      "minimum": "8.0",
+      "api": 26,
+      "capture": "CameraX 1.2.3",
+      "captureHost": "private native activity via ArkUI-X bridge",
+      "library": "Android Photo Picker"
+    },
+    "ios": {
+      "minimum": "13.0",
+      "capture": "AVFoundation",
+      "captureHost": "full-screen native view controller via ArkUI-X bridge",
+      "library": "PhotosUI"
+    }
+  },
+  "responsive": {
+    "compact": { "minimumVp": 0, "maximumVp": 599 },
+    "medium": { "minimumVp": 600, "maximumVp": 839 },
+    "expanded": { "minimumVp": 840, "maximumVp": null }
+  },
+  "taskStates": [
+    "local_pending",
+    "uploading",
+    "analyzing",
+    "completed",
+    "failed",
+    "cancelled"
+  ],
+  "stateTransitions": {
+    "local_pending": ["uploading", "failed", "cancelled"],
+    "uploading": ["analyzing", "failed", "cancelled"],
+    "analyzing": ["completed", "failed", "cancelled"],
+    "completed": [],
+    "failed": ["local_pending", "cancelled"],
+    "cancelled": []
+  },
+  "requiredServices": [
+    "CaptureService",
+    "LocalMediaStore",
+    "AssessmentClient",
+    "PracticeRepository"
+  ],
+  "crossPlatformAdapters": [
+    "PhotoAccessHelper",
+    "file.fs",
+    "file.statvfs",
+    "relationalStore",
+    "preferences",
+    "net.http"
+  ],
+  "networkPolicy": {
+    "idempotencyHeader": "Idempotency-Key",
+    "maximumAttempts": 3,
+    "retryableStatuses": [408, 429, "5xx"],
+    "uploadFormat": "multipart/form-data"
+  },
+  "excludedMvpFeatures": [
+    "teacher_review",
+    "manual_approval",
+    "periodic_reports",
+    "cross_device_sync",
+    "on_device_model"
+  ]
+}
