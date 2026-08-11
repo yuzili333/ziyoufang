@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ziyoufang.example/harness/contracts/assessment-result.schema.json",
+  "title": "ZiYouFangAssessmentResultV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "taskId",
+    "localTaskId",
+    "idempotencyKey",
+    "status",
+    "progressStage",
+    "resultVersion",
+    "characters",
+    "summary"
+  ],
+  "properties": {
+    "taskId": { "type": "string", "minLength": 1 },
+    "localTaskId": { "type": "string", "minLength": 1 },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": [
+        "pending_local",
+        "uploading",
+        "analyzing",
+        "completed",
+        "partially_completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "progressStage": {
+      "enum": [
+        "quality_checking",
+        "segmenting",
+        "recognizing",
+        "comparing",
+        "generating_advice",
+        "persisting_result",
+        "finished"
+      ]
+    },
+    "resultVersion": { "type": "integer", "minimum": 1 },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "normal", "wrong", "needsCorrection", "uncertain", "failed"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "normal": { "type": "integer", "minimum": 0 },
+        "wrong": { "type": "integer", "minimum": 0 },
+        "needsCorrection": { "type": "integer", "minimum": 0 },
+        "uncertain": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "characters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/characterResult" }
+    },
+    "retryable": { "type": "boolean" },
+    "errorCode": { "type": ["string", "null"] }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "characterResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "expectedCharacter",
+        "recognizedCharacter",
+        "ocrCandidates",
+        "confidence",
+        "polygon",
+        "category",
+        "score",
+        "scoreBreakdown",
+        "issueCodes",
+        "issues",
+        "correctionSteps",
+        "growthSummary",
+        "versions"
+      ],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "expectedCharacter": { "type": "string", "minLength": 1, "maxLength": 2 },
+        "recognizedCharacter": { "type": ["string", "null"], "maxLength": 2 },
+        "ocrCandidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "confidence"],
+            "properties": {
+              "text": { "type": "string", "maxLength": 2 },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "polygon": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/point" }
+        },
+        "category": {
+          "enum": ["normal", "wrong", "needs_correction", "uncertain", "failed"]
+        },
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "scoreBreakdown": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "strokeStandard",
+            "frameStructure",
+            "glyphProportion",
+            "positionLayout",
+            "stability"
+          ],
+          "properties": {
+            "strokeStandard": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "frameStructure": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "glyphProportion": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "positionLayout": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "stability": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+          }
+        },
+        "issueCodes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "title", "detail"],
+            "properties": {
+              "code": { "type": "string", "minLength": 1 },
+              "title": { "type": "string", "minLength": 1 },
+              "detail": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "correctionSteps": {
+          "type": "array",
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "needsRetry": { "type": "boolean" },
+        "growthSummary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "comparablePracticeCount",
+            "requiredPracticeCount",
+            "recentAverage",
+            "stabilityScore",
+            "monitoringStatus",
+            "monitoringReasonCodes"
+          ],
+          "properties": {
+            "status": { "enum": ["collecting", "available", "version_break"] },
+            "comparablePracticeCount": { "type": "integer", "minimum": 0 },
+            "requiredPracticeCount": { "type": "integer", "minimum": 0 },
+            "recentAverage": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "stabilityScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "monitoringStatus": { "enum": ["not_eligible", "monitoring", "recovered"] },
+            "monitoringReasonCodes": {
+              "type": "array",
+              "items": { "enum": ["LOW_RECENT_AVERAGE", "LOW_STABILITY"] },
+              "uniqueItems": true
+            }
+          }
+        },
+        "versions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ocr", "score", "glyph", "prompt", "model"],
+          "properties": {
+            "ocr": { "type": "string", "minLength": 1 },
+            "score": { "type": "string", "minLength": 1 },
+            "glyph": { "type": "string", "minLength": 1 },
+            "prompt": { "type": "string", "minLength": 1 },
+            "model": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

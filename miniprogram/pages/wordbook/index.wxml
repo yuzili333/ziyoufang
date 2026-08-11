@@ -1,0 +1,10 @@
+<view class="page-shell">
+  <view class="filters"><button class="{{filter === 'wrong' ? 'active' : ''}}" data-filter="wrong" bindtap="setFilter">错字</button><button class="{{filter === 'correction' ? 'active' : ''}}" data-filter="correction" bindtap="setFilter">待纠偏</button><button class="{{filter === 'monitoring' ? 'active' : ''}}" data-filter="monitoring" bindtap="setFilter">重点字库</button></view>
+  <view wx:if="{{loading}}" class="empty">正在读取字本…</view>
+  <view wx:elif="{{entries.length === 0}}" class="empty">{{filter === 'monitoring' ? '完成3次以上同字练习后，需重点关注的字会出现在这里' : '暂时没有这一类问题字'}}</view>
+  <view wx:for="{{entries}}" wx:key="wordbookEntryId" class="paper-card entry">
+    <text class="glyph" data-character="{{item.targetCharacter}}" bindtap="viewGrowth">{{item.targetCharacter}}</text>
+    <view data-character="{{item.targetCharacter}}" bindtap="viewGrowth"><text class="section-title">{{item.latestScore === null ? '待确认' : item.latestScore + '分'}} · 已练{{item.practiceCount}}次</text><text class="muted">{{item.stabilityScore === null ? '再练 ' + item.requiredPracticeCount + ' 次开启成长曲线' : '稳定性 ' + item.stabilityScore + (item.reasonText ? ' · ' + item.reasonText : '')}}</text></view>
+    <button data-character="{{item.targetCharacter}}" catchtap="practiceAgain">再练</button>
+  </view>
+</view>

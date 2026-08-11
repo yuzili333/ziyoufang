@@ -1,0 +1,8 @@
+.record { margin-bottom: 22rpx; padding: 24rpx; }
+.head { display: flex; align-items: center; gap: 18rpx; }
+.head view { display: flex; flex-direction: column; gap: 8rpx; }
+.glyph { width: 68rpx; height: 68rpx; display: flex; align-items: center; justify-content: center; border: 1rpx solid #d9b6ae; font-family: STKaiti, KaiTi, serif; font-size: 46rpx; }
+.note { display: block; margin-top: 18rpx; color: #5f5850; line-height: 1.6; }
+.links { margin-top: 20rpx; display: flex; gap: 18rpx; }
+.links button { margin: 0; padding: 10rpx 20rpx; background: #eee7dc; color: #9f3026; border-radius: 28rpx; font-size: 22rpx; }
+.empty { padding: 100rpx 0; color: #756f67; text-align: center; }

@@ -1,0 +1,19 @@
+.growth-page { padding-bottom: 64rpx; }
+.hero { display: flex; align-items: center; gap: 28rpx; }
+.hero view { display: flex; flex-direction: column; gap: 10rpx; }
+.glyph { width: 112rpx; height: 112rpx; display: flex; align-items: center; justify-content: center; border: 1rpx solid #d9b6ae; background: #fffdf8; font-family: STKaiti, KaiTi, serif; font-size: 76rpx; }
+.metrics { margin-top: 28rpx; padding: 24rpx; display: grid; grid-template-columns: 1fr 1fr; }
+.metrics view { display: flex; flex-direction: column; gap: 10rpx; text-align: center; }
+.metrics view:first-child { border-right: 1rpx solid #e8ded0; }
+.metrics view text:last-child { color: #c93627; font-size: 44rpx; }
+.notice, .monitoring { margin-top: 24rpx; padding: 20rpx 24rpx; border-radius: 14rpx; line-height: 1.6; font-size: 24rpx; }
+.notice { background: #eee7dc; color: #5f5850; }
+.monitoring { background: #f6ded9; color: #9f3026; }
+.chart { margin-top: 28rpx; padding: 24rpx; }
+.chart-scroll { margin-top: 28rpx; width: 100%; }
+.bars { min-width: 100%; height: 280rpx; display: flex; align-items: flex-end; gap: 30rpx; }
+.bar-item { min-width: 60rpx; display: flex; flex-direction: column; align-items: center; gap: 8rpx; font-size: 20rpx; }
+.bar { width: 44rpx; border-radius: 8rpx 8rpx 0 0; background: #c93627; }
+.date { color: #756f67; }
+.primary { margin-top: 32rpx; background: #c93627; color: #fff; border-radius: 48rpx; }
+.empty { padding: 100rpx 0; color: #756f67; text-align: center; }

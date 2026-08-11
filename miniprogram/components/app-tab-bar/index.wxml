@@ -1,0 +1,6 @@
+<view class="tab-bar">
+  <view class="rail-brand" aria-hidden="true"><image src="/assets/logo.png" mode="aspectFit" /><text>字有方</text></view>
+  <button class="tab {{current === 'practice' ? 'active' : ''}}" bindtap="goPractice">练习</button>
+  <button class="capture" bindtap="capture" aria-label="拍照上传">拍照</button>
+  <button class="tab {{current === 'mine' ? 'active' : ''}}" bindtap="goMine">我的</button>
+</view>

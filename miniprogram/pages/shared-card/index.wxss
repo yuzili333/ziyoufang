@@ -1,0 +1,10 @@
+.public-card { padding: 34rpx; display: flex; flex-direction: column; gap: 24rpx; }
+.brand { color: #9f3026; font-family: STSong, SimSun, serif; }
+.target { font-family: STKaiti, KaiTi, serif; font-size: 52rpx; line-height: 1.5; }
+.summary { display: flex; gap: 18rpx; font-size: 22rpx; color: #5f5850; }
+.rows { display: grid; gap: 12rpx; }
+.rows view { display: grid; grid-template-columns: 68rpx 88rpx 1fr; align-items: center; gap: 14rpx; padding: 14rpx 0; border-bottom: 1rpx solid #eee5d8; font-size: 22rpx; }
+.glyph { font-family: STKaiti, KaiTi, serif; font-size: 42rpx; }
+.expires { color: #756f67; font-size: 20rpx; }
+.start { margin-top: 28rpx; background: #c93627; color: #fff; border-radius: 44rpx; }
+.empty { padding: 120rpx 20rpx; display: flex; flex-direction: column; gap: 14rpx; text-align: center; color: #756f67; }

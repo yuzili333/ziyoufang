@@ -1,0 +1,9 @@
+<view class="page-shell history-page">
+  <view wx:if="{{loading}}" class="empty">正在读取反馈记录…</view>
+  <view wx:elif="{{entries.length === 0}}" class="empty">还没有提交过结果反馈</view>
+  <view wx:for="{{entries}}" wx:key="feedbackId" class="paper-card record">
+    <view class="head"><text class="glyph">{{item.expectedCharacter}}</text><view><text class="section-title">{{item.reasonText}}</text><text class="muted">{{item.dateText}}</text></view></view>
+    <text wx:if="{{item.note}}" class="note">{{item.note}}</text>
+    <view class="links"><button data-task-id="{{item.originalTaskId}}" bindtap="viewResult">查看原结果</button><button data-task-id="{{item.reassessmentTaskId}}" bindtap="viewResult">查看重新评测</button></view>
+  </view>
+</view>

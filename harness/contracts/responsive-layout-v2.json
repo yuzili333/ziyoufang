@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractVersion": "2.0.0",
+  "prototypeVersion": "mobile-v2-option-2-growth-v2",
+  "units": "CSS px",
+  "breakpoints": [
+    {
+      "id": "compact",
+      "minWidth": 0,
+      "maxWidth": 599,
+      "navigation": "bottom",
+      "resultLayout": "single-column",
+      "characterCollection": "horizontal-carousel"
+    },
+    {
+      "id": "medium",
+      "minWidth": 600,
+      "maxWidth": 839,
+      "navigation": "bottom",
+      "resultLayout": "single-column-constrained",
+      "characterCollection": "horizontal-carousel"
+    },
+    {
+      "id": "expanded",
+      "minWidth": 840,
+      "maxWidth": null,
+      "navigation": "side-rail",
+      "resultLayout": "master-detail-insight",
+      "characterCollection": "vertical-master-list"
+    }
+  ],
+  "expandedLayout": {
+    "referenceViewport": {
+      "width": 1280,
+      "height": 800,
+      "orientation": "landscape"
+    },
+    "regions": [
+      {
+        "id": "navigation-rail",
+        "order": 1,
+        "width": {
+          "min": 68,
+          "preferred": 78,
+          "max": 88
+        },
+        "content": ["brand", "practice", "capture", "mine"]
+      },
+      {
+        "id": "character-master-list",
+        "order": 2,
+        "width": {
+          "min": 190,
+          "preferred": 222,
+          "max": 240
+        },
+        "content": ["assessment-summary", "character-results", "status-dots"]
+      },
+      {
+        "id": "comparison-workspace",
+        "order": 3,
+        "width": {
+          "min": 470,
+          "preferred": "flex",
+          "max": null
+        },
+        "content": ["selected-character", "overlay-comparison", "parallel-comparison", "student-feedback-entry"]
+      },
+      {
+        "id": "insight-panel",
+        "order": 4,
+        "width": {
+          "min": 310,
+          "preferred": 340,
+          "max": 360
+        },
+        "content": ["five-dimensions", "growth-curve", "monitoring-status", "correction-steps"]
+      }
+    ],
+    "minimumTouchTarget": 44,
+    "minimumWorkspaceHeight": 640,
+    "overflowPolicy": {
+      "page": "none-at-reference-viewport",
+      "characterMasterList": "vertical-scroll",
+      "comparisonWorkspace": "vertical-scroll-if-needed",
+      "insightPanel": "vertical-scroll-if-needed"
+    }
+  },
+  "collapseRules": [
+    {
+      "when": "width < 840",
+      "actions": [
+        "replace-side-rail-with-bottom-navigation",
+        "replace-character-master-list-with-horizontal-carousel",
+        "place-insight-panel-after-comparison-workspace"
+      ]
+    },
+    {
+      "when": "portrait-or-split-window",
+      "actions": [
+        "prefer-medium-or-compact-layout-by-actual-window-width",
+        "do-not-detect-device-model"
+      ]
+    }
+  ],
+  "invariants": [
+    "capture-remains-a-primary-navigation-action",
+    "comparison-workspace-remains-visually-dominant",
+    "five-dimension-labels-remain-unchanged",
+    "stability-is-null-before-three-comparable-practices",
+    "monitoring-thresholds-remain-versioned-service-data",
+    "teacher-review-and-periodic-reports-remain-absent"
+  ],
+  "prototypeEvidence": {
+    "artifact": "prototype/mobile-v2/public/pad-preview.html",
+    "status": "information-architecture-review-only",
+    "productionCode": false
+  }
+}

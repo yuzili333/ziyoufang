@@ -1,0 +1,18 @@
+.card-preview { padding: 30rpx; display: flex; flex-direction: column; gap: 22rpx; overflow: hidden; }
+.brand { color: #9f3026; font-family: STSong, SimSun, serif; }
+.target { font-family: STKaiti, KaiTi, serif; font-size: 46rpx; line-height: 1.5; }
+.summary { display: flex; gap: 18rpx; color: #5f5850; font-size: 22rpx; }
+.characters { display: flex; gap: 12rpx; }
+.characters view { width: 82rpx; height: 88rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1rpx solid #dfd4c6; background: #f8f4eb; }
+.characters view text:first-child { font-family: STKaiti, KaiTi, serif; font-size: 34rpx; }
+.characters view text:last-child { color: #756f67; font-size: 18rpx; }
+.safe { padding-top: 18rpx; border-top: 1rpx solid #e8ded0; color: #756f67; font-size: 20rpx; line-height: 1.6; }
+.confirm-row { width: 100%; margin: 20rpx 0 0; padding: 22rpx; display: grid; grid-template-columns: 42rpx 1fr; gap: 14rpx; text-align: left; background: #fffdf8; border: 1rpx solid #ddd1c2; border-radius: 14rpx; }
+.confirm-row > text { width: 34rpx; height: 34rpx; border: 2rpx solid #aaa094; border-radius: 7rpx; color: #fff; text-align: center; line-height: 32rpx; }
+.confirm-row.checked > text { border-color: #c93627; background: #c93627; }
+.confirm-row view, .share-ready { display: flex; flex-direction: column; gap: 8rpx; }
+.confirm-row .muted { font-size: 21rpx; }
+.primary { margin-top: 28rpx; background: #c93627; color: #fff; border-radius: 44rpx; }
+.share-ready { margin-top: 30rpx; text-align: center; }
+.revoke { margin-top: 8rpx; background: transparent; color: #9f3026; }
+.empty { padding: 100rpx 0; text-align: center; color: #756f67; }

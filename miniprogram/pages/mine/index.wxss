@@ -1,0 +1,5 @@
+.profile { display: flex; align-items: center; gap: 20rpx; margin: 28rpx 0 48rpx; }
+.profile image { width: 72rpx; height: 72rpx; }
+.profile view, .menu view { display: flex; flex-direction: column; gap: 8rpx; }
+.menu { width: 100%; margin: 0 0 20rpx; padding: 28rpx; display: flex; align-items: center; justify-content: space-between; text-align: left; background: #fffdf8; }
+.menu .muted { font-size: 22rpx; }

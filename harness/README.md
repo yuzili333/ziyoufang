@@ -1,53 +1,85 @@
 # 字有方 Harness
 
-此目录是产品与实现的验证基线，不承载产品源码。它将 `hanzi.md` 中的目标和后续已确认决策整理成稳定、可追踪的范围、场景、评审与验证记录，并校验正式 `client/` 工程没有偏离这些约束。
+`harness/` 是产品、原型、架构与验收的来源，不承载正式小程序、云函数或智能评测服务源码。当前仓库已进入 `implementation-validation`，正式源码位于根目录对应工程，Harness 继续控制 POC、真实数据和发布门禁。
 
 ## 目录
 
 ```text
 harness/
-├── manifest.yaml                     # 阶段、来源和准入门槛
+├── manifest.yaml
 ├── briefs/
-│   ├── product.md                    # 从原始文档提炼的产品摘要
-│   └── scope.md                      # 当前范围与明确延后项
-├── scenarios/
-│   └── core-flows.yaml               # 技术无关的核心验收场景
+│   ├── product.md
+│   └── scope.md
 ├── requirements/
-│   └── mvp.md                        # MVP 业务需求说明书
-├── fixtures/
-│   └── README.md                     # 未来测试样例的治理约定
-├── reviews/
-│   ├── prototype-review.template.md  # 原型评审记录模板
-│   ├── prototype-review-2026-08-07.md # 已批准的 mobile-v1 评审
-│   └── privacy-and-data-compliance.md # 未成年人数据与图片合规门禁
+│   ├── mvp.md
+│   └── miniprogram-mvp-backlog.md
+├── scenarios/
+│   └── core-flows.yaml
 ├── prototypes/
-│   └── mobile-v1.md                  # 已确认移动端页面与交互基线
+│   ├── mobile-v2.md
+│   ├── mobile-v2-state-matrix.md
+│   ├── mobile-v2-traceability.md
+│   └── pad-v2.md
+├── reviews/
+│   ├── prototype-review-mobile-v2.md
+│   ├── mobile-v2-joint-review-packet.md
+│   └── privacy-and-data-compliance.md
 ├── decisions/
-│   ├── technology-selection.template.md # 技术选型记录模板
-│   └── technology-selection.md          # 已接受的多端客户端技术决策
-├── validation/
-│   └── arkui-x-capability-verification.md # 三端工具链与关键能力验证记录
+│   ├── technology-selection.md
+│   └── assessment-pipeline.md
+├── contracts/
+│   ├── assessment-api.md
+│   ├── assessment-task-state-machine.json
+│   ├── assessment-result.schema.json
+│   ├── cloud-data-model.json
+│   ├── character-growth.schema.json
+│   ├── model-advice.schema.json
+│   ├── poc-evaluation-plan.schema.json
+│   ├── prototype-review-decision.schema.json
+│   └── responsive-layout-v2.json
+├── fixtures/
 ├── results/
-│   └── README.md                     # 未来验证结果约定
-└── bin/
-    └── validate                      # 当前阶段结构校验
+├── validation/
+│   ├── assessment-poc-plan.md
+│   ├── poc-evaluation-plan.json
+│   └── wechat-development-readiness-2026-08-11.md
+└── bin/validate
 ```
 
-## 设计原则
+`mobile-v1`、旧原型评审和 ArkUI-X 能力验证记录作为历史证据保留，不再代表当前采用的客户端方向。
 
-- `hanzi.md` 是原始需求源；已批准的 MVP、原型和技术决策用于记录后续范围变更与实施约束。
-- 场景描述业务结果，不绑定框架、模型供应商、数据库或部署平台。
-- 原型评审已经批准、技术决策已经接受；页面或架构变更必须回写对应评审/决策记录。
-- 正式 `client/` 工程已获用户明确授权；服务端、模型等其他研发目录仍需对应选型和门禁。
-- fixture 不包含真实学生身份信息；后续数据必须脱敏并记录授权来源。
-- 评分阈值、算法精度和性能指标尚无依据时标为待定，不虚构目标值。
+## 当前决策
 
-## 当前可执行项
+- 客户端：微信原生小程序 TypeScript，最低基础库暂定 `2.32.3`。
+- 云端：微信云开发承担身份、私有文件、云数据库和 BFF；独立评测服务承担识别、纠错和纠偏。
+- 智能评测：OCR + 确定性图像算法 + 多模态模型解释；腾讯云为首期默认但必须可替换。
+- 成长监测：单次提供笔画规范、间架结构、字形比例和位置布局；三次可比练习后形成稳定性、成长曲线和重点字库状态。
+- 社交：仅监护人再次确认后的脱敏结果卡，不分享原图，不提供排行、积分或挑战。
+- 范围排除：教师复核、人工审核和所有周期报告。
 
-运行：
+## 实现门禁
+
+页面规格、状态矩阵、可点击手机原型、PAD 信息架构和六方联合评审已经完成，研发就绪机器检查通过。正式微信小程序、云函数/BFF、评测服务和共享契约工程已经创建。
+
+Vertical Slice A 已迁移契约和合成 fixture，并形成创建任务、提交、服务端评测与多字结果查询闭环。真实 Provider 仍等待 POC 输入门禁。
+
+评测任务的离线、上传、分析、部分完成、取消和重试统一使用 `contracts/assessment-task-state-machine.json`；总校验会阻止状态枚举、进度阶段和幂等语义漂移。
+
+云数据库与私有对象存储统一使用 `contracts/cloud-data-model.json`；其中索引、租户隔离、删除覆盖和禁止敏感字段已经自动测试，具体留存天数仍等待隐私合规批准。
+
+当前允许：
+
+- 开发和验证微信小程序、云函数/BFF、独立评测服务及合成数据纵向切片。
+- 读取冻结的 `client/` 并迁移通用契约/fixture。
+- 在 POC 门禁通过前只使用 fixture Provider，不接入真实 OCR 或模型。
+- 在隐私合规通过前不使用真实学生数据；在迁移验证完成前不删除 `client/`。
+
+## 使用方式
 
 ```bash
 ./harness/bin/validate
+node harness/bin/check-development-readiness.mjs
+node harness/bin/check-poc-inputs.mjs
 ```
 
-当前原型评审已批准、技术决策已接受，正式客户端工程已建立，三端完整构建与真机能力验证仍在进行。校验会同时检查 harness 门禁和客户端三端静态契约。
+总校验会检查实现阶段、正式工程、契约迁移、合成纵向切片及仍有效的 POC/隐私/发布门禁。第二条现在必须通过；第三条在验证集和指标未批准前仍应返回 `PENDING`。

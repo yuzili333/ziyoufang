@@ -1,0 +1,55 @@
+{
+  "$schema": "../contracts/poc-evaluation-plan.schema.json",
+  "schemaVersion": "1.0.0",
+  "prototypeVersion": "mobile-v2-option-2-growth-v2",
+  "status": "pending",
+  "datasets": [
+    {
+      "id": "multi-grid-v1-synthetic-smoke",
+      "sourceType": "synthetic",
+      "usage": "smoke",
+      "containsPersonalData": false,
+      "authorizationEvidence": "harness/fixtures/metadata/multi-grid-v1.json",
+      "manifestPath": "harness/fixtures/metadata/multi-grid-v1.json",
+      "files": [
+        {
+          "path": "harness/fixtures/inputs/multi-grid-clear-v1.png",
+          "sha256": "4ed77c38321256bef903282ac19a084f05a3cfc8d2a6834a4df51cf2fdc11546"
+        },
+        {
+          "path": "harness/fixtures/inputs/multi-grid-blurred-v1.png",
+          "sha256": "813128443f891c8b889e1430e2212ed1e039b9a8a35e880a21a40a2131de9b64"
+        },
+        {
+          "path": "harness/fixtures/inputs/multi-grid-cropped-v1.png",
+          "sha256": "3cc52de29045b187211ae0703518ee13111e9154b5951a4c89f4b450c32aa4b5"
+        },
+        {
+          "path": "harness/fixtures/expected/assessment-result-v2.contract.json",
+          "sha256": "eb4716c3ebbf322596c83ece390a9d1e86e8ea75d42832211bc3c28a0c5ba339"
+        },
+        {
+          "path": "harness/fixtures/expected/character-growth-v1.contract.json",
+          "sha256": "a963f49b147982caf801af855ce15636d333a327e7577ab4778fb9bb82ff4408"
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "segmentationRecall": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "ocrTop1Accuracy": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "wrongPrecision": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "wrongRecall": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "correctionAgreement": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "adviceActionability": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "stabilityReasonableness": { "target": null, "direction": "at_least", "unit": "ratio", "approved": false },
+    "p95LatencyMs": { "target": null, "direction": "at_most", "unit": "ms", "approved": false },
+    "costPerAssessmentCny": { "target": null, "direction": "at_most", "unit": "CNY", "approved": false }
+  },
+  "approvals": {
+    "product": { "decision": "pending", "reviewer": null, "reviewedAt": null, "evidence": [] },
+    "backendAlgorithm": { "decision": "pending", "reviewer": null, "reviewedAt": null, "evidence": [] },
+    "test": { "decision": "pending", "reviewer": null, "reviewedAt": null, "evidence": [] }
+  },
+  "updatedAt": "2026-08-11T10:30:00.000Z"
+}

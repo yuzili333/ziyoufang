@@ -13,57 +13,155 @@ required_files=(
   "harness/briefs/product.md"
   "harness/briefs/scope.md"
   "harness/requirements/mvp.md"
+  "harness/requirements/miniprogram-mvp-backlog.md"
   "harness/scenarios/core-flows.yaml"
   "harness/fixtures/README.md"
-  "harness/fixtures/generate-grid-fixtures.swift"
   "harness/fixtures/inputs/multi-grid-clear-v1.png"
   "harness/fixtures/inputs/multi-grid-blurred-v1.png"
   "harness/fixtures/inputs/multi-grid-cropped-v1.png"
   "harness/fixtures/expected/multi-grid-clear-v1.assessment.json"
-  "harness/fixtures/expected/image-quality-v1.json"
+  "harness/fixtures/expected/assessment-result-v2.contract.json"
+  "harness/fixtures/expected/character-growth-v1.contract.json"
   "harness/fixtures/metadata/multi-grid-v1.json"
-  "harness/results/README.md"
   "harness/reviews/prototype-review.template.md"
-  "harness/reviews/prototype-review-2026-08-07.md"
+  "harness/reviews/prototype-review-mobile-v2.md"
+  "harness/reviews/mobile-v2-joint-review-packet.md"
+  "harness/reviews/mobile-v2-review-decision.json"
   "harness/reviews/privacy-and-data-compliance.md"
-  "harness/prototypes/mobile-v1.md"
-  "harness/decisions/technology-selection.template.md"
+  "harness/prototypes/mobile-v2.md"
+  "harness/prototypes/assets/mobile-v2-option-2-selected.png"
+  "harness/prototypes/assets/mobile-v2-option-2-growth-v2.png"
+  "harness/prototypes/assets/README.md"
+  "harness/prototypes/mobile-v2-state-matrix.md"
+  "harness/prototypes/mobile-v2-traceability.md"
+  "harness/prototypes/pad-v2.md"
   "harness/decisions/technology-selection.md"
-  "harness/validation/arkui-x-capability-verification.md"
-  "harness/validation/toolchain-recovery.md"
-  "harness/validation/completion-audit-2026-08-08.md"
-  "client/README.md"
-  "client/ARCHITECTURE.md"
-  "client/package.json"
-  "client/oh-package.json5"
-  "client/AppScope/app.json5"
-  "client/entry/src/main/ets/pages/Index.ets"
-  "client/.arkui-x/arkui-x-config.json5"
-  "client/.arkui-x/android/app/build.gradle"
-  "client/.arkui-x/ios/app.xcodeproj/project.pbxproj"
-  "client/scripts/android-host-validation.mjs"
-  "client/scripts/android-host-validation.gradle"
-  "client/scripts/android-avd-matrix-validation.mjs"
-  "client/scripts/arkui-transform-validation.mjs"
-)
-
-prohibited_paths=(
-  "src"
-  "app"
-  "apps"
-  "frontend"
-  "backend"
-  "server"
-  "services"
-  "packages"
+  "harness/decisions/assessment-pipeline.md"
+  "harness/contracts/assessment-api.md"
+  "harness/contracts/assessment-task-state-machine.json"
+  "harness/contracts/cloud-data-model.json"
+  "harness/contracts/assessment-result.schema.json"
+  "harness/contracts/character-growth.schema.json"
+  "harness/contracts/model-advice.schema.json"
+  "harness/contracts/responsive-layout-v2.json"
+  "harness/contracts/prototype-review-decision.schema.json"
+  "harness/contracts/poc-evaluation-plan.schema.json"
+  "harness/validation/assessment-poc-plan.md"
+  "harness/validation/poc-evaluation-plan.json"
+  "harness/validation/wechat-development-readiness-2026-08-11.md"
+  "harness/validation/vertical-slice-a-2026-08-11.md"
+  "harness/validation/vertical-slice-cd-foundation-2026-08-11.md"
+  "harness/validation/mobile-main-flow-foundation-2026-08-11.md"
+  "harness/validation/feedback-reassessment-foundation-2026-08-11.md"
+  "harness/validation/privacy-actions-foundation-2026-08-11.md"
+  "harness/validation/observability-security-cost-foundation-2026-08-11.md"
+  "harness/validation/provider-adapter-foundation-2026-08-11.md"
+  "harness/validation/responsive-client-foundation-2026-08-11.md"
+  "harness/validation/synthetic-assessment-pipeline-2026-08-11.md"
+  "harness/validation/local-visual-evidence-foundation-2026-08-11.md"
+  "harness/validation/mobile-image-ingestion-foundation-2026-08-11.md"
+  "harness/validation/private-media-handoff-foundation-2026-08-11.md"
+  "harness/validation/cell-visual-evidence-foundation-2026-08-11.md"
+  "harness/validation/page-first-ocr-evidence-foundation-2026-08-11.md"
+  "harness/validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  "harness/bin/check-development-readiness.mjs"
+  "harness/bin/check-development-readiness.test.mjs"
+  "harness/bin/check-poc-inputs.mjs"
+  "harness/bin/check-poc-inputs.test.mjs"
+  "harness/bin/validate-task-state-machine.mjs"
+  "harness/bin/validate-task-state-machine.test.mjs"
+  "harness/bin/validate-cloud-data-model.mjs"
+  "harness/bin/validate-cloud-data-model.test.mjs"
   "package.json"
   "package-lock.json"
-  "pnpm-lock.yaml"
-  "yarn.lock"
-  "Cargo.toml"
-  "go.mod"
-  "pyproject.toml"
-  "requirements.txt"
+  "project.config.json"
+  "miniprogram/app.ts"
+  "miniprogram/app.json"
+  "miniprogram/pages/practice/index.ts"
+  "miniprogram/pages/results/index.ts"
+  "miniprogram/pages/mine/index.ts"
+  "miniprogram/pages/wordbook/index.ts"
+  "miniprogram/pages/growth/index.ts"
+  "miniprogram/pages/consent/index.ts"
+  "miniprogram/pages/upload-confirm/index.ts"
+  "miniprogram/pages/progress/index.ts"
+  "miniprogram/pages/feedback/index.ts"
+  "miniprogram/pages/feedback-history/index.ts"
+  "miniprogram/pages/share-confirm/index.ts"
+  "miniprogram/pages/shared-card/index.ts"
+  "miniprogram/pages/delete-practice/index.ts"
+  "miniprogram/pages/deletion-history/index.ts"
+  "miniprogram/components/app-tab-bar/index.ts"
+  "miniprogram/domain/failure-guidance.ts"
+  "miniprogram/services/task-media-store.ts"
+  "cloudfunctions/assessmentBff/package.json"
+  "cloudfunctions/assessmentBff/package-lock.json"
+  "cloudfunctions/assessmentBff/index.js"
+  "cloudfunctions/assessmentBff/core/bff-core.js"
+  "cloudfunctions/assessmentBff/core/remote-gateway.js"
+  "cloudfunctions/assessmentBff/core/growth-engine.js"
+  "cloudfunctions/assessmentBff/core/quota-guard.js"
+  "assessment-service/package.json"
+  "assessment-service/package-lock.json"
+  "assessment-service/src/server.mjs"
+  "assessment-service/src/orchestrator.mjs"
+  "assessment-service/src/telemetry.mjs"
+  "assessment-service/src/providers/tencent-cloud-ocr-provider.mjs"
+  "assessment-service/src/providers/page-first-ocr-evidence-provider.mjs"
+  "assessment-service/src/providers/hunyuan-vision-correction-provider.mjs"
+  "assessment-service/src/providers/rule-template-correction-provider.mjs"
+  "assessment-service/src/providers/request-json.mjs"
+  "assessment-service/src/image/png-rgba.mjs"
+  "assessment-service/src/image/image-rgba.mjs"
+  "assessment-service/src/image/private-http-media-loader.mjs"
+  "assessment-service/src/image/cell-image.mjs"
+  "assessment-service/src/image/pixel-glyph-feature-provider.mjs"
+  "assessment-service/src/image/quality-analyzer.mjs"
+  "assessment-service/src/image/grid-segmenter.mjs"
+  "assessment-service/src/pipeline/assessment-pipeline-provider.mjs"
+  "assessment-service/src/pipeline/approved-synthetic-pipeline.mjs"
+  "assessment-service/src/pipeline/character-decision-engine.mjs"
+  "assessment-service/src/pipeline/synthetic-fixture-ocr-provider.mjs"
+  "assessment-service/test/telemetry.test.mjs"
+  "assessment-service/test/provider-adapters.test.mjs"
+  "assessment-service/test/assessment-pipeline.test.mjs"
+  "assessment-service/test/image-rgba.test.mjs"
+  "assessment-service/test/private-http-media-loader.test.mjs"
+  "assessment-service/test/cell-image.test.mjs"
+  "assessment-service/test/page-first-ocr-evidence-provider.test.mjs"
+  "assessment-service/test/pixel-glyph-feature-provider.test.mjs"
+  "packages/contracts/src/index.mjs"
+  "packages/contracts/generated/assessment-result.schema.json"
+  "packages/contracts/generated/fixtures/assessment-result-v2.contract.json"
+  "tests/contracts-migration.test.mjs"
+  "tests/vertical-slice.test.mjs"
+  "tests/miniprogram-flow.test.mjs"
+  "scripts/validate-implementation.mjs"
+  "prototype/mobile-v2/README.md"
+  "prototype/mobile-v2/package.json"
+  "prototype/mobile-v2/src/Prototype.tsx"
+  "prototype/mobile-v2/src/prototype.css"
+  "prototype/mobile-v2/design-qa.md"
+  "prototype/mobile-v2/pad-design-qa.md"
+  "prototype/mobile-v2/qa-comparison-v4.png"
+  "prototype/mobile-v2/qa-pad-layout-scaled.jpg"
+  "prototype/mobile-v2/public/pad-preview.html"
+  "client/README.md"
+  "client/contracts/assessment-api.md"
+  "client/contracts/assessment-result.schema.json"
+)
+
+required_development_paths=(
+  "miniprogram"
+  "cloudfunctions/assessmentBff"
+  "assessment-service"
+  "packages/contracts"
+)
+
+prohibited_sensitive_paths=(
+  ".env"
+  "real-student-data"
+  "production-secrets"
 )
 
 failed=0
@@ -75,74 +173,171 @@ for relative_path in "${required_files[@]}"; do
   fi
 done
 
-for relative_path in "${prohibited_paths[@]}"; do
-  if [[ -e "${PROJECT_ROOT}/${relative_path}" ]]; then
-    echo "development artifact is not allowed during product-definition stage: ${relative_path}" >&2
+for relative_path in "${required_development_paths[@]}"; do
+  if [[ ! -d "${PROJECT_ROOT}/${relative_path}" ]]; then
+    echo "approved implementation directory is missing: ${relative_path}" >&2
     failed=1
   fi
 done
 
-if ! grep -q 'id: "implementation-validation"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest stage is not implementation-validation" >&2
-  failed=1
-fi
-
-if ! grep -q 'record: "reviews/prototype-review-2026-08-07.md"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest does not reference the approved prototype review" >&2
-  failed=1
-fi
-
-if ! grep -q '^- 评审状态：`approved`$' "${HARNESS_DIR}/reviews/prototype-review-2026-08-07.md"; then
-  echo "prototype review is not approved" >&2
-  failed=1
-fi
-
-if ! grep -q 'record: "decisions/technology-selection.md"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest does not reference the approved technology decision" >&2
-  failed=1
-fi
-
-if ! sed -n '/^  technology_selection:/,/^  client_capability_validation:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "approved"'; then
-  echo "manifest technology selection gate is not approved" >&2
-  failed=1
-fi
-
-if ! grep -q '^- 状态：`accepted`$' "${HARNESS_DIR}/decisions/technology-selection.md"; then
-  echo "technology decision is not accepted" >&2
-  failed=1
-fi
-
-if ! grep -q 'record: "validation/arkui-x-capability-verification.md"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest does not reference the client capability validation record" >&2
-  failed=1
-fi
-
-if ! grep -q 'record: "../client/README.md"' "${HARNESS_DIR}/manifest.yaml"; then
-  echo "manifest does not reference the formal client scaffold" >&2
-  failed=1
-fi
-
-if ! sed -n '/^  privacy_and_data_compliance:/,/^  release_readiness:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "pending"'; then
-  echo "manifest privacy and data compliance gate must remain pending until formally approved" >&2
-  failed=1
-fi
-
-if ! sed -n '/^  release_readiness:/,/^catalog:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "blocked"'; then
-  echo "release readiness must remain blocked while capability and privacy gates are incomplete" >&2
-  failed=1
-fi
-
-if [[ "${failed}" -eq 0 ]]; then
-  if ! command -v node >/dev/null 2>&1; then
-    echo "node is required for client contract validation" >&2
-    failed=1
-  elif ! node --test "${PROJECT_ROOT}/client/scripts/"*.test.mjs; then
-    echo "client contract and fixture tests failed" >&2
-    failed=1
-  elif ! node "${PROJECT_ROOT}/client/scripts/verify.mjs"; then
-    echo "client cross-platform static verification failed" >&2
+for relative_path in "${prohibited_sensitive_paths[@]}"; do
+  if [[ -e "${PROJECT_ROOT}/${relative_path}" ]]; then
+    echo "sensitive or real-data artifact is forbidden before compliance approval: ${relative_path}" >&2
     failed=1
   fi
+done
+
+assert_contains() {
+  local file="$1"
+  local pattern="$2"
+  local message="$3"
+  if ! grep -q -- "${pattern}" "${file}"; then
+    echo "${message}" >&2
+    failed=1
+  fi
+}
+
+assert_contains "${HARNESS_DIR}/manifest.yaml" 'id: "implementation-validation"' \
+  "manifest must be in implementation-validation stage"
+assert_contains "${HARNESS_DIR}/manifest.yaml" 'prohibited_deliverable: "production-release-or-real-student-data-before-compliance-and-release-gates"' \
+  "manifest must keep production and real-data gates blocked"
+assert_contains "${HARNESS_DIR}/manifest.yaml" 'record: "reviews/prototype-review-mobile-v2.md"' \
+  "manifest must reference the mobile-v2 review"
+if ! sed -n '/^  visual_source:/,/^  prototype_review:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "approved"'; then
+  echo "selected mobile-v2 visual source must be approved" >&2
+  failed=1
+fi
+assert_contains "${HARNESS_DIR}/reviews/prototype-review-mobile-v2.md" '评审状态：`approved`' \
+  "mobile-v2 review must record the user-approved joint decision"
+assert_contains "${HARNESS_DIR}/reviews/mobile-v2-joint-review-packet.md" '评审状态：`completed`' \
+  "joint prototype review packet must be completed"
+if ! sed -n '/^  joint_review_packet:/,/^  technology_selection:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "complete"'; then
+  echo "joint review packet must be marked complete" >&2
+  failed=1
+fi
+if ! sed -n '/^  assessment_poc:/,/^  legacy_client:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "blocked"'; then
+  echo "assessment POC must remain blocked before prototype approval" >&2
+  failed=1
+fi
+assert_contains "${HARNESS_DIR}/validation/assessment-poc-plan.md" '状态：`blocked-by-poc-input-approval`' \
+  "real provider POC must remain blocked until targets and validation data are approved"
+assert_contains "${HARNESS_DIR}/requirements/miniprogram-mvp-backlog.md" '状态：`implementation-in-progress`' \
+  "implementation backlog must record active development"
+assert_contains "${HARNESS_DIR}/validation/wechat-development-readiness-2026-08-11.md" '当前结论：`operational-foundation-verified`' \
+  "development readiness audit must reflect the verified operational foundation"
+assert_contains "${HARNESS_DIR}/reviews/mobile-v2-review-decision.json" '"reviewStatus": "approved"' \
+  "machine-readable review decision must remain approved"
+assert_contains "${HARNESS_DIR}/validation/poc-evaluation-plan.json" '"status": "pending"' \
+  "POC evaluation inputs must remain pending before targets and validation data are approved"
+assert_contains "${HARNESS_DIR}/prototypes/mobile-v2.md" '状态：`approved-implementation-baseline`' \
+  "mobile-v2 specification must record the approved implementation baseline"
+assert_contains "${HARNESS_DIR}/prototypes/pad-v2.md" '状态：`review-ready`' \
+  "PAD information architecture specification must remain review-ready"
+if ! sed -n '/^  prototype_implementation:/,/^  technology_selection:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "verified"'; then
+  echo "clickable prototype implementation must be verified" >&2
+  failed=1
+fi
+assert_contains "${PROJECT_ROOT}/prototype/mobile-v2/design-qa.md" 'final result: passed' \
+  "mobile-v2 design QA must pass before joint review"
+assert_contains "${PROJECT_ROOT}/prototype/mobile-v2/pad-design-qa.md" 'passed for information architecture; device visual sign-off pending' \
+  "PAD information architecture QA must pass without implying device sign-off"
+if ! sed -n '/^  pad_information_architecture:/,/^  technology_selection:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "verified"'; then
+  echo "PAD information architecture must be browser-verified" >&2
+  failed=1
+fi
+assert_contains "${HARNESS_DIR}/manifest.yaml" 'responsive_layout_contract: "contracts/responsive-layout-v2.json"' \
+  "manifest must reference the responsive layout contract"
+assert_contains "${HARNESS_DIR}/manifest.yaml" 'prototype_growth_visual: "prototypes/assets/mobile-v2-option-2-growth-v2.png"' \
+  "manifest must reference the selected growth visual"
+assert_contains "${HARNESS_DIR}/decisions/technology-selection.md" '状态：`accepted`' \
+  "technology selection must be accepted"
+assert_contains "${HARNESS_DIR}/decisions/technology-selection.md" '微信原生小程序 TypeScript + 微信云开发 + 独立智能评测服务' \
+  "technology selection must adopt the WeChat Mini Program architecture"
+assert_contains "${HARNESS_DIR}/decisions/assessment-pipeline.md" 'OCR + 确定性图像算法 + 多模态大模型解释' \
+  "assessment pipeline decision is missing"
+assert_contains "${HARNESS_DIR}/contracts/assessment-api.md" 'assessment-task-state-machine.json' \
+  "assessment API must reference the authoritative task state machine"
+assert_contains "${HARNESS_DIR}/contracts/assessment-api.md" 'cloud-data-model.json' \
+  "assessment API must reference the authoritative cloud data model"
+assert_contains "${HARNESS_DIR}/validation/pixel-glyph-feature-foundation-2026-08-11.md" '状态：`verified-local-synthetic-glyph`' \
+  "pixel glyph feature foundation must remain explicitly synthetic and non-production"
+if ! sed -n '/^  pixel_glyph_feature_foundation:/,/^  assessment_poc:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "verified-local-synthetic-glyph"'; then
+  echo "pixel glyph feature foundation must be verified only with synthetic glyphs" >&2
+  failed=1
+fi
+assert_contains "${PROJECT_ROOT}/client/README.md" '状态：`legacy-frozen`' \
+  "legacy ArkUI-X client must be frozen"
+
+selected_visual_sha="$(shasum -a 256 "${HARNESS_DIR}/prototypes/assets/mobile-v2-option-2-selected.png" | awk '{print $1}')"
+growth_visual_sha="$(shasum -a 256 "${HARNESS_DIR}/prototypes/assets/mobile-v2-option-2-growth-v2.png" | awk '{print $1}')"
+if [[ "${selected_visual_sha}" != "47af8219246d0716fb886512a17a8ff7125faf7dae97038e0eb3a798ec569c51" ]]; then
+  echo "selected option 2 visual hash changed without a version update" >&2
+  failed=1
+fi
+if [[ "${growth_visual_sha}" != "78653aa8b20b2586f7d62c6ab6188ec89decd1a2dbd4fa5cf7e8a2346caf220e" ]]; then
+  echo "growth visual hash changed without a version update" >&2
+  failed=1
+fi
+
+if ! grep -q '^- 原始练字照片分享、公开动态、排行榜、挑战、积分、勋章和付费能力。$' "${HARNESS_DIR}/requirements/mvp.md"; then
+  echo "MVP must exclude raw-photo sharing and gamified social features" >&2
+  failed=1
+fi
+
+if command -v node >/dev/null 2>&1; then
+  if ! node "${HARNESS_DIR}/bin/validate-contracts.mjs"; then
+    echo "harness V2 contract validation failed" >&2
+    failed=1
+  fi
+  if ! node --test "${HARNESS_DIR}/bin/check-development-readiness.test.mjs"; then
+    echo "development readiness gate tests failed" >&2
+    failed=1
+  fi
+  if ! node --test "${HARNESS_DIR}/bin/check-poc-inputs.test.mjs"; then
+    echo "POC input gate tests failed" >&2
+    failed=1
+  fi
+  if ! node "${HARNESS_DIR}/bin/validate-task-state-machine.mjs"; then
+    echo "assessment task state machine validation failed" >&2
+    failed=1
+  fi
+  if ! node --test "${HARNESS_DIR}/bin/validate-task-state-machine.test.mjs"; then
+    echo "assessment task state machine tests failed" >&2
+    failed=1
+  fi
+  if ! node "${HARNESS_DIR}/bin/validate-cloud-data-model.mjs"; then
+    echo "cloud data model validation failed" >&2
+    failed=1
+  fi
+  if ! node --test "${HARNESS_DIR}/bin/validate-cloud-data-model.test.mjs"; then
+    echo "cloud data model tests failed" >&2
+    failed=1
+  fi
+  readiness_output="$(node "${HARNESS_DIR}/bin/check-development-readiness.mjs")"
+  if ! grep -q 'development readiness: READY_FOR_IMPLEMENTATION_TRANSITION' <<<"${readiness_output}"; then
+    echo "development readiness checker must approve the signed six-role review" >&2
+    failed=1
+  fi
+  poc_input_output="$(node "${HARNESS_DIR}/bin/check-poc-inputs.mjs")"
+  if ! grep -q 'POC inputs: PENDING' <<<"${poc_input_output}"; then
+    echo "POC input checker must report the current unapproved targets and dataset as pending" >&2
+    failed=1
+  fi
+  if ! node --test "${PROJECT_ROOT}/client/scripts/"*.test.mjs; then
+    echo "legacy contract and fixture tests failed; migration source is not stable" >&2
+    failed=1
+  fi
+  if ! (cd "${PROJECT_ROOT}" && npm test); then
+    echo "formal implementation tests failed" >&2
+    failed=1
+  fi
+  if ! node "${PROJECT_ROOT}/scripts/validate-implementation.mjs"; then
+    echo "formal implementation boundary validation failed" >&2
+    failed=1
+  fi
+else
+  echo "node is required to preserve the legacy migration contract baseline" >&2
+  failed=1
 fi
 
 if [[ "${failed}" -ne 0 ]]; then
@@ -150,4 +345,4 @@ if [[ "${failed}" -ne 0 ]]; then
   exit 1
 fi
 
-echo "harness validation passed: prototype review is approved, technology decision is accepted, and formal client boundaries are intact"
+echo "harness validation passed: formal WeChat scaffold, user flows, privacy actions, provider adapters, responsive client, observability/security/cost foundation, migrated contracts, and synthetic vertical slices are verified; real provider POC, real student data, device validation, and release remain gated"

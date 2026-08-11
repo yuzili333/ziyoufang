@@ -1,0 +1,17 @@
+.progress-page { padding-top: 56rpx; text-align: center; }
+.seal { width: 108rpx; height: 108rpx; margin: 0 auto 28rpx; display: flex; align-items: center; justify-content: center; border: 4rpx solid #c93627; border-radius: 50%; color: #c93627; font-family: STSong, SimSun, serif; font-size: 56rpx; }
+.title { display: block; font-family: STSong, SimSun, serif; font-size: 42rpx; }
+.progress-page > .muted { display: block; margin-top: 14rpx; }
+.stages { margin-top: 40rpx; padding: 18rpx 28rpx; text-align: left; }
+.stage { padding: 22rpx 0; display: grid; grid-template-columns: 52rpx 1fr auto; align-items: center; border-bottom: 1rpx solid #eee5d8; color: #9b9388; }
+.stage:last-child { border-bottom: 0; }
+.stage .dot { width: 34rpx; height: 34rpx; border: 1rpx solid #bdb4a8; border-radius: 50%; text-align: center; line-height: 32rpx; font-size: 20rpx; }
+.stage text:last-child { font-size: 22rpx; }
+.stage.active { color: #c93627; font-weight: 600; }
+.stage.active .dot { border-color: #c93627; }
+.stage.done { color: #3f7152; }
+.stage.done .dot { border-color: #3f7152; background: #e1efe5; }
+.primary, .secondary { margin-top: 32rpx; border-radius: 44rpx; }
+.primary { background: #c93627; color: #fff; }
+.secondary { background: #eee7dc; }
+.cancel { margin-top: 28rpx; background: transparent; color: #756f67; }

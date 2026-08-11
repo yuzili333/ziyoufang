@@ -1,0 +1,254 @@
+{
+  "taskId": "task-contract-v2",
+  "localTaskId": "local-contract-v2",
+  "idempotencyKey": "idem-contract-v2",
+  "status": "partially_completed",
+  "progressStage": "finished",
+  "resultVersion": 1,
+  "summary": {
+    "total": 5,
+    "normal": 1,
+    "wrong": 1,
+    "needsCorrection": 1,
+    "uncertain": 1,
+    "failed": 1
+  },
+  "characters": [
+    {
+      "index": 0,
+      "expectedCharacter": "永",
+      "recognizedCharacter": "永",
+      "ocrCandidates": [{ "text": "永", "confidence": 0.97 }],
+      "confidence": 0.97,
+      "polygon": [
+        { "x": 0.05, "y": 0.05 },
+        { "x": 0.25, "y": 0.05 },
+        { "x": 0.25, "y": 0.25 },
+        { "x": 0.05, "y": 0.25 }
+      ],
+      "category": "normal",
+      "score": 92,
+      "scoreBreakdown": {
+        "strokeStandard": 93,
+        "frameStructure": 93,
+        "glyphProportion": 91,
+        "positionLayout": 92,
+        "stability": null
+      },
+      "issueCodes": [],
+      "issues": [],
+      "correctionSteps": [],
+      "needsRetry": false,
+      "growthSummary": {
+        "status": "collecting",
+        "comparablePracticeCount": 1,
+        "requiredPracticeCount": 2,
+        "recentAverage": null,
+        "stabilityScore": null,
+        "monitoringStatus": "not_eligible",
+        "monitoringReasonCodes": []
+      },
+      "versions": {
+        "ocr": "fixture-ocr-v1",
+        "score": "fixture-score-v1",
+        "glyph": "fixture-songti-v1",
+        "prompt": "not-invoked",
+        "model": "not-invoked"
+      }
+    },
+    {
+      "index": 1,
+      "expectedCharacter": "山",
+      "recognizedCharacter": "出",
+      "ocrCandidates": [{ "text": "出", "confidence": 0.95 }],
+      "confidence": 0.95,
+      "polygon": [
+        { "x": 0.30, "y": 0.05 },
+        { "x": 0.50, "y": 0.05 },
+        { "x": 0.50, "y": 0.25 },
+        { "x": 0.30, "y": 0.25 }
+      ],
+      "category": "wrong",
+      "score": 38,
+      "scoreBreakdown": {
+        "strokeStandard": 30,
+        "frameStructure": 35,
+        "glyphProportion": 40,
+        "positionLayout": 45,
+        "stability": null
+      },
+      "issueCodes": ["CONTENT_MISMATCH"],
+      "issues": [
+        {
+          "code": "CONTENT_MISMATCH",
+          "title": "目标字与识别字不同",
+          "detail": "两次稳定识别均为“出”，目标字为“山”。"
+        }
+      ],
+      "correctionSteps": ["先看目标字的三竖结构。", "注意不要多写中间一横。"],
+      "needsRetry": false,
+      "growthSummary": {
+        "status": "collecting",
+        "comparablePracticeCount": 1,
+        "requiredPracticeCount": 2,
+        "recentAverage": null,
+        "stabilityScore": null,
+        "monitoringStatus": "not_eligible",
+        "monitoringReasonCodes": []
+      },
+      "versions": {
+        "ocr": "fixture-ocr-v1",
+        "score": "fixture-score-v1",
+        "glyph": "fixture-songti-v1",
+        "prompt": "fixture-prompt-v1",
+        "model": "fixture-model-v1"
+      }
+    },
+    {
+      "index": 2,
+      "expectedCharacter": "月",
+      "recognizedCharacter": "月",
+      "ocrCandidates": [{ "text": "月", "confidence": 0.94 }],
+      "confidence": 0.94,
+      "polygon": [
+        { "x": 0.55, "y": 0.05 },
+        { "x": 0.75, "y": 0.05 },
+        { "x": 0.75, "y": 0.25 },
+        { "x": 0.55, "y": 0.25 }
+      ],
+      "category": "needs_correction",
+      "score": 76,
+      "scoreBreakdown": {
+        "strokeStandard": 68,
+        "frameStructure": 61,
+        "glyphProportion": 70,
+        "positionLayout": 58,
+        "stability": 55
+      },
+      "issueCodes": ["CENTER_OFFSET_LEFT"],
+      "issues": [
+        {
+          "code": "CENTER_OFFSET_LEFT",
+          "title": "整体稍偏左",
+          "detail": "手写字重心位于田字格中线左侧。"
+        }
+      ],
+      "correctionSteps": ["下笔前先看田字格中线。"],
+      "needsRetry": false,
+      "growthSummary": {
+        "status": "available",
+        "comparablePracticeCount": 4,
+        "requiredPracticeCount": 0,
+        "recentAverage": 65,
+        "stabilityScore": 55,
+        "monitoringStatus": "monitoring",
+        "monitoringReasonCodes": ["LOW_RECENT_AVERAGE", "LOW_STABILITY"]
+      },
+      "versions": {
+        "ocr": "fixture-ocr-v1",
+        "score": "fixture-score-v1",
+        "glyph": "fixture-songti-v1",
+        "prompt": "fixture-prompt-v1",
+        "model": "fixture-model-v1"
+      }
+    },
+    {
+      "index": 3,
+      "expectedCharacter": "地",
+      "recognizedCharacter": null,
+      "ocrCandidates": [{ "text": "地", "confidence": 0.43 }],
+      "confidence": 0.43,
+      "polygon": [
+        { "x": 0.05, "y": 0.30 },
+        { "x": 0.25, "y": 0.30 },
+        { "x": 0.25, "y": 0.50 },
+        { "x": 0.05, "y": 0.50 }
+      ],
+      "category": "uncertain",
+      "score": null,
+      "scoreBreakdown": {
+        "strokeStandard": null,
+        "frameStructure": null,
+        "glyphProportion": null,
+        "positionLayout": null,
+        "stability": null
+      },
+      "issueCodes": ["OCR_CONFLICT"],
+      "issues": [
+        {
+          "code": "OCR_CONFLICT",
+          "title": "还不能确定",
+          "detail": "两次识别结果不一致，不能形成确定结论。"
+        }
+      ],
+      "correctionSteps": ["请拍清楚一些，或确认目标文字。"],
+      "needsRetry": true,
+      "growthSummary": {
+        "status": "collecting",
+        "comparablePracticeCount": 0,
+        "requiredPracticeCount": 3,
+        "recentAverage": null,
+        "stabilityScore": null,
+        "monitoringStatus": "not_eligible",
+        "monitoringReasonCodes": []
+      },
+      "versions": {
+        "ocr": "fixture-ocr-v1",
+        "score": "not-scored",
+        "glyph": "fixture-songti-v1",
+        "prompt": "fixture-prompt-v1",
+        "model": "fixture-model-v1"
+      }
+    },
+    {
+      "index": 4,
+      "expectedCharacter": "人",
+      "recognizedCharacter": null,
+      "ocrCandidates": [],
+      "confidence": 0,
+      "polygon": [
+        { "x": 0.30, "y": 0.30 },
+        { "x": 0.50, "y": 0.30 },
+        { "x": 0.50, "y": 0.50 },
+        { "x": 0.30, "y": 0.50 }
+      ],
+      "category": "failed",
+      "score": null,
+      "scoreBreakdown": {
+        "strokeStandard": null,
+        "frameStructure": null,
+        "glyphProportion": null,
+        "positionLayout": null,
+        "stability": null
+      },
+      "issueCodes": ["CELL_PROCESSING_FAILED"],
+      "issues": [
+        {
+          "code": "CELL_PROCESSING_FAILED",
+          "title": "这个字没有分析成功",
+          "detail": "当前单格无法完成识别和对比。"
+        }
+      ],
+      "correctionSteps": ["请重新拍摄这一页。"],
+      "needsRetry": true,
+      "growthSummary": {
+        "status": "collecting",
+        "comparablePracticeCount": 0,
+        "requiredPracticeCount": 3,
+        "recentAverage": null,
+        "stabilityScore": null,
+        "monitoringStatus": "not_eligible",
+        "monitoringReasonCodes": []
+      },
+      "versions": {
+        "ocr": "fixture-ocr-v1",
+        "score": "not-scored",
+        "glyph": "fixture-songti-v1",
+        "prompt": "not-invoked",
+        "model": "not-invoked"
+      }
+    }
+  ],
+  "retryable": true,
+  "errorCode": "PARTIAL_CELL_FAILURE"
+}

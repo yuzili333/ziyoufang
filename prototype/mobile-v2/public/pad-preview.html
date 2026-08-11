@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>字有方 · PAD 信息架构示意</title>
+    <style>
+      :root {
+        --paper: #f8f4eb;
+        --paper-strong: #fffdf8;
+        --ink: #1d1b19;
+        --muted: #746c63;
+        --line: #ddd4c8;
+        --red: #c93627;
+        --red-soft: #fff0eb;
+        --green: #2aaa69;
+        --amber: #dc920c;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { width: 100%; min-height: 100%; margin: 0; overflow: hidden; background: #e9e4dc; color: var(--ink); }
+      body { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+      button { border: 0; color: inherit; font: inherit; cursor: pointer; }
+
+      .review-note {
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #2a2723;
+        color: #f5efe6;
+        font-size: 12px;
+        letter-spacing: .04em;
+      }
+      .review-note b { color: #ff8d7f; }
+
+      .pad-stage {
+        width: 100vw;
+        height: calc(100vh - 34px);
+        position: relative;
+        overflow: hidden;
+      }
+      .pad-app {
+        width: 1280px;
+        height: 800px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        flex: 0 0 auto;
+        display: grid;
+        grid-template-columns: 78px 222px minmax(470px, 1fr) minmax(310px, 360px);
+        background: var(--paper);
+        box-shadow: 0 18px 55px rgba(45, 36, 28, .13);
+        overflow: hidden;
+        transform-origin: center center;
+      }
+
+      .nav-rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 8px 18px;
+        border-right: 1px solid var(--line);
+        background: var(--paper-strong);
+      }
+      .nav-rail img { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; filter: grayscale(.25); }
+      .nav-rail .name { margin-top: 7px; font: 600 16px STKaiti, KaiTi, serif; white-space: nowrap; }
+      .rail-actions { width: 100%; display: grid; gap: 10px; margin-top: 62px; }
+      .rail-actions button { min-height: 56px; display: grid; place-items: center; gap: 4px; background: transparent; color: var(--muted); border-radius: 9px; font-size: 11px; }
+      .rail-actions button.active { color: var(--ink); background: #f1ebe1; }
+      .rail-actions button span { font: 600 18px STSong, SimSun, serif; }
+      .rail-actions .capture { width: 58px; height: 58px; min-height: 58px; margin: 5px auto; border-radius: 50%; background: var(--red); color: #fff; box-shadow: 0 7px 16px rgba(172, 43, 31, .22); }
+      .rail-actions .capture span { font-size: 14px; }
+      .rail-bottom { margin-top: auto; color: var(--muted); font-size: 10px; text-align: center; line-height: 1.5; }
+
+      .master-list { border-right: 1px solid var(--line); background: #f4efe6; padding: 22px 16px; overflow: auto; }
+      .section-kicker { color: var(--red); font-size: 10px; letter-spacing: .12em; }
+      .master-list h1 { margin: 5px 0 3px; font: 600 24px STSong, SimSun, serif; }
+      .master-list > p { margin: 0 0 18px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+      .characters { display: grid; gap: 8px; }
+      .character {
+        min-height: 62px;
+        display: grid;
+        grid-template-columns: 44px 1fr 24px;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 7px 8px;
+        text-align: left;
+        background: rgba(255,255,255,.45);
+        border: 1px solid transparent;
+        border-radius: 8px;
+      }
+      .character.active { border-color: var(--red); background: var(--paper-strong); box-shadow: 0 5px 14px rgba(82, 56, 34, .07); }
+      .glyph-thumb { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); background: #fffefa; font: 28px STKaiti, KaiTi, serif; }
+      .character strong, .character small { display: block; }
+      .character strong { font-size: 13px; }
+      .character small { margin-top: 4px; color: var(--muted); font-size: 9px; }
+      .state-dot { justify-self: center; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+      .state-dot.warn { background: var(--red); }
+      .state-dot.uncertain { background: var(--amber); }
+      .state-dot.failed { background: #999; }
+      .master-summary { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; line-height: 1.7; }
+
+      .comparison-workspace { padding: 18px 26px; overflow: auto; background: var(--paper); }
+      .workspace-head { display: flex; align-items: flex-start; justify-content: space-between; min-height: 58px; border-bottom: 1px solid var(--line); }
+      .workspace-head h2 { margin: 0; font: 600 28px STKaiti, KaiTi, serif; }
+      .workspace-head h2 em { color: var(--red); font: 32px STSong, SimSun, serif; font-style: normal; margin-left: 10px; }
+      .workspace-head h2 small { font: 13px sans-serif; margin-left: 2px; }
+      .workspace-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+      .status-tag { margin-top: 3px; padding: 8px 11px; color: var(--red); border: 1px solid var(--red); border-radius: 8px; font-size: 12px; }
+      .glyph-stage { display: grid; place-items: center; min-height: 505px; padding: 16px 0 10px; }
+      .glyph-stage img { width: min(465px, 62vh); height: min(470px, 62vh); object-fit: cover; background: var(--paper-strong); }
+      .glyph-fallback { display: none; width: min(465px, 62vh); aspect-ratio: 1; place-items: center; border: 1px solid var(--red); background: var(--paper-strong); font: 210px STKaiti, KaiTi, serif; }
+      .compare-switch { width: 190px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #aaa198; border-radius: 7px; overflow: hidden; }
+      .compare-switch button { min-height: 38px; background: #fffefa; }
+      .compare-switch button.active { color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+      .workspace-footer { margin-top: 12px; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+      .workspace-footer button { min-height: 38px; color: var(--muted); background: transparent; }
+
+      .insight-panel { border-left: 1px solid var(--line); padding: 20px 22px; background: var(--paper-strong); overflow: auto; }
+      .insight-panel h2 { margin: 0 0 14px; font: 600 19px STSong, SimSun, serif; }
+      .problem-title { display: flex; gap: 8px; align-items: center; margin-bottom: 13px; font: 600 17px STSong, SimSun, serif; }
+      .problem-title::before { content: ""; width: 3px; height: 20px; background: var(--red); }
+      .score-list { border-top: 1px solid var(--line); }
+      .score-row { min-height: 42px; display: grid; grid-template-columns: 76px 1fr 30px; align-items: center; gap: 9px; border-bottom: 1px solid var(--line); font-size: 11px; }
+      .score-row i { height: 5px; background: #ebe4da; border-radius: 999px; overflow: hidden; }
+      .score-row i b { display: block; height: 100%; background: var(--red); }
+      .score-row strong { color: var(--red); font: 19px STSong, SimSun, serif; text-align: right; }
+      .growth { margin-top: 18px; }
+      .growth-head { display: flex; justify-content: space-between; align-items: baseline; }
+      .growth-head h3 { margin: 0; font: 600 16px STSong, SimSun, serif; }
+      .growth-head span { color: var(--muted); font-size: 9px; }
+      .growth img { width: 100%; height: 96px; margin-top: 7px; object-fit: cover; object-position: center; }
+      .monitor { min-height: 48px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-top: 9px; padding: 8px 10px; border: 1px solid rgba(201,54,39,.38); border-radius: 8px; background: var(--red-soft); }
+      .monitor strong { color: var(--red); font: 600 14px STSong, SimSun, serif; }
+      .monitor span { color: var(--muted); font-size: 8px; }
+      .monitor > span { text-align: right; }
+      .advice { margin-top: 17px; }
+      .advice h3 { margin: 0 0 9px; font: 600 16px STSong, SimSun, serif; }
+      .advice p { display: flex; align-items: center; gap: 9px; margin: 7px 0; font: 12px STSong, SimSun, serif; }
+      .advice b { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: var(--red); color: #fff; font: 10px sans-serif; }
+      .insight-note { margin-top: 17px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; line-height: 1.6; }
+
+    </style>
+  </head>
+  <body>
+    <div class="review-note"><b>PAD 信息架构示意</b><span>用于后续适配评审，不属于微信小程序 MVP 首期交付</span></div>
+    <div class="pad-stage"><main class="pad-app" aria-label="字有方 PAD 双栏结果布局示意">
+      <nav class="nav-rail" aria-label="PAD 主导航">
+        <img src="/app-assets/logo.png" alt="字有方标志" />
+        <span class="name">字有方</span>
+        <div class="rail-actions">
+          <button class="active"><span>练</span>练习</button>
+          <button class="capture"><span>拍照</span></button>
+          <button><span>我</span>我的</button>
+        </div>
+        <div class="rail-bottom">横屏主从布局<br />840px 以上启用</div>
+      </nav>
+
+      <aside class="master-list" aria-label="单字结果列表">
+        <span class="section-kicker">识别结果</span>
+        <h1>9 个字</h1>
+        <p>6 正常 · 1 待纠偏 · 1 不确定 · 1 失败</p>
+        <div class="characters">
+          <button class="character" data-char="永" data-score="88" data-state="书写清楚"><span class="glyph-thumb">永</span><span><strong>永 · 88分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character" data-char="和" data-score="84" data-state="书写清楚"><span class="glyph-thumb">和</span><span><strong>和 · 84分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character" data-char="春" data-score="82" data-state="书写清楚"><span class="glyph-thumb">春</span><span><strong>春 · 82分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character" data-char="山" data-score="91" data-state="书写清楚"><span class="glyph-thumb">山</span><span><strong>山 · 91分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character" data-char="日" data-score="86" data-state="书写清楚"><span class="glyph-thumb">日</span><span><strong>日 · 86分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character active" data-char="月" data-score="62" data-state="待纠偏"><span class="glyph-thumb">月</span><span><strong>月 · 62分</strong><small>整体稍偏左</small></span><i class="state-dot warn"></i></button>
+          <button class="character" data-char="天" data-score="89" data-state="书写清楚"><span class="glyph-thumb">天</span><span><strong>天 · 89分</strong><small>书写清楚</small></span><i class="state-dot"></i></button>
+          <button class="character" data-char="地" data-score="—" data-state="还不能确定"><span class="glyph-thumb">地</span><span><strong>地 · 待确认</strong><small>还不能确定</small></span><i class="state-dot uncertain"></i></button>
+          <button class="character" data-char="人" data-score="—" data-state="分析失败"><span class="glyph-thumb">人</span><span><strong>人 · 无分数</strong><small>分析失败</small></span><i class="state-dot failed"></i></button>
+        </div>
+        <div class="master-summary">列表固定在主视图左侧；切换单字不改变页面层级。<br />竖屏或中型窗口回退为手机横向滑动列表。</div>
+      </aside>
+
+      <section class="comparison-workspace" aria-label="字形对比主视图">
+        <header class="workspace-head">
+          <div><h2 id="selected-char">月 <em id="selected-score">62<small>分</small></em></h2><p>第 6 个方格 · 标准宋体 v1.0 · 评分算法 v1.0</p></div>
+          <span class="status-tag" id="selected-state">待纠偏</span>
+        </header>
+        <div class="glyph-stage">
+          <img id="month-glyph" src="/app-assets/main-glyph-overlay.png" alt="手写月字与标准字的叠加差异" />
+          <div id="fallback-glyph" class="glyph-fallback" aria-hidden="true">月</div>
+        </div>
+        <div class="compare-switch" aria-label="字形对比方式">
+          <button class="active" aria-pressed="true">叠加</button>
+          <button aria-pressed="false">并排</button>
+        </div>
+        <footer class="workspace-footer"><span>朱红轮廓表示标准字形差异</span><button>结果有误</button></footer>
+      </section>
+
+      <aside class="insight-panel" aria-label="评价与成长洞察">
+        <h2>评价与练习建议</h2>
+        <div class="problem-title">整体稍偏左</div>
+        <div class="score-list">
+          <div class="score-row"><span>笔画规范</span><i><b style="width:68%"></b></i><strong>68</strong></div>
+          <div class="score-row"><span>间架结构</span><i><b style="width:61%"></b></i><strong>61</strong></div>
+          <div class="score-row"><span>字形比例</span><i><b style="width:70%"></b></i><strong>70</strong></div>
+          <div class="score-row"><span>位置布局</span><i><b style="width:58%"></b></i><strong>58</strong></div>
+          <div class="score-row"><span>稳定性</span><i><b style="width:55%"></b></i><strong>55</strong></div>
+        </div>
+        <section class="growth">
+          <div class="growth-head"><h3>成长曲线</h3><span>已练4次 · 近3次均分 65</span></div>
+          <img src="/app-assets/growth-chart.png" alt="四次练习分数为72、68、64、62的成长曲线" />
+        </section>
+        <div class="monitor"><div><strong>已纳入重点字库</strong><br /><span>重点监测“月”字</span></div><span>近3次均分或<br />稳定性低于70</span></div>
+        <section class="advice"><h3>下一次这样练</h3><p><b>1</b>下笔前先看田字格中线</p><p><b>2</b>让左右留白更均匀</p></section>
+        <div class="insight-note">PAD 只改变信息并列方式，不改变识别、评分、稳定性或重点入库规则。触控目标、字体放大和长建议仍需真机验证。</div>
+      </aside>
+    </main></div>
+    <script>
+      const characterButtons = Array.from(document.querySelectorAll('.character'));
+      const padApp = document.querySelector('.pad-app');
+      const padStage = document.querySelector('.pad-stage');
+      const captureMode = new URLSearchParams(window.location.search).get('capture') === '1';
+      const fitPadPreview = () => {
+        if (captureMode) return;
+        const scale = Math.min(window.innerWidth / 1280, (window.innerHeight - 34) / 800);
+        padApp.style.transform = `translate(-50%, -50%) scale(${Math.max(.2, scale)})`;
+      };
+      if (captureMode) {
+        document.documentElement.style.width = '1280px';
+        document.documentElement.style.height = '834px';
+        document.body.style.width = '1280px';
+        document.body.style.height = '834px';
+        document.body.style.overflow = 'visible';
+        padStage.style.width = '1280px';
+        padStage.style.height = '800px';
+        padApp.style.left = '0';
+        padApp.style.top = '0';
+        padApp.style.transform = 'none';
+      } else {
+        fitPadPreview();
+        window.addEventListener('resize', fitPadPreview);
+      }
+      const selectedChar = document.querySelector('#selected-char');
+      const selectedScore = document.querySelector('#selected-score');
+      const selectedState = document.querySelector('#selected-state');
+      const monthGlyph = document.querySelector('#month-glyph');
+      const fallbackGlyph = document.querySelector('#fallback-glyph');
+      characterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          characterButtons.forEach((item) => item.classList.remove('active'));
+          button.classList.add('active');
+          const char = button.dataset.char;
+          const score = button.dataset.score;
+          selectedChar.firstChild.textContent = `${char} `;
+          selectedScore.innerHTML = score === '—' ? '—' : `${score}<small>分</small>`;
+          selectedState.textContent = button.dataset.state;
+          if (char === '月') {
+            monthGlyph.style.display = 'block';
+            fallbackGlyph.style.display = 'none';
+          } else {
+            monthGlyph.style.display = 'none';
+            fallbackGlyph.style.display = 'grid';
+            fallbackGlyph.textContent = char;
+          }
+        });
+      });
+      document.querySelectorAll('.compare-switch button').forEach((button) => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.compare-switch button').forEach((item) => {
+            item.classList.remove('active');
+            item.setAttribute('aria-pressed', 'false');
+          });
+          button.classList.add('active');
+          button.setAttribute('aria-pressed', 'true');
+        });
+      });
+    </script>
+  </body>
+</html>

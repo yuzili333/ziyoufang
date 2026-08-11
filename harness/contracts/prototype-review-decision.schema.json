@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ziyoufang.local/schemas/prototype-review-decision-v1.json",
+  "title": "字有方 mobile-v2 联合原型评审决策",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "prototypeVersion",
+    "reviewStatus",
+    "roles",
+    "issues",
+    "updatedAt"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "prototypeVersion": {
+      "const": "mobile-v2-option-2-growth-v2"
+    },
+    "reviewStatus": {
+      "enum": ["pending", "approved", "revise"]
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product",
+        "interaction_visual",
+        "client",
+        "backend_algorithm",
+        "test",
+        "privacy_compliance"
+      ],
+      "properties": {
+        "product": { "$ref": "#/$defs/roleDecision" },
+        "interaction_visual": { "$ref": "#/$defs/roleDecision" },
+        "client": { "$ref": "#/$defs/roleDecision" },
+        "backend_algorithm": { "$ref": "#/$defs/roleDecision" },
+        "test": { "$ref": "#/$defs/roleDecision" },
+        "privacy_compliance": { "$ref": "#/$defs/roleDecision" }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "roleDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "reviewer", "reviewedAt", "evidence"],
+      "properties": {
+        "decision": {
+          "enum": ["pending", "approve", "approve_with_nonblocking_followups", "revise"]
+        },
+        "reviewer": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "reviewedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "severity",
+        "title",
+        "status",
+        "ownerRole",
+        "owner",
+        "targetDate",
+        "closureEvidence"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^REV-[A-Z0-9-]+$" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["open", "closed"] },
+        "ownerRole": {
+          "enum": [
+            "product",
+            "interaction_visual",
+            "client",
+            "backend_algorithm",
+            "test",
+            "privacy_compliance"
+          ]
+        },
+        "owner": { "type": ["string", "null"], "minLength": 1 },
+        "targetDate": { "type": ["string", "null"], "format": "date" },
+        "closureEvidence": { "type": ["string", "null"], "minLength": 1 }
+      }
+    }
+  }
+}

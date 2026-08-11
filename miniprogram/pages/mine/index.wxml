@@ -1,0 +1,7 @@
+<view class="page-shell">
+  <view class="profile"><image src="/assets/logo.png" mode="aspectFit" /><view><text class="section-title">我的练习</text><text class="muted">数据只用于当前练字与改进</text></view></view>
+  <button class="paper-card menu" bindtap="goWordbook"><view><text class="section-title">字本</text><text class="muted">错字、待纠偏字与重点字库</text></view><text>›</text></button>
+  <button class="paper-card menu" bindtap="goPrivacy"><view><text>隐私与数据</text><text class="muted">查看或撤回图片评测授权</text></view><text>›</text></button>
+  <button class="paper-card menu" bindtap="goFeedbackHistory"><view><text>结果反馈记录</text><text class="muted">重新评测与版本关系</text></view><text>›</text></button>
+  <app-tab-bar current="mine" bind:capture="capture" />
+</view>

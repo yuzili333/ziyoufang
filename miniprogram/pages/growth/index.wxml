@@ -1,0 +1,15 @@
+<view class="page-shell growth-page">
+  <view wx:if="{{loading}}" class="empty">正在读取成长记录…</view>
+  <block wx:elif="{{growth}}">
+    <view class="hero"><text class="glyph">{{growth.character}}</text><view><text class="section-title">{{growth.status === 'available' ? '成长曲线已开启' : growth.status === 'version_break' ? '新评分版本正在积累' : '样本积累中'}}</text><text class="muted">已积累 {{growth.comparablePracticeCount}} 次可比练习</text></view></view>
+    <view class="paper-card metrics"><view><text>近3次均分</text><text>{{growth.recentAverage === null ? '—' : growth.recentAverage}}</text></view><view><text>稳定性</text><text>{{growth.stabilityScore === null ? '—' : growth.stabilityScore}}</text></view></view>
+    <view wx:if="{{growth.requiredPracticeCount > 0}}" class="notice">再练 {{growth.requiredPracticeCount}} 次开启当前版本的成长曲线。少于3次不会推断稳定性。</view>
+    <view wx:if="{{growth.monitoring.status === 'monitoring'}}" class="monitoring">已纳入重点监测：{{monitoringReasonText}}</view>
+    <view wx:if="{{versionBreak}}" class="notice">评分或标准字版本发生变化，旧记录保留，但不与当前版本混合计算。</view>
+    <view class="chart paper-card">
+      <text class="section-title">当前可比版本</text>
+      <scroll-view scroll-x class="chart-scroll"><view class="bars"><view wx:for="{{points}}" wx:key="practiceId" class="bar-item"><text>{{item.totalScore}}</text><view class="bar" style="height: {{item.barHeight}}rpx"></view><text class="date">{{item.dateText}}</text></view></view></scroll-view>
+    </view>
+    <button class="primary" bindtap="practiceAgain">再练一次“{{growth.character}}”</button>
+  </block>
+</view>

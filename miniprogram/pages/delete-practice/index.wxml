@@ -1,0 +1,10 @@
+<view class="page-shell delete-page">
+  <view wx:if="{{loading}}" class="empty">正在读取删除范围…</view>
+  <block wx:elif="{{task}}">
+    <view class="warning"><text>删</text><view><text class="section-title">删除后无法在产品内恢复</text><text class="muted">若云文件删除失败，系统不会把本次操作显示为成功。</text></view></view>
+    <view class="paper-card impacts"><text class="section-title">将删除或重新计算</text><text>• 本次原始练字图片及私有媒体</text><text>• 本次逐字识别、五维评分和建议</text><text>• 由本次反馈产生的重新评测版本</text><text>• 关联反馈记录和受控分享卡</text><text>• 字本、成长曲线和重点监测状态将按剩余练习重算</text><text class="muted">受限审计和删除作业记录按待批准政策隔离保留，不用于业务处理。</text></view>
+    <button class="confirm-row {{impactConfirmed ? 'checked' : ''}}" bindtap="toggleImpact"><text>{{impactConfirmed ? '✓' : ''}}</text><view><text>我已了解删除影响并确认继续</text><text class="muted">重复提交不会恢复已经删除的对象</text></view></button>
+    <view wx:if="{{failedJob}}" class="failed">删除未完成：{{failedJob.errorCode}}。业务记录仍保留，请稍后重试或查看删除记录。</view>
+    <button class="delete" disabled="{{busy || !impactConfirmed}}" bindtap="confirmDelete">确认删除本次练习</button>
+  </block>
+</view>

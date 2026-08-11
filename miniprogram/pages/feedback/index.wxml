@@ -1,0 +1,7 @@
+<view class="page-shell feedback-page">
+  <view class="character"><text>{{character}}</text><view><text class="section-title">这个结果哪里不对？</text><text class="muted">反馈不会修改原结果，会创建可追溯的重新评测。</text></view></view>
+  <view class="reasons"><button wx:for="{{reasons}}" wx:key="code" data-code="{{item.code}}" bindtap="setReason" class="{{reasonCode === item.code ? 'active' : ''}}"><text>{{reasonCode === item.code ? '●' : '○'}}</text><text>{{item.label}}</text></button></view>
+  <textarea maxlength="200" value="{{note}}" bindinput="onNote" placeholder="可选：补充说明（最多200字）" />
+  <view class="notice">重新评测会沿用原图片和目标文字，并保留原结果与新结果的版本关系。</view>
+  <button class="submit" disabled="{{busy}}" bindtap="submit">提交并重新评测</button>
+</view>

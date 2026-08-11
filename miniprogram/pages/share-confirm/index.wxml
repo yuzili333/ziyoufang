@@ -1,0 +1,12 @@
+<view class="page-shell share-page">
+  <view wx:if="{{loading}}" class="empty">正在生成脱敏预览…</view>
+  <block wx:elif="{{preview}}">
+    <view class="paper-card card-preview"><text class="brand">字有方 · 练习小结</text><text class="target">{{preview.targetText}}</text><view class="summary"><text>正常 {{preview.summary.normal}}</text><text>错字 {{preview.summary.wrong}}</text><text>待纠偏 {{preview.summary.needsCorrection}}</text></view><scroll-view scroll-x><view class="characters"><view wx:for="{{preview.characters}}" wx:key="expectedCharacter"><text>{{item.expectedCharacter}}</text><text>{{item.score === null ? '—' : item.score}}</text></view></view></scroll-view><text class="safe">本卡不含原始照片、裁剪图、姓名、文件地址或内部任务标识</text></view>
+    <block wx:if="{{!shareCardId}}">
+      <button class="confirm-row {{redactionConfirmed ? 'checked' : ''}}" bindtap="toggleRedaction"><text>{{redactionConfirmed ? '✓' : ''}}</text><view><text>我已检查脱敏预览</text><text class="muted">只分享以上目标字与评测摘要</text></view></button>
+      <button class="confirm-row {{guardianConfirmed ? 'checked' : ''}}" bindtap="toggleGuardian"><text>{{guardianConfirmed ? '✓' : ''}}</text><view><text>我是监护人并再次确认分享</text><text class="muted">本确认不复用首次图片处理授权</text></view></button>
+      <button class="primary" disabled="{{busy || !guardianConfirmed || !redactionConfirmed}}" bindtap="createCard">生成受控分享卡</button>
+    </block>
+    <view wx:else class="share-ready"><text class="section-title">{{revoked ? '分享访问已撤销' : '分享卡已生成'}}</text><text class="muted">{{revoked ? '此前分享的入口已不可访问，原练习不受影响。' : '有效期至 ' + expiresAt + '，可随时撤销。'}}</text><button wx:if="{{!revoked}}" class="primary" open-type="share">发送给微信好友</button><button wx:if="{{!revoked}}" class="revoke" bindtap="revoke">撤销分享访问</button></view>
+  </block>
+</view>

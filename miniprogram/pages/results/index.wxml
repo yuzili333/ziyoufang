@@ -1,0 +1,66 @@
+<view class="page-shell result-page">
+  <view wx:if="{{loading}}" class="loading">正在读取结果…</view>
+  <block wx:elif="{{task}}">
+    <view class="summary mobile-summary"><view><text class="section-title">{{task.summary.total}} 个字</text><text class="muted">逐字切换查看</text></view><text class="state">{{task.status === 'partially_completed' ? '部分完成' : '分析完成'}}</text></view>
+    <scroll-view class="rail mobile-rail" scroll-x enhanced show-scrollbar="false">
+      <button wx:for="{{task.characters}}" wx:key="index" data-index="{{index}}" bindtap="selectCharacter" class="char {{selectedIndex === index ? 'active' : ''}}">
+        <text>{{item.expectedCharacter}}</text><text>{{item.score === null ? '—' : item.score}}</text>
+      </button>
+    </scroll-view>
+
+    <view class="result-workspace">
+      <view class="master-panel">
+        <view class="summary"><view><text class="section-title">{{task.summary.total}} 个字</text><text class="muted">逐字查看</text></view><text class="state">{{task.status === 'partially_completed' ? '部分完成' : '完成'}}</text></view>
+        <scroll-view class="pad-rail" scroll-y enhanced show-scrollbar="false">
+          <button wx:for="{{task.characters}}" wx:key="index" data-index="{{index}}" bindtap="selectCharacter" class="char {{selectedIndex === index ? 'active' : ''}}">
+            <text>{{item.expectedCharacter}}</text><text>{{item.score === null ? '—' : item.score}}</text>
+          </button>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{selected}}" class="detail">
+        <view class="comparison-panel">
+          <view class="selected-head"><text class="section-title">{{selected.expectedCharacter}}</text><text class="score">{{selected.score === null ? '待确认' : selected.score + '分'}}</text></view>
+          <view wx:if="{{mode === 'overlay'}}" class="glyph paper-card overlay-glyph">
+            <block wx:if="{{localCropAvailable}}">
+              <view class="crop-window"><image class="crop-image" src="{{localMediaPath}}" style="{{cropImageStyle}}" mode="widthFix" binderror="onLocalMediaError" /></view>
+              <text class="standard-overlay">{{selected.expectedCharacter}}</text>
+            </block>
+            <block wx:else>
+              <image wx:if="{{selected.expectedCharacter === '月'}}" src="/assets/main-glyph-overlay.png" mode="aspectFit" />
+              <text wx:else>{{selected.expectedCharacter}}</text>
+            </block>
+            <text class="view-label">叠加对比</text>
+          </view>
+          <view wx:else class="parallel-glyphs">
+            <view class="glyph paper-card">
+              <view wx:if="{{localCropAvailable}}" class="crop-window"><image class="crop-image" src="{{localMediaPath}}" style="{{cropImageStyle}}" mode="widthFix" binderror="onLocalMediaError" /></view>
+              <text wx:else class="handwritten">{{selected.recognizedCharacter || selected.expectedCharacter}}</text>
+              <text class="view-label">本次书写</text>
+            </view>
+            <view class="glyph paper-card"><text>{{selected.expectedCharacter}}</text><text class="view-label">标准字</text></view>
+          </view>
+          <view class="switch"><button class="{{mode === 'overlay' ? 'active' : ''}}" bindtap="setOverlay">叠加</button><button class="{{mode === 'parallel' ? 'active' : ''}}" bindtap="setParallel">并排</button></view>
+          <button class="feedback-entry" bindtap="reportIssue">这个结果有误</button>
+        </view>
+
+        <view class="insight-panel">
+          <view class="issue"><text class="section-title">{{selected.category === 'wrong' ? '错字' : selected.category === 'needs_correction' ? '待纠偏' : selected.category === 'uncertain' ? '还不能确定' : selected.category === 'failed' ? '这个字没有分析成功' : '书写清楚'}}</text><text wx:for="{{issueTexts}}" wx:key="*this">{{item}}</text></view>
+          <view class="dimensions paper-card">
+            <view><text>笔画规范</text><text>{{selected.scoreBreakdown.strokeStandard === null ? '—' : selected.scoreBreakdown.strokeStandard}}</text></view>
+            <view><text>间架结构</text><text>{{selected.scoreBreakdown.frameStructure === null ? '—' : selected.scoreBreakdown.frameStructure}}</text></view>
+            <view><text>字形比例</text><text>{{selected.scoreBreakdown.glyphProportion === null ? '—' : selected.scoreBreakdown.glyphProportion}}</text></view>
+            <view><text>位置布局</text><text>{{selected.scoreBreakdown.positionLayout === null ? '—' : selected.scoreBreakdown.positionLayout}}</text></view>
+            <view><text>稳定性</text><text>{{selected.scoreBreakdown.stability === null ? '样本积累中' : selected.scoreBreakdown.stability}}</text></view>
+          </view>
+          <button wx:if="{{selected.growthSummary}}" class="growth-entry" bindtap="viewGrowth">
+            <view><text class="section-title">成长记录</text><text class="muted">{{selected.growthSummary.requiredPracticeCount > 0 ? '再练 ' + selected.growthSummary.requiredPracticeCount + ' 次开启成长曲线' : '近3次均分 ' + selected.growthSummary.recentAverage + ' · 稳定性 ' + selected.growthSummary.stabilityScore}}</text></view><text>›</text>
+          </button>
+          <view class="advice"><text class="section-title">下一次这样练</text><text wx:for="{{selected.correctionSteps}}" wx:key="*this">{{index + 1}}. {{item}}</text></view>
+          <view class="privacy-actions"><button bindtap="shareResult">分享脱敏结果</button><button bindtap="deletePractice">删除本次练习</button></view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <app-tab-bar current="practice" bind:capture="capture" />
+</view>

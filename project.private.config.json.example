@@ -1,0 +1,7 @@
+{
+  "appid": "替换为经批准的小程序AppID",
+  "projectname": "ziyoufang-wechat-mvp-local",
+  "setting": {
+    "compileHotReLoad": true
+  }
+}

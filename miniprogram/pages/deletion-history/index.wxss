@@ -1,0 +1,9 @@
+.job { margin-bottom: 20rpx; padding: 24rpx; display: flex; flex-direction: column; gap: 12rpx; }
+.job > view { display: flex; align-items: center; justify-content: space-between; }
+.status { padding: 8rpx 14rpx; border-radius: 22rpx; font-size: 20rpx; }
+.status.completed { background: #e1efe5; color: #3f7152; }
+.status.failed { background: #f6ded9; color: #9f3026; }
+.status.processing { background: #eee7dc; color: #675f57; }
+.detail, .failure { font-size: 22rpx; line-height: 1.55; }
+.failure { color: #9f3026; }
+.empty { padding: 100rpx 0; text-align: center; color: #756f67; }

@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 
 project:
   name: "字有方"
@@ -12,30 +12,106 @@ source_of_truth:
 stage:
   id: "implementation-validation"
   status: "active"
-  allowed_deliverable: "formal-client-scaffold-and-capability-validation"
+  allowed_deliverable: "formal-miniprogram-cloud-functions-bff-assessment-service-and-validation-evidence"
+  prohibited_deliverable: "production-release-or-real-student-data-before-compliance-and-release-gates"
 
 gates:
+  visual_source:
+    status: "approved"
+    record: "prototypes/mobile-v2.md"
   prototype_review:
     status: "approved"
-    record: "reviews/prototype-review-2026-08-07.md"
+    record: "reviews/prototype-review-mobile-v2.md"
+    unblock_when:
+      - "visual_source.status == approved"
+      - "可点击原型通过视觉与交互验证"
+      - "联合评审阻塞项为零"
+  prototype_implementation:
+    status: "verified"
+    record: "../prototype/mobile-v2/design-qa.md"
+  pad_information_architecture:
+    status: "verified"
+    record: "../prototype/mobile-v2/pad-design-qa.md"
+  joint_review_packet:
+    status: "complete"
+    record: "reviews/mobile-v2-joint-review-packet.md"
   technology_selection:
     status: "approved"
     record: "decisions/technology-selection.md"
-  client_capability_validation:
-    status: "in_progress"
-    record: "validation/arkui-x-capability-verification.md"
-  development_scaffold:
-    status: "active"
+  assessment_pipeline:
+    status: "approved"
+    record: "decisions/assessment-pipeline.md"
+  provider_adapter_foundation:
+    status: "verified-local-mocked"
+    record: "validation/provider-adapter-foundation-2026-08-11.md"
+  synthetic_assessment_pipeline:
+    status: "verified-local-pixel-synthetic"
+    record: "validation/synthetic-assessment-pipeline-2026-08-11.md"
+  local_visual_evidence_foundation:
+    status: "verified-static-local-sandbox"
+    record: "validation/local-visual-evidence-foundation-2026-08-11.md"
+  mobile_image_ingestion_foundation:
+    status: "verified-local-synthetic-jpeg-png"
+    record: "validation/mobile-image-ingestion-foundation-2026-08-11.md"
+  private_media_handoff_foundation:
+    status: "verified-local-mocked"
+    record: "validation/private-media-handoff-foundation-2026-08-11.md"
+  cell_visual_evidence_foundation:
+    status: "verified-local-pixel-synthetic"
+    record: "validation/cell-visual-evidence-foundation-2026-08-11.md"
+  page_first_ocr_evidence_foundation:
+    status: "verified-local-mocked"
+    record: "validation/page-first-ocr-evidence-foundation-2026-08-11.md"
+  pixel_glyph_feature_foundation:
+    status: "verified-local-synthetic-glyph"
+    record: "validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  assessment_poc:
+    status: "blocked"
+    record: "validation/assessment-poc-plan.md"
+    unblock_when:
+      - "prototype_review.status == approved"
+      - "仅使用合成、脱敏或有证明的授权样本"
+      - "POC 指标目标与评测集清单由产品、算法、测试共同批准"
+      - "node harness/bin/check-poc-inputs.mjs --require-ready 通过"
+  legacy_client:
+    status: "frozen"
     record: "../client/README.md"
-    authorized_by: "用户明确要求创建正式研发工程并同步开展三端能力验证"
+    delete_when:
+      - "prototype_review.status == approved"
+      - "公共契约、Schema 与 fixture 已迁移并通过验证"
+  development_scaffold:
+    status: "verified"
+    record: "validation/vertical-slice-a-2026-08-11.md"
+  vertical_slice_a:
+    status: "verified"
+    record: "validation/vertical-slice-a-2026-08-11.md"
+  learning_loop_foundation:
+    status: "verified-local-synthetic"
+    record: "validation/vertical-slice-cd-foundation-2026-08-11.md"
+  mobile_main_flow_foundation:
+    status: "verified-local-synthetic"
+    record: "validation/mobile-main-flow-foundation-2026-08-11.md"
+  feedback_reassessment_foundation:
+    status: "verified-local-synthetic"
+    record: "validation/feedback-reassessment-foundation-2026-08-11.md"
+  privacy_actions_foundation:
+    status: "verified-local-synthetic"
+    record: "validation/privacy-actions-foundation-2026-08-11.md"
+  observability_security_cost_foundation:
+    status: "verified-local-synthetic"
+    record: "validation/observability-security-cost-foundation-2026-08-11.md"
+  responsive_client_foundation:
+    status: "verified-static"
+    record: "validation/responsive-client-foundation-2026-08-11.md"
   privacy_and_data_compliance:
     status: "pending"
     record: "reviews/privacy-and-data-compliance.md"
   release_readiness:
     status: "blocked"
     unblock_when:
-      - "client_capability_validation.status == approved"
+      - "prototype_review.status == approved"
       - "privacy_and_data_compliance.status == approved"
+      - "微信三端真机、模型回归、安全与成本门禁通过"
 
 catalog:
   product_brief: "briefs/product.md"
@@ -46,10 +122,53 @@ catalog:
   synthetic_fixture_metadata: "fixtures/metadata/multi-grid-v1.json"
   result_policy: "results/README.md"
   technology_decision: "decisions/technology-selection.md"
-  client_capability_validation: "validation/arkui-x-capability-verification.md"
-  toolchain_recovery: "validation/toolchain-recovery.md"
-  completion_audit: "validation/completion-audit-2026-08-08.md"
-  prototype: "prototypes/mobile-v1.md"
-  prototype_review: "reviews/prototype-review-2026-08-07.md"
+  assessment_pipeline_decision: "decisions/assessment-pipeline.md"
+  assessment_api_draft: "contracts/assessment-api.md"
+  assessment_task_state_machine: "contracts/assessment-task-state-machine.json"
+  cloud_data_model: "contracts/cloud-data-model.json"
+  assessment_result_schema: "contracts/assessment-result.schema.json"
+  character_growth_schema: "contracts/character-growth.schema.json"
+  model_advice_schema: "contracts/model-advice.schema.json"
+  prototype_specification: "prototypes/mobile-v2.md"
+  prototype_selected_visual: "prototypes/assets/mobile-v2-option-2-selected.png"
+  prototype_growth_visual: "prototypes/assets/mobile-v2-option-2-growth-v2.png"
+  prototype_state_matrix: "prototypes/mobile-v2-state-matrix.md"
+  prototype_traceability: "prototypes/mobile-v2-traceability.md"
+  pad_prototype_specification: "prototypes/pad-v2.md"
+  responsive_layout_contract: "contracts/responsive-layout-v2.json"
+  pad_prototype_preview: "../prototype/mobile-v2/public/pad-preview.html"
+  pad_information_architecture_qa: "../prototype/mobile-v2/pad-design-qa.md"
+  prototype_review: "reviews/prototype-review-mobile-v2.md"
+  prototype_joint_review_packet: "reviews/mobile-v2-joint-review-packet.md"
+  prototype_review_decision_schema: "contracts/prototype-review-decision.schema.json"
+  prototype_review_decision_record: "reviews/mobile-v2-review-decision.json"
+  development_readiness_checker: "bin/check-development-readiness.mjs"
+  task_state_machine_validator: "bin/validate-task-state-machine.mjs"
+  cloud_data_model_validator: "bin/validate-cloud-data-model.mjs"
+  clickable_prototype: "../prototype/mobile-v2/README.md"
+  prototype_design_qa: "../prototype/mobile-v2/design-qa.md"
   privacy_and_data_compliance: "reviews/privacy-and-data-compliance.md"
-  client_scaffold: "../client/README.md"
+  assessment_poc_plan: "validation/assessment-poc-plan.md"
+  poc_evaluation_plan_schema: "contracts/poc-evaluation-plan.schema.json"
+  poc_evaluation_plan: "validation/poc-evaluation-plan.json"
+  poc_input_checker: "bin/check-poc-inputs.mjs"
+  miniprogram_mvp_backlog: "requirements/miniprogram-mvp-backlog.md"
+  development_readiness_audit: "validation/wechat-development-readiness-2026-08-11.md"
+  vertical_slice_a_validation: "validation/vertical-slice-a-2026-08-11.md"
+  learning_loop_foundation_validation: "validation/vertical-slice-cd-foundation-2026-08-11.md"
+  mobile_main_flow_foundation_validation: "validation/mobile-main-flow-foundation-2026-08-11.md"
+  feedback_reassessment_foundation_validation: "validation/feedback-reassessment-foundation-2026-08-11.md"
+  privacy_actions_foundation_validation: "validation/privacy-actions-foundation-2026-08-11.md"
+  observability_security_cost_foundation_validation: "validation/observability-security-cost-foundation-2026-08-11.md"
+  provider_adapter_foundation_validation: "validation/provider-adapter-foundation-2026-08-11.md"
+  responsive_client_foundation_validation: "validation/responsive-client-foundation-2026-08-11.md"
+  synthetic_assessment_pipeline_validation: "validation/synthetic-assessment-pipeline-2026-08-11.md"
+  local_visual_evidence_foundation_validation: "validation/local-visual-evidence-foundation-2026-08-11.md"
+  mobile_image_ingestion_foundation_validation: "validation/mobile-image-ingestion-foundation-2026-08-11.md"
+  private_media_handoff_foundation_validation: "validation/private-media-handoff-foundation-2026-08-11.md"
+  cell_visual_evidence_foundation_validation: "validation/cell-visual-evidence-foundation-2026-08-11.md"
+  page_first_ocr_evidence_foundation_validation: "validation/page-first-ocr-evidence-foundation-2026-08-11.md"
+  pixel_glyph_feature_foundation_validation: "validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  legacy_prototype: "prototypes/mobile-v1.md"
+  legacy_prototype_review: "reviews/prototype-review-2026-08-07.md"
+  legacy_client: "../client/README.md"

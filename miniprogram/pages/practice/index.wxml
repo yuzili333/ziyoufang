@@ -1,0 +1,18 @@
+<view class="page-shell">
+  <view class="brand"><image src="/assets/logo.png" mode="aspectFit" /><view><text>字有方</text><text class="muted">汉字有形，习字有方。</text></view></view>
+  <view class="hero">
+    <text class="eyebrow">今日练习</text>
+    <text class="section-title">拍一页，逐字看清问题</text>
+    <text class="muted">一次可识别多行多列方格字，识别、纠错和纠偏由服务端完成。</text>
+  </view>
+  <view class="paper-card target-card">
+    <text class="label">目标练习文字</text>
+    <textarea value="{{expectedText}}" maxlength="64" bindinput="onExpectedText" placeholder="请输入本页应写的文字" />
+    <text class="hint">目标文字用于对齐和错字判断，请按练字本阅读顺序填写。</text>
+  </view>
+  <view wx:if="{{pendingCount > 0}}" class="paper-card pending">
+    <text>有 {{pendingCount}} 个离线任务待提交</text><button bindtap="resumePending">联网后继续</button>
+  </view>
+  <view class="guide"><text class="section-title">拍摄提示</text><text>页面放平 · 方格完整 · 光线均匀 · 手机保持稳定</text></view>
+  <app-tab-bar current="practice" bind:capture="capture" />
+</view>

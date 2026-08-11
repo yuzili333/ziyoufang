@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ziyoufang.local/schemas/poc-evaluation-plan-v1.json",
+  "title": "字有方智能评测 POC 输入计划",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "prototypeVersion",
+    "status",
+    "datasets",
+    "metrics",
+    "approvals",
+    "updatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "prototypeVersion": { "const": "mobile-v2-option-2-growth-v2" },
+    "status": { "enum": ["pending", "approved", "rejected"] },
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/dataset" }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "segmentationRecall",
+        "ocrTop1Accuracy",
+        "wrongPrecision",
+        "wrongRecall",
+        "correctionAgreement",
+        "adviceActionability",
+        "stabilityReasonableness",
+        "p95LatencyMs",
+        "costPerAssessmentCny"
+      ],
+      "properties": {
+        "segmentationRecall": { "$ref": "#/$defs/metric" },
+        "ocrTop1Accuracy": { "$ref": "#/$defs/metric" },
+        "wrongPrecision": { "$ref": "#/$defs/metric" },
+        "wrongRecall": { "$ref": "#/$defs/metric" },
+        "correctionAgreement": { "$ref": "#/$defs/metric" },
+        "adviceActionability": { "$ref": "#/$defs/metric" },
+        "stabilityReasonableness": { "$ref": "#/$defs/metric" },
+        "p95LatencyMs": { "$ref": "#/$defs/metric" },
+        "costPerAssessmentCny": { "$ref": "#/$defs/metric" }
+      }
+    },
+    "approvals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product", "backendAlgorithm", "test"],
+      "properties": {
+        "product": { "$ref": "#/$defs/approval" },
+        "backendAlgorithm": { "$ref": "#/$defs/approval" },
+        "test": { "$ref": "#/$defs/approval" }
+      }
+    },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sourceType",
+        "usage",
+        "containsPersonalData",
+        "authorizationEvidence",
+        "manifestPath",
+        "files"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sourceType": { "enum": ["synthetic", "deidentified", "authorized"] },
+        "usage": { "enum": ["smoke", "calibration", "validation"] },
+        "containsPersonalData": { "type": "boolean" },
+        "authorizationEvidence": { "type": ["string", "null"], "minLength": 1 },
+        "manifestPath": { "type": "string", "minLength": 1 },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": { "type": "string", "minLength": 1 },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "direction", "unit", "approved"],
+      "properties": {
+        "target": { "type": ["number", "null"] },
+        "direction": { "enum": ["at_least", "at_most"] },
+        "unit": { "type": "string", "minLength": 1 },
+        "approved": { "type": "boolean" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "reviewer", "reviewedAt", "evidence"],
+      "properties": {
+        "decision": { "enum": ["pending", "approve", "revise"] },
+        "reviewer": { "type": ["string", "null"], "minLength": 1 },
+        "reviewedAt": { "type": ["string", "null"], "format": "date-time" },
+        "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

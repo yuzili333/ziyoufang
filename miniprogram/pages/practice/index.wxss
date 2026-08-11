@@ -1,0 +1,15 @@
+.brand { display: flex; align-items: center; gap: 16rpx; }
+.brand image { width: 64rpx; height: 64rpx; }
+.brand view { display: flex; flex-direction: column; font-family: STSong, SimSun, serif; font-size: 30rpx; }
+.brand .muted { font-family: inherit; font-size: 20rpx; margin-top: 4rpx; }
+.hero { margin: 64rpx 0 36rpx; display: flex; flex-direction: column; gap: 16rpx; }
+.eyebrow { color: #c93627; font-size: 22rpx; letter-spacing: 4rpx; }
+.hero .section-title { font-size: 48rpx; }
+.target-card { padding: 28rpx; }
+.label { display: block; margin-bottom: 18rpx; font-weight: 600; }
+textarea { width: 100%; min-height: 180rpx; box-sizing: border-box; padding: 20rpx; background: #f8f4eb; border-radius: 14rpx; font-family: STKaiti, KaiTi, serif; font-size: 36rpx; }
+.hint { display: block; margin-top: 18rpx; color: #756f67; font-size: 22rpx; line-height: 1.6; }
+.pending { margin-top: 24rpx; padding: 24rpx; display: flex; justify-content: space-between; }
+.pending button { margin: 0; padding: 0; background: transparent; color: #c93627; font-size: 24rpx; line-height: 1; }
+.guide { margin-top: 48rpx; display: flex; flex-direction: column; gap: 18rpx; color: #756f67; }
+.guide .section-title { color: #1d1b19; }

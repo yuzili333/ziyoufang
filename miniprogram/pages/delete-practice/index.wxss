@@ -1,0 +1,13 @@
+.warning { display: flex; align-items: center; gap: 22rpx; }
+.warning > text { width: 86rpx; height: 86rpx; display: flex; align-items: center; justify-content: center; border: 3rpx solid #c93627; border-radius: 50%; color: #c93627; font-family: STSong, SimSun, serif; font-size: 44rpx; }
+.warning view { display: flex; flex-direction: column; gap: 8rpx; }
+.impacts { margin-top: 30rpx; padding: 28rpx; display: flex; flex-direction: column; gap: 16rpx; line-height: 1.55; }
+.impacts .muted { padding-top: 14rpx; border-top: 1rpx solid #eee5d8; font-size: 21rpx; }
+.confirm-row { width: 100%; margin: 24rpx 0 0; padding: 22rpx; display: grid; grid-template-columns: 42rpx 1fr; gap: 14rpx; text-align: left; background: #fffdf8; border: 1rpx solid #ddd1c2; border-radius: 14rpx; }
+.confirm-row > text { width: 34rpx; height: 34rpx; border: 2rpx solid #aaa094; border-radius: 7rpx; color: #fff; text-align: center; line-height: 32rpx; }
+.confirm-row.checked > text { border-color: #c93627; background: #c93627; }
+.confirm-row view { display: flex; flex-direction: column; gap: 8rpx; }
+.confirm-row .muted { font-size: 21rpx; }
+.failed { margin-top: 22rpx; padding: 20rpx; background: #f6ded9; color: #9f3026; border-radius: 12rpx; line-height: 1.5; }
+.delete { margin-top: 30rpx; background: #c93627; color: #fff; border-radius: 44rpx; }
+.empty { padding: 100rpx 0; text-align: center; color: #756f67; }

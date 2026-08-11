@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "1.0.0",
+  "technology": "wechat-cloud-development-and-bff",
+  "tenantBoundary": {
+    "tenantKey": "subjectId",
+    "identitySource": "wechat_runtime_context_only",
+    "storedWechatIdentity": "hmac_derived_wechat_subject_key",
+    "clientSuppliedOpenidTrusted": false,
+    "directClientDatabaseWrite": false
+  },
+  "collections": [
+    {
+      "id": "subject_accounts",
+      "purpose": "微信身份与练习主体的受控映射",
+      "primaryKey": "subjectId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["subjectId", "wechatSubjectKey", "status", "createdAt", "updatedAt"],
+      "uniqueIndexes": [["wechatSubjectKey"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "identity_bff" },
+      "lifecycle": { "mode": "account_lifetime", "ttlField": null },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "consent_records",
+      "purpose": "隐私授权、监护人确认、撤回与版本证据",
+      "primaryKey": "consentRecordId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["consentRecordId", "subjectId", "purpose", "consentVersion", "decision", "recordedAt"],
+      "uniqueIndexes": [["subjectId", "purpose", "consentVersion", "recordedAt"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "consent_bff" },
+      "lifecycle": { "mode": "policy_pending", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    },
+    {
+      "id": "media_objects",
+      "purpose": "原图、单字裁剪和差异图的私有对象元数据",
+      "primaryKey": "mediaId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["mediaId", "subjectId", "kind", "privateObjectRef", "sha256", "createdAt", "expiresAt", "lifecycleStatus"],
+      "uniqueIndexes": [["subjectId", "privateObjectRef"], ["subjectId", "sha256", "kind"]],
+      "access": { "clientRead": "short_lived_signed_access_via_bff", "clientWrite": "upload_ticket_only", "serviceWrite": "media_bff" },
+      "lifecycle": { "mode": "ttl_pending_compliance_approval", "ttlField": "expiresAt", "prototypeDays": 30 },
+      "appendOnly": false,
+      "containsMedia": true
+    },
+    {
+      "id": "assessment_tasks",
+      "purpose": "评测任务、状态、检查点、版本和供应商摘要",
+      "primaryKey": "taskId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["taskId", "subjectId", "localTaskId", "idempotencyKey", "imageSha256", "expectedText", "status", "progressStage", "resultVersion", "retryable", "createdAt", "updatedAt"],
+      "uniqueIndexes": [["subjectId", "idempotencyKey"], ["subjectId", "localTaskId"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "assessment_bff" },
+      "lifecycle": { "mode": "until_user_delete_pending_policy", "ttlField": null },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "character_results",
+      "purpose": "版本化单字识别、五维评价、问题代码和建议",
+      "primaryKey": "characterResultId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["characterResultId", "subjectId", "taskId", "resultVersion", "characterIndex", "expectedCharacter", "category", "score", "scoreBreakdown", "versions", "createdAt"],
+      "uniqueIndexes": [["taskId", "resultVersion", "characterIndex"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "assessment_bff" },
+      "lifecycle": { "mode": "until_user_delete_pending_policy", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    },
+    {
+      "id": "wordbook_entries",
+      "purpose": "同一主体与目标字的问题字本当前聚合",
+      "primaryKey": "wordbookEntryId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["wordbookEntryId", "subjectId", "targetCharacter", "latestTaskId", "latestResultVersion", "currentCategory", "practiceCount", "monitoringStatus", "updatedAt"],
+      "uniqueIndexes": [["subjectId", "targetCharacter"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "growth_bff" },
+      "lifecycle": { "mode": "until_user_delete_pending_policy", "ttlField": null },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "growth_segments",
+      "purpose": "同字且评分/标准字版本可比的成长曲线分段",
+      "primaryKey": "growthSegmentId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["growthSegmentId", "subjectId", "targetCharacter", "scoreVersion", "glyphVersion", "comparablePracticeCount", "recentAverage", "stabilityScore", "updatedAt"],
+      "uniqueIndexes": [["subjectId", "targetCharacter", "scoreVersion", "glyphVersion"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "growth_bff" },
+      "lifecycle": { "mode": "until_user_delete_pending_policy", "ttlField": null },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "monitoring_events",
+      "purpose": "重点字库进入、退出和阈值版本历史",
+      "primaryKey": "monitoringEventId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["monitoringEventId", "subjectId", "targetCharacter", "eventType", "reasonCodes", "thresholdVersion", "occurredAt"],
+      "uniqueIndexes": [["subjectId", "targetCharacter", "thresholdVersion", "occurredAt", "eventType"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "growth_bff" },
+      "lifecycle": { "mode": "until_user_delete_pending_policy", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    },
+    {
+      "id": "feedback_records",
+      "purpose": "学生反馈、原结果引用和重新评测任务关系",
+      "primaryKey": "feedbackId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["feedbackId", "subjectId", "feedbackIdempotencyKey", "originalTaskId", "originalResultVersion", "characterIndex", "reasonCode", "reassessmentTaskId", "createdAt"],
+      "uniqueIndexes": [["subjectId", "feedbackIdempotencyKey"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "feedback_bff" },
+      "lifecycle": { "mode": "policy_pending", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    },
+    {
+      "id": "share_cards",
+      "purpose": "监护人再次确认后的脱敏结果卡和撤销状态",
+      "primaryKey": "shareCardId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["shareCardId", "subjectId", "shareTokenHash", "consentRecordId", "redactedPayload", "status", "createdAt", "expiresAt", "revokedAt"],
+      "uniqueIndexes": [["shareTokenHash"]],
+      "access": { "clientRead": "token_guarded_redacted_payload_only", "clientWrite": "none", "serviceWrite": "share_bff" },
+      "lifecycle": { "mode": "ttl_pending_compliance_approval", "ttlField": "expiresAt" },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "deletion_jobs",
+      "purpose": "删除请求、对象处理状态、备份隔离和完成证据",
+      "primaryKey": "deletionJobId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["deletionJobId", "subjectId", "requestId", "scope", "status", "objectResults", "requestedAt", "completedAt"],
+      "uniqueIndexes": [["subjectId", "requestId"]],
+      "access": { "clientRead": "self_via_bff", "clientWrite": "none", "serviceWrite": "privacy_bff" },
+      "lifecycle": { "mode": "audit_policy_pending", "ttlField": null },
+      "appendOnly": false,
+      "containsMedia": false
+    },
+    {
+      "id": "audit_events",
+      "purpose": "授权、访问、反馈、删除和分享撤销的最小审计事件",
+      "primaryKey": "auditEventId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["auditEventId", "subjectId", "eventType", "actorType", "resourceType", "resourceIdHash", "occurredAt"],
+      "uniqueIndexes": [["auditEventId"]],
+      "access": { "clientRead": "none", "clientWrite": "none", "serviceWrite": "audit_service" },
+      "lifecycle": { "mode": "audit_policy_pending", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    }
+  ],
+  "writeInvariants": {
+    "assessmentResultTransaction": ["character_results", "assessment_tasks", "wordbook_entries", "growth_segments", "monitoring_events"],
+    "terminalTaskPersistedAfterCharacters": true,
+    "wordbookUsesLatestValidResult": true,
+    "uncertainAndFailedExcludedFromWordbook": true,
+    "growthRequiresComparableVersionSegment": true,
+    "shareStoresRedactedPayloadOnly": true
+  },
+  "deletionCoverage": [
+    "media_objects",
+    "assessment_tasks",
+    "character_results",
+    "wordbook_entries",
+    "growth_segments",
+    "monitoring_events",
+    "feedback_records",
+    "share_cards"
+  ],
+  "forbiddenStoredFields": [
+    "openid",
+    "sessionKey",
+    "ocrApiSecret",
+    "modelApiKey",
+    "publicImageUrl",
+    "rawShareToken",
+    "fullModelPrompt"
+  ]
+}

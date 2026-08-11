@@ -1,0 +1,15 @@
+<view class="page-shell consent-page">
+  <view class="brand"><image src="/assets/logo.png" mode="aspectFit" /><view><text class="title">字有方</text><text class="muted">汉字有形，习字有方</text></view></view>
+  <view wx:if="{{loading}}" class="loading">正在读取授权状态…</view>
+  <block wx:else>
+    <view class="paper-card notice"><text class="section-title">练字图片如何使用</text><text>图片将用于方格切分、文字识别、字形比较和练习建议。智能服务由服务端调用，小程序不会保存供应商密钥。</text><text>原图不会进入公开分享卡；删除范围、保存期限和第三方处理条款须在正式发布前通过合规审批。</text><text class="draft">当前版本仅供研发验证，生产环境会拒绝使用未经批准的草案授权版本。</text></view>
+    <view wx:if="{{active}}" class="paper-card active-consent"><text class="section-title">图片评测授权当前有效</text><text class="muted">撤回后立即阻止创建新的上传任务；既有数据删除将通过独立删除流程处理。</text><button class="withdraw" disabled="{{busy}}" bindtap="withdraw">撤回授权</button></view>
+    <button wx:if="{{mode === 'manage'}}" class="history-link" bindtap="viewDeletionHistory">查看删除作业记录 ›</button>
+    <block wx:else>
+      <button class="confirm-row {{privacyNoticeRead ? 'checked' : ''}}" bindtap="toggleNotice"><text>{{privacyNoticeRead ? '✓' : ''}}</text><view><text>我已阅读图片处理说明</text><text class="muted">了解图片用途、第三方处理和撤回入口</text></view></button>
+      <button class="confirm-row {{guardianConfirmed ? 'checked' : ''}}" bindtap="toggleGuardian"><text>{{guardianConfirmed ? '✓' : ''}}</text><view><text>我是监护人并确认继续</text><text class="muted">微信身份本身不自动等同于监护人身份</text></view></button>
+      <button class="agree" disabled="{{busy || !privacyNoticeRead || !guardianConfirmed}}" bindtap="agree">同意并继续</button>
+    </block>
+    <button wx:if="{{mode === 'entry' && !active}}" class="leave" bindtap="leave">暂不同意</button>
+  </block>
+</view>

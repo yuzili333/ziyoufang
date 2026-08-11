@@ -1,6 +1,8 @@
-# 字有方客户端
+# 字有方客户端（已冻结）
 
-字有方正式客户端工程，采用 ArkUI-X 6.0.0 Release + ArkTS，以一套公共 ArkTS 业务和页面代码覆盖 HarmonyOS、Android、iOS。
+> 状态：`legacy-frozen`。2026-08-11 起，MVP 主客户端已改为微信小程序。本目录只用于后续迁移公共 API 契约、Schema、状态机和合成 fixture；在 `mobile-v2` 原型门禁通过前不得继续开发，也不得提前删除。
+
+本目录记录此前 ArkUI-X 6.0.0 Release + ArkTS 的实现验证基线，不再代表当前采用的客户端方案。
 
 ## 工程基线
 

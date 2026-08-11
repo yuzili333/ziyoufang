@@ -4,6 +4,18 @@
 harness/results/*
 !harness/results/README.md
 
-# 本阶段不应出现依赖目录；忽略规则仅避免本地工具污染提交。
+# Node/微信云函数依赖目录不入库；依赖版本由 lockfile 固定。
 node_modules/
+miniprogram_npm/
+cloudfunctions/**/node_modules/
 
+# 微信开发者工具的个人配置和本地云环境信息。
+project.private.config.json
+.env
+.env.*
+!.env.example
+
+# 工程生成与测试输出。
+coverage/
+dist/
+.tmp/

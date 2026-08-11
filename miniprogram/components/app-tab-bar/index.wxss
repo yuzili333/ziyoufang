@@ -1,0 +1,17 @@
+.tab-bar { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; height: 136rpx; padding-bottom: env(safe-area-inset-bottom); background: #fffdf8; border-top: 1rpx solid #e4dacb; display: flex; align-items: center; justify-content: space-around; }
+.rail-brand { display: none; }
+.tab, .capture { margin: 0; padding: 0; border: 0; background: transparent; color: #6f6860; font-size: 24rpx; line-height: 1; }
+.tab { width: 160rpx; height: 88rpx; }
+.tab.active { color: #1d1b19; font-weight: 600; }
+.capture { width: 104rpx; height: 104rpx; margin-top: -54rpx; border-radius: 52rpx; background: #c93627; color: #fff; box-shadow: 0 12rpx 28rpx rgba(148, 38, 29, .24); font-weight: 600; }
+
+@media (min-width: 840px) {
+  .tab-bar { top: 0; right: auto; width: 78px; height: auto; box-sizing: border-box; padding: 24px 0 max(24px, env(safe-area-inset-bottom)); border-top: 0; border-right: 1px solid #e4dacb; flex-direction: column; justify-content: flex-start; gap: 18px; }
+  .rail-brand { display: flex; margin-bottom: 18px; flex-direction: column; align-items: center; gap: 7px; color: #1d1b19; font-family: STSong, SimSun, serif; font-size: 12px; }
+  .rail-brand image { width: 34px; height: 34px; }
+  .tab, .capture { width: 56px; height: 56px; margin: 0; border-radius: 16px; font-size: 13px; }
+  .tab.active { background: #eee7dc; }
+  .capture { order: 2; border-radius: 28px; background: #c93627; color: #fff; box-shadow: 0 8px 18px rgba(148, 38, 29, .22); }
+  .tab:first-of-type { order: 1; }
+  .tab:last-child { order: 3; }
+}

@@ -1,0 +1,70 @@
+.summary, .selected-head { display: flex; justify-content: space-between; align-items: flex-end; }
+.summary view { display: flex; flex-direction: column; gap: 8rpx; }
+.state { padding: 10rpx 18rpx; border: 1rpx solid #d8b0a9; border-radius: 24rpx; color: #a3352b; font-size: 22rpx; }
+.rail { margin: 28rpx -28rpx 0; width: calc(100% + 56rpx); white-space: nowrap; }
+.char { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 96rpx; height: 100rpx; margin-left: 14rpx; padding: 0; border-radius: 12rpx; background: #fffdf8; font-family: STKaiti, KaiTi, serif; font-size: 34rpx; }
+.char text:last-child { color: #756f67; font-family: sans-serif; font-size: 20rpx; }
+.char.active { border: 2rpx solid #c93627; }
+.master-panel { display: none; }
+.detail { margin-top: 32rpx; }
+.score { color: #c93627; font-family: STSong, SimSun, serif; font-size: 44rpx; }
+.glyph { position: relative; width: 440rpx; height: 440rpx; margin: 28rpx auto 20rpx; display: flex; align-items: center; justify-content: center; background-image: linear-gradient(#e7bdb5 1rpx, transparent 1rpx), linear-gradient(90deg, #e7bdb5 1rpx, transparent 1rpx); background-size: 50% 50%; font-family: STKaiti, KaiTi, serif; font-size: 260rpx; overflow: hidden; }
+.glyph image { width: 100%; height: 100%; }
+.crop-window { position: absolute; inset: 0; overflow: hidden; background: #fffdf8; }
+.glyph .crop-image { position: absolute; max-width: none; height: auto; }
+.overlay-glyph .crop-window { opacity: .72; }
+.standard-overlay { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; color: rgba(201, 54, 39, .52); font-family: STSong, SimSun, serif; font-size: inherit; }
+.view-label { position: absolute; right: 12rpx; bottom: 10rpx; z-index: 2; padding: 5rpx 10rpx; border-radius: 14rpx; background: rgba(255, 253, 248, .9); color: #756f67; font-family: sans-serif; font-size: 18rpx; }
+.parallel-glyphs { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; margin: 28rpx auto 20rpx; }
+.parallel-glyphs .glyph { width: 100%; height: 300rpx; margin: 0; font-size: 170rpx; }
+.handwritten { transform: rotate(-2deg) scale(.94); color: #25211e; font-family: STKaiti, KaiTi, serif; }
+.switch { display: flex; justify-content: center; gap: 4rpx; }
+.switch button { margin: 0; padding: 14rpx 32rpx; line-height: 1; background: #eee7dc; font-size: 22rpx; }
+.switch .active { background: #1d1b19; color: #fff; }
+.issue, .advice { margin-top: 32rpx; display: flex; flex-direction: column; gap: 14rpx; }
+.dimensions { margin-top: 28rpx; padding: 24rpx; }
+.dimensions view { display: flex; justify-content: space-between; padding: 14rpx 0; border-bottom: 1rpx solid #eee5d8; }
+.dimensions view:last-child { border-bottom: 0; }
+.growth-entry { width: 100%; margin: 28rpx 0 0; padding: 24rpx; display: flex; align-items: center; justify-content: space-between; text-align: left; background: #fffdf8; border-radius: 16rpx; }
+.growth-entry view { display: flex; flex-direction: column; gap: 8rpx; }
+.growth-entry .muted { font-size: 22rpx; }
+.feedback-entry { margin-top: 24rpx; background: transparent; color: #756f67; font-size: 22rpx; }
+.privacy-actions { margin-top: 20rpx; display: flex; justify-content: center; gap: 16rpx; }
+.privacy-actions button { margin: 0; padding: 12rpx 22rpx; background: #eee7dc; color: #5f5850; border-radius: 30rpx; font-size: 22rpx; }
+
+@media (min-width: 600px) and (max-width: 839px) {
+  .glyph { width: 420px; height: 420px; max-width: 70vw; max-height: 70vw; font-size: 240px; }
+  .parallel-glyphs { max-width: 680px; }
+  .parallel-glyphs .glyph { height: 300px; font-size: 170px; }
+}
+
+@media (min-width: 840px) {
+  .result-page { max-width: none; padding-right: 32px; }
+  .mobile-summary, .mobile-rail { display: none; }
+  .result-workspace { display: grid; grid-template-columns: minmax(190px, 222px) minmax(0, 1fr); gap: 24px; height: calc(100vh - 104px); min-height: 640px; }
+  .master-panel { display: flex; min-width: 0; padding: 20px 14px; border: 1px solid #e5dccd; border-radius: 18px; background: #fffdf8; flex-direction: column; }
+  .master-panel .summary { padding: 0 4px 16px; border-bottom: 1px solid #eee5d8; }
+  .master-panel .summary view { gap: 4px; }
+  .master-panel .muted { font-size: 12px; }
+  .master-panel .state { padding: 5px 8px; border-radius: 14px; font-size: 11px; }
+  .pad-rail { height: 100%; margin-top: 12px; }
+  .pad-rail .char { display: flex; width: calc(100% - 8px); height: 62px; box-sizing: border-box; margin: 0 4px 8px; border-radius: 12px; flex-direction: row; justify-content: space-between; padding: 0 16px; font-size: 26px; }
+  .pad-rail .char text:last-child { font-size: 12px; }
+  .detail { min-width: 0; height: 100%; margin: 0; display: grid; grid-template-columns: minmax(470px, 1fr) minmax(310px, 340px); gap: 24px; }
+  .comparison-panel, .insight-panel { min-width: 0; overflow-y: auto; box-sizing: border-box; padding: 20px; border: 1px solid #e5dccd; border-radius: 18px; background: rgba(255, 253, 248, .55); }
+  .score { font-size: 30px; }
+  .glyph { width: min(420px, 100%); height: min(420px, calc(100vh - 260px)); min-height: 340px; margin: 22px auto 18px; font-size: min(240px, 24vw); }
+  .parallel-glyphs { gap: 14px; margin: 22px auto 18px; }
+  .parallel-glyphs .glyph { height: min(330px, calc(100vh - 330px)); min-height: 280px; font-size: min(170px, 13vw); }
+  .switch button { padding: 9px 24px; font-size: 13px; }
+  .feedback-entry { margin-top: 18px; font-size: 13px; }
+  .issue, .advice { margin-top: 0; gap: 10px; font-size: 14px; line-height: 1.55; }
+  .dimensions { margin-top: 18px; padding: 16px; }
+  .dimensions view { padding: 10px 0; font-size: 13px; }
+  .growth-entry { margin-top: 18px; padding: 16px; border-radius: 12px; }
+  .growth-entry .section-title { font-size: 18px; }
+  .growth-entry .muted { max-width: 260px; font-size: 12px; white-space: normal; }
+  .advice { margin-top: 20px; }
+  .privacy-actions { margin-top: 18px; flex-wrap: wrap; }
+  .privacy-actions button { padding: 8px 14px; font-size: 12px; }
+}

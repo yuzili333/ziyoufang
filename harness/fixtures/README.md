@@ -1,6 +1,6 @@
 # Fixture 约定
 
-原型与技术选型门禁已通过，当前建立首个不含真实学生数据的合成测试集 `multi-grid-v1`，用于三端拍照、相册、多字结果、图片质量失败和问题清单验证。
+当前保留首个不含真实学生数据的合成测试集 `multi-grid-v1`，用于已批准的 `mobile-v2` 原型和微信小程序/评测服务的拍照、多字结果、图片质量失败、像素切格和问题清单验证。它只用于研发冒烟与契约回归，不是生产评测集。
 
 ## 目录
 
@@ -12,15 +12,19 @@
 - `inputs/multi-grid-blurred-v1.png`：高斯模糊负例。
 - `inputs/multi-grid-cropped-v1.png`：右侧方格裁切负例。
 - `expected/multi-grid-clear-v1.assessment.json`：覆盖正常、错字、不美观、待确认四类的预期展示数据。
+- `expected/assessment-result-v2.contract.json`：覆盖正常、错字、待纠偏、不确定、失败五类的 V2 接口草案样例。
+- `expected/character-growth-v1.contract.json`：覆盖五维评分、四次成长曲线和重点字库入库状态的契约样例。
 - `expected/image-quality-v1.json`：三张图片的质量处理期望。
 - `metadata/multi-grid-v1.json`：来源、字体用途、尺寸和 SHA-256。
 
-使用以下命令可重新生成；生成后必须运行 `cd client && npm test` 校验哈希、尺寸、数据契约与结果覆盖：
+遗留图片生成脚本仍位于冻结的 `client/` 验证链中；重新生成后必须运行以下命令校验哈希、尺寸、V1 迁移来源和 V2 契约草案：
 
 ```bash
 cd client
 npm run fixtures:generate
 npm test
+cd ..
+./harness/bin/validate
 ```
 
 ## 数据治理

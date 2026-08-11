@@ -1,0 +1,25 @@
+page {
+  min-height: 100%;
+  background: #f8f4eb;
+  color: #1d1b19;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+}
+
+button::after { border: 0; }
+
+.page-shell { min-height: 100vh; box-sizing: border-box; padding: 28rpx 28rpx 180rpx; }
+.paper-card { background: #fffdf8; border: 1rpx solid #e5dccd; border-radius: 20rpx; }
+.section-title { font-family: STSong, SimSun, serif; font-size: 36rpx; font-weight: 600; }
+.muted { color: #756f67; }
+.vermilion { color: #c93627; }
+.primary { min-height: 88rpx; border-radius: 44rpx; background: #c93627; color: #fff; font-weight: 600; }
+
+@media (min-width: 600px) and (max-width: 839px) {
+  .page-shell { width: 720px; max-width: calc(100vw - 48px); margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+}
+
+@media (min-width: 840px) {
+  .page-shell { width: auto; max-width: 1180px; margin: 0 auto; padding: 32px 40px 48px 118px; }
+  .section-title { font-size: 24px; }
+  .primary { min-height: 48px; border-radius: 24px; }
+}

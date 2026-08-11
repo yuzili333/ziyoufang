@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "识别结果",
+  "usingComponents": { "app-tab-bar": "/components/app-tab-bar/index" }
+}

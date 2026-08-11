@@ -1,0 +1,5 @@
+<view class="page-shell deletion-history">
+  <view wx:if="{{loading}}" class="empty">正在读取删除记录…</view>
+  <view wx:elif="{{entries.length === 0}}" class="empty">还没有删除作业记录</view>
+  <view wx:for="{{entries}}" wx:key="deletionJobId" class="paper-card job"><view><text class="section-title">删除练习</text><text class="status {{item.status}}">{{item.statusText}}</text></view><text class="muted">申请时间 {{item.dateText}}</text><text wx:if="{{item.status === 'completed'}}" class="detail">图片、结果及关联数据已处理，字本和成长已按剩余记录重算。</text><text wx:if="{{item.status === 'failed'}}" class="failure">未完成：{{item.errorCode}}</text></view>
+</view>

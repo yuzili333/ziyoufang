@@ -1,0 +1,17 @@
+{
+  "appid": "touristappid",
+  "projectname": "ziyoufang-wechat-mvp",
+  "compileType": "miniprogram",
+  "libVersion": "2.32.3",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "compileHotReLoad": true,
+    "useCompilerPlugins": ["typescript"],
+    "urlCheck": true
+  },
+  "condition": {}
+}

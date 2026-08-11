@@ -1,0 +1,6 @@
+<view class="page-shell public-card-page">
+  <view wx:if="{{loading}}" class="empty">正在读取练习小结…</view>
+  <view wx:elif="{{unavailable}}" class="empty"><text class="section-title">这张分享卡已撤销或过期</text><text class="muted">分享失效不会影响原始练习记录。</text></view>
+  <view wx:elif="{{payload}}" class="paper-card public-card"><text class="brand">{{payload.productName}} · 练习小结</text><text class="target">{{payload.targetText}}</text><view class="summary"><text>正常 {{payload.summary.normal}}</text><text>错字 {{payload.summary.wrong}}</text><text>待纠偏 {{payload.summary.needsCorrection}}</text></view><view class="rows"><view wx:for="{{payload.characters}}" wx:key="expectedCharacter"><text class="glyph">{{item.expectedCharacter}}</text><text>{{item.score === null ? '待确认' : item.score + '分'}}</text><text>{{item.advice[0] || '继续保持认真书写'}}</text></view></view><text class="expires">有效期至 {{expiresAt}} · 不含原始练字照片</text></view>
+  <button wx:if="{{payload}}" class="start" bindtap="startPractice">我也要练字</button>
+</view>

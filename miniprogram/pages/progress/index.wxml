@@ -1,0 +1,12 @@
+<view class="page-shell progress-page">
+  <view class="seal">评</view>
+  <text class="title">{{failed ? failureTitle : cancelled ? '已取消本次评测' : '正在逐字分析'}}</text>
+  <text class="muted">{{failed ? failureMessage : cancelled ? '已上传的任务不会继续分析。' : '可以离开此页，任务状态会保留。'}}</text>
+  <view class="paper-card stages">
+    <view wx:for="{{stageItems}}" wx:key="code" class="stage {{item.state}}"><text class="dot">{{item.state === 'done' ? '✓' : index + 1}}</text><text>{{item.label}}</text><text>{{item.state === 'done' ? '完成' : item.state === 'active' ? '进行中' : '等待'}}</text></view>
+  </view>
+  <button wx:if="{{failed && failureAction === 'retry'}}" class="primary" disabled="{{busy}}" bindtap="retry">从检查点重试</button>
+  <button wx:if="{{failed && failureAction === 'retake'}}" class="primary" disabled="{{busy}}" bindtap="retake">重新拍摄</button>
+  <button wx:if="{{!failed && !cancelled}}" class="cancel" disabled="{{busy}}" bindtap="cancel">取消评测</button>
+  <button wx:if="{{cancelled}}" class="secondary" bindtap="backToPractice">返回练习</button>
+</view>

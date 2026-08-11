@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ziyoufang.example/harness/contracts/character-growth.schema.json",
+  "title": "ZiYouFangCharacterGrowthV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "studentCharacterId",
+    "character",
+    "status",
+    "comparablePracticeCount",
+    "requiredPracticeCount",
+    "recentAverage",
+    "stabilityScore",
+    "monitoring",
+    "segments"
+  ],
+  "properties": {
+    "studentCharacterId": { "type": "string", "minLength": 1 },
+    "character": { "type": "string", "minLength": 1, "maxLength": 2 },
+    "status": { "enum": ["collecting", "available", "version_break"] },
+    "comparablePracticeCount": { "type": "integer", "minimum": 0 },
+    "requiredPracticeCount": { "type": "integer", "minimum": 0 },
+    "recentAverage": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+    "stabilityScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reasonCodes",
+        "enterThreshold",
+        "exitThreshold",
+        "ruleVersion",
+        "enteredAt",
+        "exitedAt"
+      ],
+      "properties": {
+        "status": { "enum": ["not_eligible", "monitoring", "recovered"] },
+        "reasonCodes": {
+          "type": "array",
+          "items": { "enum": ["LOW_RECENT_AVERAGE", "LOW_STABILITY"] },
+          "uniqueItems": true
+        },
+        "enterThreshold": { "type": "number", "minimum": 0, "maximum": 100 },
+        "exitThreshold": { "type": "number", "minimum": 0, "maximum": 100 },
+        "ruleVersion": { "type": "string", "minLength": 1 },
+        "enteredAt": { "type": ["string", "null"], "format": "date-time" },
+        "exitedAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scoreVersion", "glyphVersion", "points"],
+        "properties": {
+          "scoreVersion": { "type": "string", "minLength": 1 },
+          "glyphVersion": { "type": "string", "minLength": 1 },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["practiceId", "sequence", "assessedAt", "totalScore", "dimensions"],
+              "properties": {
+                "practiceId": { "type": "string", "minLength": 1 },
+                "sequence": { "type": "integer", "minimum": 1 },
+                "assessedAt": { "type": "string", "format": "date-time" },
+                "totalScore": { "type": "number", "minimum": 0, "maximum": 100 },
+                "dimensions": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["strokeStandard", "frameStructure", "glyphProportion", "positionLayout", "stability"],
+                  "properties": {
+                    "strokeStandard": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "frameStructure": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "glyphProportion": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "positionLayout": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "stability": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+.filters { display: flex; gap: 12rpx; margin-bottom: 28rpx; }
+.filters button { margin: 0; padding: 16rpx 24rpx; line-height: 1; border-radius: 30rpx; background: #eee7dc; font-size: 22rpx; }
+.filters .active { background: #c93627; color: #fff; }
+.entry { padding: 24rpx; display: grid; grid-template-columns: 96rpx 1fr auto; align-items: center; gap: 20rpx; }
+.entry .glyph { font-family: STKaiti, KaiTi, serif; font-size: 72rpx; }
+.entry view { display: flex; flex-direction: column; gap: 10rpx; }
+.entry .muted { font-size: 22rpx; }
+.entry button { margin: 0; padding: 14rpx 22rpx; line-height: 1; border-radius: 30rpx; background: #c93627; color: #fff; font-size: 22rpx; }
+.empty { padding: 80rpx 32rpx; color: #756f67; text-align: center; line-height: 1.7; }

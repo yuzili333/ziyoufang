@@ -1,5 +1,7 @@
 # 原型评审记录：mobile-v1
 
+> 历史状态：`superseded`。本记录只证明此前 ArkUI-X 方案的原型评审，不解除当前 `mobile-v2` 微信小程序原型门禁。
+
 ## 基本信息
 
 - 原型版本：`mobile-v1`

@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "2.0.0",
+  "prototypeVersion": "mobile-v2-option-2-growth-v2",
+  "initialState": "pending_local",
+  "states": {
+    "pending_local": {
+      "owner": "miniprogram",
+      "terminal": false,
+      "description": "图片和任务元数据仅保存在本地，等待授权且网络可用后提交"
+    },
+    "uploading": {
+      "owner": "miniprogram_and_bff",
+      "terminal": false,
+      "description": "私有文件上传或提交信息正在由 BFF 校验"
+    },
+    "analyzing": {
+      "owner": "bff_and_assessment_service",
+      "terminal": false,
+      "description": "服务端已接受任务并执行质量、切格、识别、对比、建议和保存"
+    },
+    "completed": {
+      "owner": "bff",
+      "terminal": true,
+      "description": "任务成功产生完整可读结果"
+    },
+    "partially_completed": {
+      "owner": "bff",
+      "terminal": true,
+      "description": "至少一个单字结果可用，同时存在失败或无法完成的单格"
+    },
+    "failed": {
+      "owner": "miniprogram_or_service",
+      "terminal": "when_retryable_is_false",
+      "description": "任务未产生可用结果；是否允许重试由 retryable 和 checkpoint 决定"
+    },
+    "cancelled": {
+      "owner": "miniprogram_and_bff",
+      "terminal": true,
+      "description": "取消已持久化；后续重复取消返回同一状态"
+    }
+  },
+  "transitions": [
+    {
+      "id": "T01_SUBMIT_LOCAL",
+      "from": "pending_local",
+      "to": "uploading",
+      "trigger": "submit_when_network_available",
+      "guards": ["consent_valid", "local_media_exists", "expected_text_valid"],
+      "actions": ["reuse_idempotency_key", "persist_upload_checkpoint"]
+    },
+    {
+      "id": "T02_CANCEL_LOCAL",
+      "from": "pending_local",
+      "to": "cancelled",
+      "trigger": "user_cancel",
+      "guards": ["task_not_server_accepted"],
+      "actions": ["persist_cancel_once", "delete_local_media_by_policy"]
+    },
+    {
+      "id": "T03_NETWORK_RECOVERY",
+      "from": "uploading",
+      "to": "pending_local",
+      "trigger": "recoverable_network_loss",
+      "guards": ["server_acceptance_not_confirmed"],
+      "actions": ["reuse_idempotency_key", "persist_pending_local"]
+    },
+    {
+      "id": "T04_SERVER_ACCEPTED",
+      "from": "uploading",
+      "to": "analyzing",
+      "trigger": "bff_accepts_assessment",
+      "guards": ["file_owner_verified", "image_hash_verified", "idempotency_bound"],
+      "actions": ["bind_server_task_once", "persist_analysis_checkpoint"]
+    },
+    {
+      "id": "T05_UPLOAD_FAILED",
+      "from": "uploading",
+      "to": "failed",
+      "trigger": "nonrecoverable_upload_or_validation_error",
+      "guards": ["server_acceptance_not_confirmed"],
+      "actions": ["persist_terminal_state", "persist_error_code"]
+    },
+    {
+      "id": "T06_CANCEL_UPLOAD",
+      "from": "uploading",
+      "to": "cancelled",
+      "trigger": "user_cancel",
+      "guards": ["server_acceptance_not_confirmed"],
+      "actions": ["persist_cancel_once", "abort_upload"]
+    },
+    {
+      "id": "T07_ANALYSIS_COMPLETE",
+      "from": "analyzing",
+      "to": "completed",
+      "trigger": "pipeline_finished_with_complete_result",
+      "guards": ["persistence_commit_not_started"],
+      "actions": ["commit_result_once", "update_wordbook_once", "persist_terminal_state"]
+    },
+    {
+      "id": "T08_ANALYSIS_PARTIAL",
+      "from": "analyzing",
+      "to": "partially_completed",
+      "trigger": "pipeline_finished_with_partial_result",
+      "guards": ["at_least_one_character_result_usable", "persistence_commit_not_started"],
+      "actions": ["commit_result_once", "update_wordbook_once", "persist_terminal_state"]
+    },
+    {
+      "id": "T09_ANALYSIS_FAILED",
+      "from": "analyzing",
+      "to": "failed",
+      "trigger": "pipeline_exhausted_without_usable_result",
+      "guards": ["result_commit_not_completed"],
+      "actions": ["persist_terminal_state", "persist_error_code", "persist_retry_checkpoint"]
+    },
+    {
+      "id": "T10_CANCEL_ANALYSIS",
+      "from": "analyzing",
+      "to": "cancelled",
+      "trigger": "user_cancel",
+      "guards": ["before_persistence_commit"],
+      "actions": ["persist_cancel_once", "signal_pipeline_cancel"]
+    },
+    {
+      "id": "T11_RETRY_UPLOAD",
+      "from": "failed",
+      "to": "uploading",
+      "trigger": "user_or_policy_retry",
+      "guards": ["retryable_true", "checkpoint_before_server_acceptance", "consent_valid"],
+      "actions": ["reuse_idempotency_key", "increment_attempt_count", "persist_upload_checkpoint"]
+    },
+    {
+      "id": "T12_RETRY_ANALYSIS",
+      "from": "failed",
+      "to": "analyzing",
+      "trigger": "user_or_policy_retry",
+      "guards": ["retryable_true", "private_file_reference_valid", "checkpoint_at_or_after_server_acceptance"],
+      "actions": ["reuse_idempotency_key", "increment_attempt_count", "persist_analysis_checkpoint"]
+    },
+    {
+      "id": "T13_CANCEL_FAILED",
+      "from": "failed",
+      "to": "cancelled",
+      "trigger": "user_cancel",
+      "guards": ["result_commit_not_completed"],
+      "actions": ["persist_cancel_once"]
+    }
+  ],
+  "progressStages": [
+    "quality_checking",
+    "segmenting",
+    "recognizing",
+    "comparing",
+    "generating_advice",
+    "persisting_result",
+    "finished"
+  ],
+  "progressTransitions": [
+    ["quality_checking", "segmenting"],
+    ["segmenting", "recognizing"],
+    ["recognizing", "comparing"],
+    ["comparing", "generating_advice"],
+    ["comparing", "persisting_result"],
+    ["generating_advice", "persisting_result"],
+    ["persisting_result", "finished"]
+  ],
+  "progressRules": {
+    "activeStatus": "analyzing",
+    "terminalStage": "finished",
+    "skipAdviceWhen": ["no_problem_or_uncertain_characters", "model_disabled_by_policy"],
+    "modelFailureBehavior": "remain_in_pipeline_and_use_template_advice"
+  },
+  "idempotency": {
+    "logicalTaskKey": ["subjectId", "idempotencyKey"],
+    "immutableClientFields": ["localTaskId", "idempotencyKey", "imageSha256", "expectedText"],
+    "sameKeyReturnsSameTaskId": true,
+    "resultCommitUniqueKey": ["taskId", "resultVersion"],
+    "characterCommitUniqueKey": ["taskId", "resultVersion", "characterIndex"],
+    "wordbookWriteUniqueKey": ["subjectId", "targetCharacter", "taskId", "resultVersion", "characterIndex"],
+    "retryCreatesNewLogicalTask": false,
+    "feedbackReassessmentCreatesLinkedTask": true
+  },
+  "cancellation": {
+    "requestIsIdempotent": true,
+    "rejectAfterCheckpoint": "persistence_commit_started",
+    "afterCheckpointResponse": "return_current_non_cancelled_state",
+    "cancelledTasksEligibleForGrowth": false
+  }
+}

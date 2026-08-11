@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "练习",
+  "usingComponents": { "app-tab-bar": "/components/app-tab-bar/index" }
+}

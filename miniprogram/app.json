@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/consent/index",
+    "pages/practice/index",
+    "pages/upload-confirm/index",
+    "pages/progress/index",
+    "pages/results/index",
+    "pages/feedback/index",
+    "pages/feedback-history/index",
+    "pages/share-confirm/index",
+    "pages/shared-card/index",
+    "pages/delete-practice/index",
+    "pages/deletion-history/index",
+    "pages/mine/index",
+    "pages/wordbook/index",
+    "pages/growth/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "字有方",
+    "navigationBarBackgroundColor": "#F8F4EB",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8F4EB",
+    "backgroundTextStyle": "dark"
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "renderer": "skyline",
+  "componentFramework": "glass-easel"
+}
