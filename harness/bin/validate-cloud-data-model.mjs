@@ -17,7 +17,8 @@ const EXPECTED_COLLECTIONS = [
   'feedback_records',
   'share_cards',
   'deletion_jobs',
-  'audit_events'
+  'audit_events',
+  'quota_events'
 ]
 const DELETION_REQUIRED = [
   'media_objects',
@@ -41,9 +42,14 @@ const REQUIRED_FORBIDDEN_FIELDS = [
 
 const hasIndex = (collection, fields) =>
   collection.uniqueIndexes.some((index) => JSON.stringify(index) === JSON.stringify(fields))
+const hasQueryIndex = (collection, fields) =>
+  (collection.queryIndexes ?? []).some((index) => JSON.stringify(index) === JSON.stringify(fields))
 
 export function validateCloudDataModel(model) {
   const errors = []
+  if (model.technology !== 'mysql-8-inno-db-via-aliyun-ecs-bff') {
+    errors.push('storage model must target MySQL 8 through the ECS BFF')
+  }
   const collections = model.collections ?? []
   const ids = collections.map((collection) => collection.id)
   if (JSON.stringify(ids) !== JSON.stringify(EXPECTED_COLLECTIONS)) {
@@ -55,6 +61,11 @@ export function validateCloudDataModel(model) {
   }
   if (model.tenantBoundary?.directClientDatabaseWrite !== false) {
     errors.push('direct client database writes must be disabled')
+  }
+  if (model.databaseAccessPolicy?.directClientRead !== false
+    || model.databaseAccessPolicy?.directClientWrite !== false
+    || model.databaseAccessPolicy?.managementPlaneOnly !== true) {
+    errors.push('database deployment must deny direct client access')
   }
 
   for (const collection of collections) {
@@ -100,6 +111,18 @@ export function validateCloudDataModel(model) {
   if (byId.audit_events?.appendOnly !== true || byId.consent_records?.appendOnly !== true) {
     errors.push('audit and consent records must be append-only')
   }
+  if (byId.quota_events?.appendOnly !== true || byId.quota_events?.lifecycle?.ttlField !== 'expiresAt') {
+    errors.push('quota events must be append-only and expire with the quota window')
+  }
+  if (!hasQueryIndex(byId.media_objects ?? {}, ['expiresAt', 'lifecycleStatus'])) {
+    errors.push('media_objects lacks expiration cleanup index')
+  }
+  if (!hasQueryIndex(byId.share_cards ?? {}, ['expiresAt', 'status'])) {
+    errors.push('share_cards lacks expiration cleanup index')
+  }
+  if (!hasQueryIndex(byId.quota_events ?? {}, ['expiresAt'])) {
+    errors.push('quota_events lacks expiration cleanup index')
+  }
   for (const collectionId of DELETION_REQUIRED) {
     if (!(model.deletionCoverage ?? []).includes(collectionId)) {
       errors.push(`deletion coverage misses ${collectionId}`)
@@ -126,7 +149,7 @@ async function main() {
     for (const error of errors) console.error(error)
     process.exitCode = 1
   } else {
-    console.log('cloud data model is consistent')
+    console.log('logical MySQL data model is consistent')
   }
 }
 

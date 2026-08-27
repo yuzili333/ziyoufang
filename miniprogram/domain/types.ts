@@ -10,12 +10,26 @@ export type TaskStatus =
 export type CharacterCategory = 'normal' | 'wrong' | 'needs_correction' | 'uncertain' | 'failed'
 export type SupportedImageFormat = 'jpeg' | 'png'
 
+export interface UploadTicket {
+  taskId: string
+  mediaId: string
+  expiresAt: string
+  uploadUrl: string
+  formFields: Record<string, string>
+}
+
 export interface ScoreBreakdown {
   strokeStandard: number | null
   frameStructure: number | null
   glyphProportion: number | null
   positionLayout: number | null
   stability: number | null
+}
+
+export interface DifferenceAnnotation {
+  code: string
+  anchor: 'top' | 'right' | 'bottom' | 'left' | 'center' | 'edge'
+  label: string
 }
 
 export interface CharacterResult {
@@ -27,6 +41,7 @@ export interface CharacterResult {
   score: number | null
   scoreBreakdown: ScoreBreakdown
   issues: Array<string | { code: string; title: string; detail: string }>
+  differenceAnnotations: DifferenceAnnotation[]
   correctionSteps: string[]
   growthSummary?: GrowthSummary
 }
@@ -133,7 +148,6 @@ export interface AssessmentTask {
   expectedText?: string
   status: TaskStatus
   progressStage: string | null
-  privateUploadPath?: string
   retryable?: boolean
   errorCode?: string | null
   characters?: CharacterResult[]

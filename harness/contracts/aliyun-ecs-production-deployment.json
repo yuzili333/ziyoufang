@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "2.0.0",
+  "status": "accepted",
+  "supersedes": "wechat-cloud-development-and-cloud-hosting",
+  "appId": "wxc7e8d08156f44970",
+  "publicApiBaseUrl": "https://lilicoconut.me",
+  "ecs": {
+    "provider": "alibaba-cloud-ecs",
+    "minimumCpu": 2,
+    "minimumMemoryGiB": 4,
+    "availability": "single-node-recoverable",
+    "composePath": "deployment/aliyun/compose.yaml",
+    "composeOverridePath": "deployment/aliyun/compose.host-nginx.yaml",
+    "edgeMode": "existing-host-nginx-path-coexistence",
+    "publicApiPrefix": "/api/v1",
+    "loopbackApiAddress": "127.0.0.1:18080",
+    "publicPorts": [80, 443],
+    "sshSource": null,
+    "sshSourceStatus": "deferred-dynamic-egress",
+    "sshSourceNote": "Wi-Fi and mobile-hotspot access currently has no stable public egress; do not register a changing address"
+  },
+  "services": {
+    "edge": { "mode": "existing-host-nginx", "containerFallbackImage": "nginx:1.29.4-alpine" },
+    "api": { "root": "ecs-service", "dockerfile": "ecs-service/Dockerfile", "memoryMiB": 512 },
+    "worker": { "concurrency": 1, "leaseMs": 300000, "heartbeatMs": 30000, "memoryMiB": 512 },
+    "assessment": { "root": "assessment-service", "dockerfile": "assessment-service/Dockerfile", "memoryMiB": 1536, "healthPath": "/health" }
+  },
+  "database": {
+    "type": "mysql-8-inno-db",
+    "image": "mysql:8.4.11-oraclelinux9",
+    "address": "ziyoufang-mysql",
+    "port": 3306,
+    "addressType": "docker-dns-alias",
+    "databaseName": "ziyoufang",
+    "network": "docker-private-network",
+    "dockerNetwork": "ziyoufang_private",
+    "tlsMode": "VERIFY_IDENTITY",
+    "directClientAccess": "denied",
+    "migrationPath": "ecs-service/migrations",
+    "backup": { "dailyRetention": 7, "weeklyRetention": 4, "restoreDrillAt": null }
+  },
+  "objectStorage": {
+    "provider": "aliyun-oss-private",
+    "region": "cn-chengdu",
+    "bucket": "lilicoconut",
+    "privateEndpoint": "https://oss-cn-chengdu-internal.aliyuncs.com",
+    "publicUploadHost": "https://lilicoconut.oss-cn-chengdu.aliyuncs.com",
+    "publicAccessHost": "https://lilicoconut.oss-cn-chengdu.aliyuncs.com",
+    "credentials": "ecs-ram-role",
+    "sourceMediaRetentionDays": 30,
+    "shareCardRetentionDays": 7
+  },
+  "miniprogramDomains": {
+    "request": ["https://lilicoconut.me"],
+    "uploadFile": ["https://lilicoconut.oss-cn-chengdu.aliyuncs.com"],
+    "downloadFile": ["https://lilicoconut.oss-cn-chengdu.aliyuncs.com"],
+    "socket": []
+  },
+  "pipeline": {
+    "provider": "github-actions",
+    "branch": "main",
+    "trigger": "push",
+    "version": "git-commit-sha",
+    "productionTraffic": "protected-environment-manual-approval"
+  },
+  "secretOwnership": {
+    "primaryRole": "platform-devops",
+    "primaryIdentity": "yuzili",
+    "backupRole": "backend-owner",
+    "backupIdentity": "yuzili",
+    "rotationDays": 90,
+    "disclosedWechatCloudCliSecretRevokedAt": null
+  },
+  "requiredEnvironment": [
+    "NODE_ENV", "PORT", "PUBLIC_API_BASE_URL", "WECHAT_APP_ID", "WECHAT_APP_SECRET",
+    "MYSQL_ADDRESS", "MYSQL_PORT", "MYSQL_DATABASE", "MYSQL_USERNAME", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_ROOT_PASSWORD",
+    "MYSQL_SSL_MODE", "MYSQL_SSL_CA_FILE", "MYSQL_POOL_MAX", "OSS_REGION", "OSS_ENDPOINT",
+    "OSS_PUBLIC_UPLOAD_HOST", "OSS_PUBLIC_ACCESS_HOST", "OSS_BUCKET", "OSS_RAM_ROLE_NAME", "SUBJECT_ID_HMAC_SECRET",
+    "SESSION_TOKEN_PEPPER", "SHARE_TOKEN_SECRET", "BFF_HMAC_SECRET", "TELEMETRY_HASH_SECRET",
+    "CONSENT_VERSION", "SHARE_CONSENT_VERSION", "DELETION_CONFIRMATION_VERSION",
+    "QUOTA_POLICY_VERSION", "ASSESSMENT_SERVICE_BASE_URL", "WORKER_CONCURRENCY"
+  ],
+  "forbiddenRuntimeEnvironment": [
+    "VX_APP_ID", "VX_CLOUD_SCRECT", "WECHAT_CLOUD_CLI_SECRET", "CLOUD_ENV_ID"
+  ]
+}

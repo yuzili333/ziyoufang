@@ -10,7 +10,7 @@ const model = JSON.parse(readFileSync(resolve(root, 'harness/contracts/cloud-dat
 const clone = (value) => structuredClone(value)
 const collection = (value, id) => value.collections.find((item) => item.id === id)
 
-test('current cloud data model satisfies MVP isolation and lifecycle rules', () => {
+test('current logical MySQL data model satisfies MVP isolation and lifecycle rules', () => {
   assert.deepEqual(validateCloudDataModel(model), [])
 })
 
@@ -55,4 +55,27 @@ test('raw openid and share tokens are forbidden stored fields', () => {
   const errors = validateCloudDataModel(changed)
   assert.ok(errors.includes('subject_accounts: forbidden field openid'))
   assert.ok(errors.includes('share_cards must store only shareTokenHash'))
+})
+
+test('distributed quota events are append-only and TTL-bound', () => {
+  const changed = clone(model)
+  const quotaEvents = collection(changed, 'quota_events')
+  quotaEvents.appendOnly = false
+  quotaEvents.lifecycle.ttlField = null
+  assert.ok(validateCloudDataModel(changed).includes(
+    'quota events must be append-only and expire with the quota window'
+  ))
+})
+
+test('expiration cleanup indexes and management-only access are mandatory', () => {
+  const changed = clone(model)
+  changed.databaseAccessPolicy.directClientRead = true
+  collection(changed, 'media_objects').queryIndexes = []
+  collection(changed, 'share_cards').queryIndexes = []
+  collection(changed, 'quota_events').queryIndexes = []
+  const errors = validateCloudDataModel(changed)
+  assert.ok(errors.includes('database deployment must deny direct client access'))
+  assert.ok(errors.includes('media_objects lacks expiration cleanup index'))
+  assert.ok(errors.includes('share_cards lacks expiration cleanup index'))
+  assert.ok(errors.includes('quota_events lacks expiration cleanup index'))
 })

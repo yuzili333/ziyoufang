@@ -3,10 +3,11 @@ import { CaptureDraftStore } from '../../services/capture-draft-store'
 import { LocalTaskStore } from '../../services/local-task-store'
 import { MediaService } from '../../services/media-service'
 import { TaskMediaStore } from '../../services/task-media-store'
-import { isOnline } from '../../services/network-service'
+import { isOnline, observeNetworkRecovery } from '../../services/network-service'
 import { createLocalId } from '../../utils/id'
 
 Page({
+  stopNetworkRecoveryObservation: null as (() => void) | null,
   data: {
     expectedText: '永和春山日月天地人心正学书法美华',
     pendingCount: 0,
@@ -14,12 +15,19 @@ Page({
   },
   onLoad(query: Record<string, string>) {
     if (query.character) this.setData({ expectedText: decodeURIComponent(query.character) })
+    this.stopNetworkRecoveryObservation = observeNetworkRecovery(() => {
+      void this.resumePending()
+    })
     this.refreshPending()
     if (query.capture === '1') setTimeout(() => this.capture(), 0)
   },
   async onShow() {
     this.refreshPending()
     if (LocalTaskStore.list().length > 0) await this.resumePending()
+  },
+  onUnload() {
+    this.stopNetworkRecoveryObservation?.()
+    this.stopNetworkRecoveryObservation = null
   },
   refreshPending() { this.setData({ pendingCount: LocalTaskStore.list().length }) },
   onExpectedText(event: WechatMiniprogram.Input) {
@@ -47,15 +55,17 @@ Page({
         mediaFormat: pending.mediaFormat,
         createdAt: pending.createdAt
       })
-      if (!task.privateUploadPath) throw new Error('上传任务缺少私有路径')
       const digest = await MediaService.sha256(pending.savedFilePath)
-      const cloudFileId = await MediaService.uploadPrivate(
-        `${task.privateUploadPath}.${MediaService.extension(pending.mediaFormat)}`, pending.savedFilePath
-      )
+      const ticket = await AssessmentClient.createUploadTicket({
+        taskId: task.taskId,
+        extension: MediaService.extension(pending.mediaFormat)
+      })
+      const uploaded = await MediaService.uploadPrivate(ticket, pending.savedFilePath)
       await AssessmentClient.submitAssessment({
         taskId: task.taskId,
-        cloudFileId,
-        imageSha256: digest
+        mediaId: uploaded.mediaId,
+        imageSha256: digest,
+        etag: uploaded.etag
       })
       LocalTaskStore.remove(pending.localTaskId)
       this.refreshPending()

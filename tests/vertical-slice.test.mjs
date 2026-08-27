@@ -12,6 +12,16 @@ const { createAssessmentBff } = require('../cloudfunctions/assessmentBff/core/bf
 const { MemoryBffRepository } = require('../cloudfunctions/assessmentBff/core/memory-repository')
 const { RemoteAssessmentGateway } = require('../cloudfunctions/assessmentBff/core/remote-gateway')
 
+const eventuallyCompleted = async (read, { attempts = 80, delayMs = 10 } = {}) => {
+  let task
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    task = await read()
+    if (['completed', 'partially_completed', 'failed', 'cancelled'].includes(task.status)) return task
+    await new Promise((resolve) => setTimeout(resolve, delayMs))
+  }
+  throw new Error(`ASSESSMENT_DID_NOT_REACH_TERMINAL_STATE:${task?.status ?? 'unknown'}`)
+}
+
 test('create-upload-submit-assess-query vertical slice returns five character categories', async (t) => {
   const secret = 'integration-secret'
   const { provider, fixture } = await createApprovedSyntheticPipeline()
@@ -66,11 +76,13 @@ test('create-upload-submit-assess-query vertical slice returns five character ca
   }, context)
   assert.equal(accepted.status, 'analyzing')
 
-  const result = await bff.getAssessment({ taskId: uploadTask.taskId }, context)
+  const result = await eventuallyCompleted(
+    () => bff.getAssessment({ taskId: uploadTask.taskId }, context)
+  )
   assert.equal(result.status, 'partially_completed')
   assert.equal(result.progressStage, 'finished')
   assert.deepEqual(result.summary, {
-    total: 16, normal: 9, wrong: 1, needsCorrection: 4, uncertain: 1, failed: 1
+    total: 16, normal: 10, wrong: 1, needsCorrection: 3, uncertain: 1, failed: 1
   })
   assert.deepEqual(new Set(result.characters.map((item) => item.category)), new Set([
     'normal', 'wrong', 'needs_correction', 'uncertain', 'failed'
@@ -79,7 +91,7 @@ test('create-upload-submit-assess-query vertical slice returns five character ca
   assert.equal(result.characters[0].growthSummary.requiredPracticeCount, 2)
 
   const wordbook = await bff.getWordbook({ filter: 'all' }, context)
-  assert.deepEqual(wordbook.entries.map((entry) => entry.targetCharacter), ['永', '山', '月', '心', '法'])
+  assert.deepEqual(wordbook.entries.map((entry) => entry.targetCharacter), ['永', '山', '人', '心'])
   const monthGrowth = await bff.getCharacterGrowth({ character: '月' }, context)
   assert.equal(monthGrowth.comparablePracticeCount, 1)
   assert.equal(monthGrowth.stabilityScore, null)
@@ -92,7 +104,9 @@ test('create-upload-submit-assess-query vertical slice returns five character ca
     reasonCode: 'recognition_incorrect',
     note: '合成纵向测试'
   }, context)
-  const reassessed = await bff.getAssessment({ taskId: feedback.reassessmentTaskId }, context)
+  const reassessed = await eventuallyCompleted(
+    () => bff.getAssessment({ taskId: feedback.reassessmentTaskId }, context)
+  )
   assert.equal(reassessed.status, 'partially_completed')
   assert.equal(reassessed.reassessmentOfTaskId, result.taskId)
   assert.deepEqual(await bff.getAssessment({ taskId: result.taskId }, context), originalSnapshot)

@@ -46,6 +46,7 @@ assert.deepEqual(character.properties.category.enum, [
   'failed'
 ])
 assert.equal(character.properties.correctionSteps.maxItems, 3)
+assert.equal(character.properties.differenceAnnotations.maxItems, 3)
 assert.deepEqual(character.properties.scoreBreakdown.required, [
   'strokeStandard',
   'frameStructure',
@@ -89,6 +90,12 @@ for (const item of sample.characters) {
   assert.ok(character.properties.category.enum.includes(item.category))
   assert.ok(item.correctionSteps.length <= 3)
   assert.equal(item.polygon.length, 4)
+  assert.ok(item.differenceAnnotations.length <= 3)
+  for (const annotation of item.differenceAnnotations) {
+    assert.ok(annotation.code)
+    assert.ok(['top', 'right', 'bottom', 'left', 'center', 'edge'].includes(annotation.anchor))
+    assert.ok(annotation.label)
+  }
   assert.deepEqual(Object.keys(item.scoreBreakdown), [
     'strokeStandard',
     'frameStructure',

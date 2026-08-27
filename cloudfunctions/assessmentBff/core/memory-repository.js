@@ -9,6 +9,7 @@ class MemoryBffRepository {
     this.wordbook = new Map()
     this.monitoringEvents = []
     this.consents = new Map()
+    this.mediaObjects = new Map()
     this.feedback = new Map()
     this.feedbackByIdempotency = new Map()
     this.shareCards = new Map()
@@ -170,6 +171,13 @@ class MemoryBffRepository {
     return latest?.decision === 'granted' && latest.consentVersion === consentVersion ? latest : null
   }
 
+  async upsertMediaObject(media) {
+    const existing = this.mediaObjects.get(media.mediaId)
+    const next = { ...(existing ?? {}), ...structuredClone(media) }
+    this.mediaObjects.set(media.mediaId, next)
+    return structuredClone(next)
+  }
+
   async findFeedbackByIdempotency(subjectId, key) {
     const id = this.feedbackByIdempotency.get(`${subjectId}:${key}`)
     const value = id ? this.feedback.get(id) : null
@@ -276,12 +284,19 @@ class MemoryBffRepository {
     }
     const affectedCharacters = new Set()
     let characterResults = 0
+    let mediaObjects = 0
     for (const taskId of taskIds) {
       const task = this.tasks.get(taskId)
       for (const character of task?.characters ?? []) affectedCharacters.add(character.expectedCharacter)
       characterResults += task?.characters?.length ?? 0
       if (task) this.byIdempotency.delete(this.key(subjectId, task.idempotencyKey))
       this.tasks.delete(taskId)
+    }
+    for (const [mediaId, media] of this.mediaObjects) {
+      if (media.subjectId === subjectId && taskIds.has(media.sourceTaskId)) {
+        this.mediaObjects.delete(mediaId)
+        mediaObjects += 1
+      }
     }
     for (const character of affectedCharacters) {
       const key = `${subjectId}:${character}`
@@ -349,6 +364,7 @@ class MemoryBffRepository {
       taskIds: [...taskIds],
       counts: {
         assessmentTasks: taskIds.size,
+        mediaObjects,
         characterResults,
         feedbackRecords,
         shareCards,

@@ -1,0 +1,41 @@
+name: ECS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix assessment-service
+      - run: npm ci --prefix ecs-service
+      - run: npm test
+      - run: npm test --prefix ecs-service
+      - run: docker compose -f deployment/aliyun/compose.yaml -f deployment/aliyun/compose.host-nginx.yaml config --quiet
+      - name: Validate host Nginx coexistence snippets
+        run: >-
+          docker run --rm
+          -v "$PWD/deployment/aliyun/host-nginx-validation.conf:/etc/nginx/nginx.conf:ro"
+          -v "$PWD/deployment/aliyun/host-nginx-api-limits.conf:/etc/nginx/snippets/host-nginx-api-limits.conf:ro"
+          -v "$PWD/deployment/aliyun/host-nginx-api-locations.conf:/etc/nginx/snippets/host-nginx-api-locations.conf:ro"
+          nginx:1.29.4-alpine nginx -t
+      - run: docker build -f ecs-service/Dockerfile -t ziyoufang-ecs:${{ github.sha }} .
+      - run: docker build -f assessment-service/Dockerfile -t ziyoufang-assessment:${{ github.sha }} assessment-service
+
+  deployment-candidate:
+    if: github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Candidate $GITHUB_SHA passed; production traffic is unchanged until the protected deploy workflow is approved."

@@ -26,7 +26,7 @@
         },
         {
           "path": "harness/fixtures/expected/assessment-result-v2.contract.json",
-          "sha256": "eb4716c3ebbf322596c83ece390a9d1e86e8ea75d42832211bc3c28a0c5ba339"
+          "sha256": "666a3e321f27d8dc641b2ab8e143f2c188ad58a625905dc2801428738d463dc1"
         },
         {
           "path": "harness/fixtures/expected/character-growth-v1.contract.json",

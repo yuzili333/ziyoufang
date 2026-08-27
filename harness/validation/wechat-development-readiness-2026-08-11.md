@@ -8,7 +8,7 @@
 - 直接原因：原型、正式工程、学习闭环、隐私操作以及可观测/安全/成本工程基础均已通过合成数据测试，同时生产合规与发布门禁仍保持关闭。
 - 已完成：跑通授权—练习—像素级合成评测—反馈—成长—脱敏分享/撤销—幂等删除基础闭环，验证按主体配额、白名单遥测、标识哈希、签名防重放指标和可重复成本/时延快照，以模拟响应固定 OCR/混元 Provider 边界，并将 PAD 信息架构落实为正式 WXSS/WXML 响应式代码。
 - 可继续工作：推进隐私交互、真实 Provider POC 输入审批、微信云环境配置和三端真机验证。
-- 当前禁止：删除尚未完成迁移验证的 ArkUI-X `client/`，使用未经批准的真实学生数据，或绕过 POC/隐私/发布门禁上线。
+- 当前禁止：重新引入已完成迁移验证并删除的 ArkUI-X `client/`，使用未经批准的真实学生数据，或绕过 POC/隐私/发布门禁上线。
 
 ## 证据分级
 
@@ -33,11 +33,11 @@
 | PAD 信息架构预留 | proven | `pad-design-qa.md`、响应式契约 | PAD 真机属于后续适配门禁 |
 | 状态矩阵与需求追踪 | proven | mobile-v2 状态矩阵、追踪表 | 无原型结构缺口 |
 | 接口、结果 Schema 与任务状态机 | proven | API、assessment/growth/advice Schema、状态机机器契约及迁移测试 | 真实 Provider 联调 |
-| 云数据库持久化模型 | ready | 12 个集合、租户隔离、幂等索引、媒体 TTL、删除覆盖和禁止字段测试 | 云环境索引创建和权限规则运行证据 |
+| 云数据库持久化模型 | ready | 13 个集合、租户隔离、幂等/过期查询索引、逻辑过期、每小时有界物理清理、删除覆盖和禁止字段测试 | 云环境集合/索引创建、管理端权限、定时触发和私有文件删除运行证据 |
 | 合成多格 fixture | proven | clear/blurred/cropped 与 V2 expected 结果 | 授权真实样本基线 |
 | 六方联合原型评审 | proven | 六个角色均批准、证据路径齐备、阻塞问题为零，机器检查通过 | 无原型审批缺口 |
 | 隐私与数据合规 | pending-approval | 合规约束与待确认表 | 法域、身份、留存、第三方和删除 SLA 决定 |
-| 标准宋体许可 | pending-approval | MVP 明确要求版本/许可 | 许可证及使用范围证明 |
+| 思源宋体参考字形许可 | complete | 思源宋体简体中文 Regular 2.003R、OFL-1.1 | 字体/许可证哈希、未修改状态及阿里云 ECS 私有容器部署范围记录 |
 | 智能评测 POC | blocked-by-gate | 执行计划与机器输入检查器已完成；合成 smoke fixture 哈希无漂移 | 非合成验证集、指标目标三方批准和实际报告 |
 | 微信小程序正式工程 | proven | `miniprogram/`、`cloudfunctions/assessmentBff/`、`assessment-service/`、`packages/contracts/`、Vertical Slice A 验证记录 | 微信开发者工具编译、云环境部署和真机证据 |
 | 可观测、安全与成本基础 | proven | 白名单遥测、任务 HMAC 标识、签名/防重放指标、按主体配额和合成 Provider 快照测试 | 持久指标、分布式配额、告警阈值、真实 Provider 成本和负载证据 |
@@ -59,8 +59,8 @@
 ## 后续执行顺序
 
 1. 已完成契约、Schema、fixture 和测试迁移，未迁移 ArkUI-X 页面/适配器。
-2. 已建立微信原生 TypeScript 最小壳、云开发 BFF 和评测服务 fixture Provider。
+2. 已建立微信原生 TypeScript 最小壳、ECS BFF/Worker 和评测服务 fixture Provider；旧云函数只作为限时回滚实现保留。
 3. 已以 fixture provider 跑通合成数据成功、部分完成和异常边界闭环。
 4. 待输入批准后按 P0～P5 执行智能评测 POC，所有报告标注数据和版本。
 5. POC 决策后实现真实 OCR/模型 Provider、字本/成长事务、隐私闭环和真机验证。
-6. 旧 `client/` 继续冻结；删除仍需单独确认迁移完整性和回退方案。
+6. 迁移完整性验证后旧 `client/` 已删除；历史 ArkUI-X 审计文件仅作不可执行证据保留。

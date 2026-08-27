@@ -1,0 +1,116 @@
+name: ziyoufang
+
+x-ecs-service: &ecs-service
+  build:
+    context: ../..
+    dockerfile: ecs-service/Dockerfile
+  env_file:
+    - path: /opt/ziyoufang/secrets/prod.env
+      required: false
+  restart: unless-stopped
+  networks: [private]
+  volumes:
+    - /opt/ziyoufang/secrets/mysql-ca.pem:/run/secrets/mysql-ca.pem:ro
+  security_opt: [no-new-privileges:true]
+  read_only: true
+  tmpfs: [/tmp]
+
+services:
+  mysql:
+    image: mysql:8.4.11-oraclelinux9
+    env_file:
+      - path: /opt/ziyoufang/secrets/prod.env
+        required: false
+    environment:
+      MYSQL_INITDB_SKIP_TZINFO: "1"
+      TZ: UTC
+    restart: unless-stopped
+    networks:
+      private:
+        aliases: [ziyoufang-mysql]
+    expose: ["3306"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/ziyoufang.cnf:/etc/my.cnf.d/ziyoufang.cnf:ro
+      - /opt/ziyoufang/secrets/mysql-ca.pem:/etc/mysql/ziyoufang-ca.pem:ro
+      - /opt/ziyoufang/secrets/mysql-server-cert.pem:/etc/mysql/ziyoufang-server-cert.pem:ro
+      - /opt/ziyoufang/secrets/mysql-server-key.pem:/etc/mysql/ziyoufang-server-key.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysqladmin ping --socket=/var/lib/mysql/mysql.sock --user=root --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 1m
+    mem_limit: 768m
+
+  edge:
+    image: nginx:1.29.4-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks: [private]
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /opt/ziyoufang/certs:/etc/nginx/certs:ro
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    mem_limit: 128m
+
+  migrate:
+    <<: *ecs-service
+    command: ["node", "src/migrate.js"]
+    restart: "no"
+    profiles: [migration]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api:
+    <<: *ecs-service
+    command: ["node", "src/server.js"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    mem_limit: 512m
+
+  worker:
+    <<: *ecs-service
+    command: ["node", "src/worker.js"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      assessment:
+        condition: service_healthy
+    mem_limit: 512m
+
+  assessment:
+    build:
+      context: ../../assessment-service
+      dockerfile: Dockerfile
+    env_file:
+      - path: /opt/ziyoufang/secrets/prod.env
+        required: false
+    restart: unless-stopped
+    networks: [private]
+    expose: ["8080"]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 1536m
+
+networks:
+  private:
+    name: ziyoufang_private
+    driver: bridge
+    internal: false
+
+volumes:
+  mysql_data:
+    name: ziyoufang_mysql_data

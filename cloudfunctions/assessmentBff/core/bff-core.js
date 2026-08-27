@@ -15,10 +15,11 @@ function createAssessmentBff({
   deletionConfirmationVersion = 'mvp-deletion-confirm-draft-v1',
   shareTokenSecret = 'local-test-share-token-secret',
   enforceConsent = true,
-  fileVerifier = async ({ cloudFileId, task }) => cloudFileId.includes(`${task.privateUploadPath}.`),
+  fileVerifier = async ({ cloudFileId, task }) => cloudFileId?.includes(`${task.privateUploadPath}.`),
   mediaAccessResolver = async () => null,
   fileDeleter = async () => ({ deleted: true }),
-  quotaGuard = null
+  quotaGuard = null,
+  submissionAcceptor = null
 }) {
   const consentPurpose = 'practice_image_assessment'
   const sha256 = (value) => createHash('sha256').update(value).digest('hex')
@@ -34,6 +35,15 @@ function createAssessmentBff({
     occurredAt
   })
   const requireSubject = (context) => requireText(context?.subjectId, 'SUBJECT_REQUIRED')
+  const publicTask = (task, { includeUploadAccess = false } = {}) => {
+    const {
+      subjectId, cloudFileId, sourceMediaId, imageSha256, consentVersion,
+      privateUploadPath, uploadPolicy, ...safeTask
+    } = task
+    return includeUploadAccess
+      ? { ...safeTask, privateUploadPath, uploadPolicy }
+      : safeTask
+  }
   const requireActiveConsent = async (subjectId) => {
     if (!enforceConsent) return
     const activeConsent = await repository.getActiveConsent(subjectId, consentPurpose, consentVersion)
@@ -45,21 +55,24 @@ function createAssessmentBff({
     if (task.subjectId !== subjectId) throw new Error('TASK_FORBIDDEN')
     return task
   }
+  const assessmentPayload = (task) => ({
+    taskId: task.taskId,
+    localTaskId: task.localTaskId,
+    idempotencyKey: task.idempotencyKey,
+    subjectId: task.subjectId,
+    imageSha256: task.imageSha256,
+    expectedText: task.expectedText,
+    resultVersion: task.resultVersion,
+    reassessmentOfTaskId: task.reassessmentOfTaskId,
+    reassessmentReason: task.reassessmentReason
+  })
   const startAssessment = async (task) => {
     try {
       const mediaAccess = task.cloudFileId
         ? await mediaAccessResolver({ cloudFileId: task.cloudFileId, task })
         : null
       await gateway.start({
-        taskId: task.taskId,
-        localTaskId: task.localTaskId,
-        idempotencyKey: task.idempotencyKey,
-        subjectId: task.subjectId,
-        imageSha256: task.imageSha256,
-        expectedText: task.expectedText,
-        resultVersion: task.resultVersion,
-        reassessmentOfTaskId: task.reassessmentOfTaskId,
-        reassessmentReason: task.reassessmentReason,
+        ...assessmentPayload(task),
         ...(mediaAccess ? { mediaAccess } : {})
       })
     } catch (error) {
@@ -108,9 +121,11 @@ function createAssessmentBff({
       if (requestedConsentVersion !== consentVersion) throw new Error('CONSENT_VERSION_MISMATCH')
       await requireActiveConsent(subjectId)
       const existing = await repository.findByIdempotency(subjectId, idempotencyKey)
-      if (existing) return existing
+      if (existing) {
+        return publicTask(existing, { includeUploadAccess: existing.status === 'uploading' && !existing.submittedAt })
+      }
       if (quotaGuard) {
-        const quota = quotaGuard.consume(subjectId, Date.parse(now()))
+        const quota = await quotaGuard.consume(subjectId, Date.parse(now()), idempotencyKey)
         if (!quota.allowed) {
           const error = new Error('SUBJECT_QUOTA_EXCEEDED')
           error.retryAfterMs = quota.retryAfterMs
@@ -121,7 +136,7 @@ function createAssessmentBff({
       const taskId = `task_${idFactory()}`
       const createdAt = now()
       const privateUploadPath = `practice/${subjectId}/${taskId}/source`
-      return repository.createTask({
+      const created = await repository.createTask({
         taskId,
         subjectId,
         localTaskId,
@@ -141,6 +156,7 @@ function createAssessmentBff({
         createdAt,
         updatedAt: createdAt
       })
+      return publicTask(created, { includeUploadAccess: true })
     },
 
     async getConsentStatus(_input, context) {
@@ -197,30 +213,63 @@ function createAssessmentBff({
       const subjectId = requireSubject(context)
       await requireActiveConsent(subjectId)
       const task = await ownedTask(input.taskId, subjectId)
-      if (['completed', 'partially_completed', 'cancelled'].includes(task.status)) return task
-      if (task.submittedAt) return task
-      const cloudFileId = requireText(input.cloudFileId, 'CLOUD_FILE_ID_REQUIRED')
-      if (!(await fileVerifier({ cloudFileId, task }))) throw new Error('CLOUD_FILE_OWNERSHIP_INVALID')
+      if (['completed', 'partially_completed', 'cancelled'].includes(task.status)) return publicTask(task)
+      if (task.submittedAt) return publicTask(task)
+      const cloudFileId = typeof input.cloudFileId === 'string' ? input.cloudFileId.trim() : null
+      const mediaId = typeof input.mediaId === 'string' ? input.mediaId.trim() : null
+      if (!cloudFileId && !mediaId) throw new Error('MEDIA_ID_REQUIRED')
+      const verified = await fileVerifier({ cloudFileId, mediaId, etag: input.etag, task, subjectId })
+      if (!verified) throw new Error(cloudFileId ? 'CLOUD_FILE_OWNERSHIP_INVALID' : 'MEDIA_OWNERSHIP_INVALID')
+      const privateObjectRef = typeof verified === 'object' ? verified.privateObjectRef : cloudFileId
+      const verifiedMediaId = typeof verified === 'object' ? verified.mediaId : null
+      if (!privateObjectRef) throw new Error('MEDIA_OBJECT_REFERENCE_REQUIRED')
       if (Date.parse(now()) > Date.parse(task.uploadPolicy.expiresAt)) throw new Error('UPLOAD_TICKET_EXPIRED')
       const imageSha256 = requireText(input.imageSha256, 'IMAGE_SHA256_REQUIRED')
       if (!/^[a-f0-9]{64}$/.test(imageSha256)) throw new Error('IMAGE_SHA256_INVALID')
-      const analyzing = await repository.updateTask(task.taskId, {
-        cloudFileId,
+      const submittedAt = now()
+      const sourceMediaId = verifiedMediaId ?? mediaId ?? `media_${task.taskId}_source`
+      const taskPatch = {
+        cloudFileId: privateObjectRef,
         imageSha256,
+        sourceMediaId,
         status: 'analyzing',
         progressStage: 'quality_checking',
-        submittedAt: now(),
-        updatedAt: now()
-      })
-      await startAssessment(analyzing)
-      return analyzing
+        submittedAt,
+        updatedAt: submittedAt
+      }
+      const mediaObject = {
+        mediaId: sourceMediaId,
+        subjectId,
+        sourceTaskId: task.taskId,
+        kind: 'source_photo',
+        privateObjectRef,
+        sha256: imageSha256,
+        createdAt: submittedAt,
+        expiresAt: new Date(Date.parse(submittedAt) + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+        lifecycleStatus: 'active'
+      }
+      let analyzing
+      if (submissionAcceptor) {
+        const proposed = { ...task, ...taskPatch }
+        analyzing = await submissionAcceptor({
+          taskId: task.taskId,
+          taskPatch,
+          mediaObject,
+          assessmentTask: assessmentPayload(proposed)
+        })
+      } else {
+        analyzing = await repository.updateTask(task.taskId, taskPatch)
+        await repository.upsertMediaObject(mediaObject)
+        await startAssessment(analyzing)
+      }
+      return publicTask(analyzing)
     },
 
     async retryAssessment(input, context) {
       const subjectId = requireSubject(context)
       await requireActiveConsent(subjectId)
       const task = await ownedTask(input.taskId, subjectId)
-      if (['completed', 'partially_completed', 'cancelled', 'analyzing'].includes(task.status)) return task
+      if (['completed', 'partially_completed', 'cancelled', 'analyzing'].includes(task.status)) return publicTask(task)
       if (task.status !== 'failed' || task.retryable !== true || !task.cloudFileId || !task.imageSha256) {
         throw new Error('TASK_NOT_RETRYABLE')
       }
@@ -232,13 +281,13 @@ function createAssessmentBff({
         updatedAt: now()
       })
       await startAssessment(analyzing)
-      return analyzing
+      return publicTask(analyzing)
     },
 
     async getAssessment(input, context) {
       const subjectId = requireSubject(context)
       const task = await ownedTask(input.taskId, subjectId)
-      return syncAssessment(task, subjectId)
+      return publicTask(await syncAssessment(task, subjectId))
     },
 
     async getWordbook(input, context) {
@@ -437,6 +486,7 @@ function createAssessmentBff({
         const removed = await repository.deletePracticeData(subjectId, task.taskId, now())
         const objectResults = [
           { objectType: 'private_media', status: 'deleted', count: fileIds.length },
+          { objectType: 'media_objects', status: 'deleted', count: removed.counts.mediaObjects ?? null },
           { objectType: 'assessment_tasks', status: 'deleted', count: removed.counts.assessmentTasks },
           { objectType: 'character_results', status: 'deleted', count: removed.counts.characterResults },
           { objectType: 'wordbook_growth', status: 'rebuilt', count: removed.counts.affectedCharacters },
@@ -465,27 +515,27 @@ function createAssessmentBff({
     async cancelAssessment(input, context) {
       const subjectId = requireSubject(context)
       const task = await ownedTask(input.taskId, subjectId)
-      if (['completed', 'partially_completed', 'cancelled'].includes(task.status)) return task
+      if (['completed', 'partially_completed', 'cancelled'].includes(task.status)) return publicTask(task)
       if (task.status === 'analyzing') {
         const remote = await gateway.cancel(task.taskId)
         if (['completed', 'partially_completed'].includes(remote.status)) {
-          return repository.saveResult(task.taskId, { ...remote, subjectId, updatedAt: now() })
+          return publicTask(await repository.saveResult(task.taskId, { ...remote, subjectId, updatedAt: now() }))
         }
         if (remote.status === 'failed') {
-          return repository.updateTask(task.taskId, {
+          return publicTask(await repository.updateTask(task.taskId, {
             status: 'failed',
             progressStage: remote.progressStage ?? 'finished',
             retryable: remote.retryable ?? true,
             errorCode: remote.errorCode ?? null,
             updatedAt: now()
-          })
+          }))
         }
       }
-      return repository.updateTask(task.taskId, {
+      return publicTask(await repository.updateTask(task.taskId, {
         status: 'cancelled',
         progressStage: 'finished',
         updatedAt: now()
-      })
+      }))
     }
   }
 }

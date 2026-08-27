@@ -18,6 +18,90 @@
   "fontPostScriptName" : "HanziPenSC-W3",
   "fontUse" : "Local macOS system font rasterized for non-shipping test input; no font file is redistributed.",
   "generator" : "generate-grid-fixtures.swift",
+  "glyphReferences" : [
+    {
+      "character" : "永",
+      "file" : "synthetic-glyph-00.png",
+      "sha256" : "34e5bbc4a5d6fed5491bed7796c9d2fed8dd72e3eebdd730325000f22dfecc78"
+    },
+    {
+      "character" : "和",
+      "file" : "synthetic-glyph-01.png",
+      "sha256" : "71a4fce983d2889938fccd6338a0768ee1aa7c05586e7679c03930b977c86720"
+    },
+    {
+      "character" : "春",
+      "file" : "synthetic-glyph-02.png",
+      "sha256" : "ef0451faa35edcbd4eb039a00dc4e22ffaac6004bbe7855f023907aefd08d830"
+    },
+    {
+      "character" : "山",
+      "file" : "synthetic-glyph-03.png",
+      "sha256" : "8d2c0c987411a897c3da13019d42858fbde542a9e4e9594255d919d780219558"
+    },
+    {
+      "character" : "日",
+      "file" : "synthetic-glyph-04.png",
+      "sha256" : "10f0f194390987af77b263cee22a39672d29d80ee32d59cd025ae6f45d12265d"
+    },
+    {
+      "character" : "月",
+      "file" : "synthetic-glyph-05.png",
+      "sha256" : "bce2e8b21c8a41580263aa2cd1038602848672b021d58ada699393694eef0b9f"
+    },
+    {
+      "character" : "天",
+      "file" : "synthetic-glyph-06.png",
+      "sha256" : "8c0b8e1360c3f59186f3d846ba516a698241ae64021d75c363ca2744dd714c38"
+    },
+    {
+      "character" : "地",
+      "file" : "synthetic-glyph-07.png",
+      "sha256" : "0b1e65b5bcc2a83948a53adb9e9e270f031a1546fd46addada7943b605584c38"
+    },
+    {
+      "character" : "人",
+      "file" : "synthetic-glyph-08.png",
+      "sha256" : "0ec8ce4d63795084b14526263a1e5365cb3421416c017b1a15b55dfadcd32428"
+    },
+    {
+      "character" : "心",
+      "file" : "synthetic-glyph-09.png",
+      "sha256" : "0878bfb3b0eb7d7f6e0de1525324164d6db4de2be08679c9ba7a1dc113afe035"
+    },
+    {
+      "character" : "正",
+      "file" : "synthetic-glyph-10.png",
+      "sha256" : "6fea6491891bc0844de9385e43bb6939325c3d24976e71dd06b1ef7da1fc8c78"
+    },
+    {
+      "character" : "学",
+      "file" : "synthetic-glyph-11.png",
+      "sha256" : "6ed800a25032dcc9cfef1e0cd60d1969dd1a0a7f45592052c1c2019ae6b0baa0"
+    },
+    {
+      "character" : "书",
+      "file" : "synthetic-glyph-12.png",
+      "sha256" : "63ea00997785f862b395667538da664e465a93055c827121734179575579c072"
+    },
+    {
+      "character" : "法",
+      "file" : "synthetic-glyph-13.png",
+      "sha256" : "b6dc02ba4154f47853d3860d21e725d166b4c3be0d0578b8ad41764f7eead6cc"
+    },
+    {
+      "character" : "美",
+      "file" : "synthetic-glyph-14.png",
+      "sha256" : "4e8729297974aba06ef240bdecb9e40e4ea9272fabc44cbff9fe504aaad9368b"
+    },
+    {
+      "character" : "华",
+      "file" : "synthetic-glyph-15.png",
+      "sha256" : "f85f23f628670953418e77ae2d39ab65c85a522f7be1bd8d019f215904477008"
+    }
+  ],
+  "glyphReferenceUse" : "Non-shipping synthetic regression only; not an approved product standard glyph.",
+  "glyphReferenceVersion" : "hanzi-pen-synthetic-reference-v1",
   "grid" : {
     "columns" : 4,
     "rows" : 4,

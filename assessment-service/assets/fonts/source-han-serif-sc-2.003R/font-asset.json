@@ -1,0 +1,32 @@
+{
+  "fontName": "Adobe Source Han Serif Simplified Chinese Regular",
+  "localizedName": "Adobe 思源宋体简体中文 Regular",
+  "upstreamRelease": "2.003R",
+  "artifact": "SourceHanSerifSC-Regular.otf",
+  "artifactSha256": "78aa7a328fd974df2d688c8a9fd74a33d8334dfa84ab24d9d11efb2ffc464117",
+  "sourceArchive": "09_SourceHanSerifSC.zip",
+  "sourceArchiveSha256": "8f633642eedf9bf23ab3336faa3d03ce1b56c14d654cd25752bc829c05f79f0d",
+  "sourceUrl": "https://github.com/adobe-fonts/source-han-serif/releases/download/2.003R/09_SourceHanSerifSC.zip",
+  "license": "OFL-1.1",
+  "licenseFile": "LICENSE.txt",
+  "licenseSha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903",
+  "modified": false,
+  "deploymentScope": [
+    "private-source-repository",
+    "ci-test-artifacts",
+    "wechat-cloud-hosting-express-container"
+  ],
+  "excludedDistribution": [
+    "wechat-miniprogram-package",
+    "public-cdn",
+    "public-font-download-endpoint",
+    "ocr-provider-font-upload",
+    "vision-model-font-upload"
+  ],
+  "decision": {
+    "status": "accepted",
+    "date": "2026-08-12",
+    "ownerRole": "project-owner",
+    "productionComplianceSignOff": "pending"
+  }
+}

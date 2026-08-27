@@ -2,7 +2,7 @@
   "name": "ziyoufang-wechat-mvp",
   "version": "0.1.0",
   "private": true,
-  "description": "字有方微信小程序、云函数/BFF与智能评测服务工程",
+  "description": "字有方微信小程序、阿里云 ECS BFF/Worker 与智能评测服务工程",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -10,13 +10,19 @@
   "scripts": {
     "sync:contracts": "node scripts/sync-contracts.mjs",
     "sync:assets": "node scripts/sync-assets.mjs",
+    "fixtures:generate": "swift harness/fixtures/generate-grid-fixtures.swift",
     "typecheck:miniprogram": "tsc -p miniprogram/tsconfig.json",
     "test:contracts": "node --test tests/contracts-migration.test.mjs",
     "test:miniprogram-flow": "node --test tests/miniprogram-flow.test.mjs",
     "test:bff": "node --test cloudfunctions/assessmentBff/test/*.test.mjs",
+    "test:maintenance": "node --test cloudfunctions/databaseMaintenance/test/*.test.mjs",
     "test:assessment": "node --test assessment-service/test/*.test.mjs",
+    "test:ecs": "npm test --prefix ecs-service",
     "test:integration": "node --test tests/vertical-slice.test.mjs",
-    "test": "npm run sync:contracts && npm run sync:assets && npm run typecheck:miniprogram && npm run test:contracts && npm run test:miniprogram-flow && npm run test:bff && npm run test:assessment && npm run test:integration",
+    "test:sensitive-scan": "node --test tests/sensitive-artifact-scan.test.mjs",
+    "scan:sensitive": "node scripts/scan-sensitive-artifacts.mjs",
+    "test": "npm run scan:sensitive && npm run sync:contracts && npm run sync:assets && npm run typecheck:miniprogram && npm run test:contracts && npm run test:miniprogram-flow && npm run test:sensitive-scan && npm run test:bff && npm run test:maintenance && npm run test:assessment && npm run test:ecs && npm run test:integration",
+    "check:production-deployment": "node harness/bin/check-production-deployment.mjs",
     "validate:implementation": "node scripts/validate-implementation.mjs",
     "validate": "./harness/bin/validate"
   },

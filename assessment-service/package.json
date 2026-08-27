@@ -8,9 +8,16 @@
   },
   "scripts": {
     "start": "node src/server.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:container": "node --test test/security.test.mjs test/server-metrics.test.mjs test/source-han-serif-glyph-provider.test.mjs test/telemetry.test.mjs test/provider-adapters.test.mjs test/private-http-media-loader.test.mjs test/page-first-ocr-evidence-provider.test.mjs test/pixel-glyph-feature-provider.test.mjs test/character-decision-engine.test.mjs"
   },
   "dependencies": {
+    "@napi-rs/canvas": "1.0.2",
+    "express": "5.2.1",
     "jpeg-js": "0.4.4"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas-linux-arm64-gnu": "1.0.2",
+    "@napi-rs/canvas-linux-x64-gnu": "1.0.2"
   }
 }

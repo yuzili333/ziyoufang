@@ -75,6 +75,9 @@ test('pixel-backed synthetic pipeline produces all MVP result classes and determ
   assert.equal(wrong.recognizedCharacter, '出')
   assert.equal(wrong.score, 38)
   assert.deepEqual(wrong.issueCodes, ['CONTENT_MISMATCH'])
+  assert.deepEqual(wrong.differenceAnnotations, [
+    { code: 'CONTENT_MISMATCH', anchor: 'center', label: '目标字不一致' }
+  ])
   assert.ok(wrong.correctionSteps.length > 0)
   assert.equal(response.result.characters[7].score, null)
   assert.equal(response.result.characters[7].needsRetry, true)

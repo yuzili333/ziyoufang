@@ -58,7 +58,12 @@ export const TaskMediaStore = {
     write(items.filter((item) => !removed.includes(item)))
     return [...new Set(removed.map((item) => item.savedFilePath))]
   },
-  pruneExpired(now = Date.now()): string[] {
+  activePaths(now = Date.now()): Set<string> {
+    return new Set(read()
+      .filter((item) => Date.parse(item.expiresAt) > now)
+      .map((item) => item.savedFilePath))
+  },
+  pruneExpired(now = Date.now(), protectedPaths = new Set<string>()): string[] {
     const items = read()
     const expired = items.filter((item) => Date.parse(item.expiresAt) <= now)
     const activePaths = new Set(items
@@ -66,6 +71,6 @@ export const TaskMediaStore = {
       .map((item) => item.savedFilePath))
     write(items.filter((item) => Date.parse(item.expiresAt) > now))
     return [...new Set(expired.map((item) => item.savedFilePath))]
-      .filter((path) => !activePaths.has(path))
+      .filter((path) => !activePaths.has(path) && !protectedPaths.has(path))
   }
 }

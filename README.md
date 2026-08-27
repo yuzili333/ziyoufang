@@ -2,7 +2,7 @@
 
 > 汉字有形，习字有方。
 
-项目当前处于 **微信小程序实现与验证阶段**。`mobile-v2` 六方原型评审已经批准，正式工程采用“微信原生小程序 TypeScript + 微信云开发/BFF + 独立智能评测服务”。当前纵向切片只使用批准的合成 fixture，不调用真实 OCR、模型或学生数据；授权页面也明确使用不可投产的草案版本。
+项目当前处于 **微信小程序实现与验证阶段**。`mobile-v2` 六方原型评审已经批准，正式工程采用“微信原生小程序 TypeScript + 阿里云 ECS BFF/Worker + MySQL + 私有 OSS + 独立智能评测容器”。当前纵向切片只使用批准的合成 fixture，不调用真实 OCR、模型或学生数据；授权页面也明确使用不可投产的草案版本。
 
 ## 当前仓库内容
 
@@ -11,9 +11,10 @@
 - [`prototype/mobile-v2/`](./prototype/mobile-v2/)：已完成浏览器交互与视觉 QA 的可点击手机原型，以及后续 PAD 主从布局设计板；仅使用固定模拟数据。
 - [`miniprogram/`](./miniprogram/)：微信原生 TypeScript 客户端，包含授权、拍照确认、离线、异步进度、结果、反馈、字本、成长、删除和受控分享页面。
 - [`cloudfunctions/assessmentBff/`](./cloudfunctions/assessmentBff/)：微信身份边界、授权记录、私有任务、幂等、评测调用、字本与成长聚合。
+- [`ecs-service/`](./ecs-service/)：生产 ECS API、微信登录会话、MySQL仓储/任务租约、OSS媒体与清理 Worker；旧云函数目录只作为14天回滚实现保留。
+- [`deployment/aliyun/`](./deployment/aliyun/)：主机 Nginx 路径共存、API/Worker/评测容器、迁移、备份和人工批准发布入口；容器 edge 仅作独立域名回退。
 - [`assessment-service/`](./assessment-service/)：独立评测服务；当前开放预制 fixture 和真实读取批准 PNG 的 `synthetic-pipeline` 两种非生产模式。
 - [`packages/contracts/`](./packages/contracts/)：从 Harness 机械同步的正式工程共享契约和测试样例。
-- [`client/`](./client/)：已冻结的 ArkUI-X 遗留验证工程，只作为契约和合成 fixture 迁移来源。
 
 ## 当前门禁
 
@@ -36,7 +37,9 @@
 17. 切格坐标已形成真实单字 PNG：OCR 最多 32 格一批，建议最多 8 个问题字一批；裁剪图、标准字引用、OCR 候选和确定性特征只在 Provider 调用期间存在，不进入结果或遥测。
 18. 页级 OCR 结果已能按坐标唯一落格；缺失、冲突、低置信和疑似错字按需单格复识，单份非目标结果不会被判为错字。
 19. 已建立依赖外部版本化标准字的四维像素特征引擎，用二值掩码、骨架、轮廓、分布、占格和重心形成笔画规范、间架结构、字形比例、位置布局的合成工程证据；稳定性仍只由至少三次同版本练习生成。
-20. 真实 OCR/模型 POC、真实学生数据、合规文案、标准字形许可证、评分专家校准、微信云环境、开发者工具视觉验收、分布式配额/持久指标、三端真机和发布仍由独立门禁阻塞。
+20. 合成纵向切片已实际串联“页级 OCR 坐标—单格复识—版本化合成字形引用—像素四维评分—BFF 聚合”，不再用预填四维分数掩盖装配缺口；该切片仅用于非发布回归。
+21. 思源宋体 2.003R/OFL-1.1 字形资产、哈希校验、ECS 私有 Express 容器和真实 `GlyphProvider` 已建立；真实 OCR/模型 POC、真实学生数据、生产合规台账、评分专家校准、ECS/MySQL/OSS真实环境、开发者工具视觉验收、持久指标、三端真机和发布仍由独立门禁阻塞。
+22. 备案根域 `https://lilicoconut.me` 已登记为小程序 API 基址，主机 Nginx 只接管 `/api/v1/*`；成都私有 OSS 的公网直传/访问域名也已登记，真实 DNS、证书、微信后台和 ECS 发布验证仍保持外部门禁。
 
 联合评审可直接使用 [`mobile-v2-joint-review-packet.md`](./harness/reviews/mobile-v2-joint-review-packet.md)。评审通过后的执行顺序已固化在 [`miniprogram-mvp-backlog.md`](./harness/requirements/miniprogram-mvp-backlog.md) 和 [`assessment-poc-plan.md`](./harness/validation/assessment-poc-plan.md)，当前研发就绪度见 [`wechat-development-readiness-2026-08-11.md`](./harness/validation/wechat-development-readiness-2026-08-11.md)。
 
@@ -55,4 +58,4 @@ npm install
 npm run validate
 ```
 
-校验包含小程序 TypeScript、契约迁移、云函数/BFF、评测服务、HMAC、幂等与端到端合成纵向切片；同时继续执行 Harness 和冻结遗留契约测试。
+校验包含小程序 TypeScript、契约迁移、ECS BFF/Worker、MySQL/OSS适配、评测服务、HMAC、任务租约、幂等、端到端合成纵向切片和 Harness 门禁。ArkUI-X 遗留工程已在迁移验证后删除。

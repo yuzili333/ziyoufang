@@ -2,20 +2,27 @@ const cloud = require('wx-server-sdk')
 
 const { createAssessmentBff } = require('./core/bff-core')
 const { createCloudRepository } = require('./core/cloud-repository')
+const { CloudSlidingWindowQuota } = require('./core/cloud-quota-guard')
 const { FixtureGateway } = require('./core/fixture-gateway')
-const { deriveSubjectId } = require('./core/identity')
+const { deriveSubjectId, deriveWechatSubjectKey } = require('./core/identity')
+const { createPrivateMediaAccessResolver } = require('./core/private-media-access')
 const { RemoteAssessmentGateway } = require('./core/remote-gateway')
 const { SlidingWindowQuota } = require('./core/quota-guard')
+const { assertProductionSecrets } = require('./core/secret-policy')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const repository = createCloudRepository(cloud.database())
+const database = cloud.database()
+const repository = createCloudRepository(database)
 const quotaPolicyVersion = process.env.QUOTA_POLICY_VERSION ?? 'draft-quota-v1'
-const quotaGuard = new SlidingWindowQuota({
+const quotaConfig = {
   windowMs: Number(process.env.QUOTA_WINDOW_MS ?? 60 * 60 * 1000),
   maximum: Number(process.env.QUOTA_MAX_TASKS ?? 30),
   policyVersion: quotaPolicyVersion
-})
+}
+const quotaGuard = process.env.QUOTA_BACKEND === 'distributed'
+  ? new CloudSlidingWindowQuota({ db: database, ...quotaConfig })
+  : new SlidingWindowQuota(quotaConfig)
 
 const verifyCloudFile = async ({ cloudFileId, task }) => {
   if (!cloudFileId.includes(`${task.privateUploadPath}.`)) return false
@@ -24,19 +31,10 @@ const verifyCloudFile = async ({ cloudFileId, task }) => {
   return file?.fileID === cloudFileId && file.status === 0
 }
 
-const resolvePrivateMediaAccess = async ({ cloudFileId }) => {
-  const result = await cloud.getTempFileURL({ fileList: [cloudFileId] })
-  const file = result.fileList?.[0]
-  if (file?.fileID !== cloudFileId || file.status !== 0 || !file.tempFileURL) {
-    throw new Error('PRIVATE_MEDIA_ACCESS_UNAVAILABLE')
-  }
-  const url = new URL(file.tempFileURL)
-  if (url.protocol !== 'https:') throw new Error('PRIVATE_MEDIA_ACCESS_INSECURE')
-  return {
-    url: url.toString(),
-    expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
-  }
-}
+const resolvePrivateMediaAccess = createPrivateMediaAccessResolver({
+  repository,
+  getTempFileURL: (input) => cloud.getTempFileURL(input)
+})
 
 const deleteCloudFiles = async (fileList) => {
   if (fileList.length === 0) return { deleted: true }
@@ -76,8 +74,23 @@ exports.main = async (event) => {
   if (process.env.NODE_ENV === 'production' && process.env.QUOTA_BACKEND !== 'distributed') {
     throw new Error('PRODUCTION_DISTRIBUTED_QUOTA_REQUIRED')
   }
+  if (process.env.NODE_ENV === 'production') {
+    assertProductionSecrets({
+      BFF_HMAC_SECRET: process.env.BFF_HMAC_SECRET,
+      SUBJECT_ID_HMAC_SECRET: process.env.SUBJECT_ID_HMAC_SECRET,
+      SHARE_TOKEN_SECRET: process.env.SHARE_TOKEN_SECRET
+    })
+  }
   const wxContext = cloud.getWXContext()
   const subjectId = deriveSubjectId(wxContext.OPENID, process.env.SUBJECT_ID_HMAC_SECRET)
+  const occurredAt = new Date().toISOString()
+  await repository.upsertSubjectAccount({
+    subjectId,
+    wechatSubjectKey: deriveWechatSubjectKey(wxContext.OPENID, process.env.SUBJECT_ID_HMAC_SECRET),
+    status: 'active',
+    createdAt: occurredAt,
+    updatedAt: occurredAt
+  })
   const bff = createAssessmentBff({
     repository,
     gateway: createGateway(),

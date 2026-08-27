@@ -67,6 +67,31 @@ const buildIssues = (codes, context) => codes.map((code) => {
   return { code, title: definition.title, detail: definition.detail(context) }
 })
 
+const DIFFERENCE_ANNOTATIONS = {
+  CONTENT_MISMATCH: { anchor: 'center', label: '目标字不一致' },
+  CENTER_OFFSET_LEFT: { anchor: 'left', label: '整体偏左' },
+  CENTER_OFFSET_RIGHT: { anchor: 'right', label: '整体偏右' },
+  CENTER_OFFSET_UP: { anchor: 'top', label: '整体偏上' },
+  CENTER_OFFSET_DOWN: { anchor: 'bottom', label: '整体偏下' },
+  GLYPH_TOO_LARGE: { anchor: 'edge', label: '占格偏大' },
+  GLYPH_TOO_SMALL: { anchor: 'edge', label: '占格偏小' },
+  STROKE_FORM_DIFFERENT: { anchor: 'center', label: '笔画形态' },
+  FRAME_STRUCTURE_DIFFERENT: { anchor: 'center', label: '间架结构' },
+  GLYPH_PROPORTION_IMBALANCED: { anchor: 'edge', label: '字形比例' }
+}
+
+const buildDifferenceAnnotations = (codes) => {
+  const usedAnchors = new Set()
+  return codes
+    .flatMap((code) => DIFFERENCE_ANNOTATIONS[code] ? [{ code, ...DIFFERENCE_ANNOTATIONS[code] }] : [])
+    .filter((annotation) => {
+      if (usedAnchors.has(annotation.anchor)) return false
+      usedAnchors.add(annotation.anchor)
+      return true
+    })
+    .slice(0, 3)
+}
+
 export class DeterministicCharacterDecisionEngine {
   constructor({
     version = 'deterministic-character-decision-v1',
@@ -91,6 +116,7 @@ export class DeterministicCharacterDecisionEngine {
       expectedCharacter,
       polygon,
       ocrCandidates: candidates,
+      differenceAnnotations: [],
       growthSummary: {
         status: 'collecting',
         comparablePracticeCount: 0,
@@ -157,6 +183,7 @@ export class DeterministicCharacterDecisionEngine {
     }
     if (recognizedCharacter !== expectedCharacter) {
       const context = { expectedCharacter, recognizedCharacter }
+      const issueCodes = ['CONTENT_MISMATCH', ...(ocrResult.deterministicIssueCodes ?? [])]
       return {
         ...base,
         growthSummary,
@@ -165,8 +192,9 @@ export class DeterministicCharacterDecisionEngine {
         category: 'wrong',
         score,
         scoreBreakdown,
-        issueCodes: ['CONTENT_MISMATCH'],
-        issues: buildIssues(['CONTENT_MISMATCH'], context),
+        issueCodes,
+        issues: buildIssues(issueCodes, context),
+        differenceAnnotations: buildDifferenceAnnotations(issueCodes),
         needsRetry: false
       }
     }
@@ -184,6 +212,7 @@ export class DeterministicCharacterDecisionEngine {
       scoreBreakdown,
       issueCodes,
       issues: buildIssues(issueCodes, { expectedCharacter, recognizedCharacter }),
+      differenceAnnotations: buildDifferenceAnnotations(issueCodes),
       needsRetry: false
     }
   }

@@ -1,10 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": "1.0.0",
-  "technology": "wechat-cloud-development-and-bff",
+  "technology": "mysql-8-inno-db-via-aliyun-ecs-bff",
+  "databaseAccessPolicy": {
+    "directClientRead": false,
+    "directClientWrite": false,
+    "managementPlaneOnly": true
+  },
   "tenantBoundary": {
     "tenantKey": "subjectId",
-    "identitySource": "wechat_runtime_context_only",
+    "identitySource": "server_side_code2session_only",
     "storedWechatIdentity": "hmac_derived_wechat_subject_key",
     "clientSuppliedOpenidTrusted": false,
     "directClientDatabaseWrite": false
@@ -41,6 +46,7 @@
       "tenantKey": "subjectId",
       "requiredFields": ["mediaId", "subjectId", "kind", "privateObjectRef", "sha256", "createdAt", "expiresAt", "lifecycleStatus"],
       "uniqueIndexes": [["subjectId", "privateObjectRef"], ["subjectId", "sha256", "kind"]],
+      "queryIndexes": [["expiresAt", "lifecycleStatus"]],
       "access": { "clientRead": "short_lived_signed_access_via_bff", "clientWrite": "upload_ticket_only", "serviceWrite": "media_bff" },
       "lifecycle": { "mode": "ttl_pending_compliance_approval", "ttlField": "expiresAt", "prototypeDays": 30 },
       "appendOnly": false,
@@ -125,6 +131,7 @@
       "tenantKey": "subjectId",
       "requiredFields": ["shareCardId", "subjectId", "shareTokenHash", "consentRecordId", "redactedPayload", "status", "createdAt", "expiresAt", "revokedAt"],
       "uniqueIndexes": [["shareTokenHash"]],
+      "queryIndexes": [["expiresAt", "status"]],
       "access": { "clientRead": "token_guarded_redacted_payload_only", "clientWrite": "none", "serviceWrite": "share_bff" },
       "lifecycle": { "mode": "ttl_pending_compliance_approval", "ttlField": "expiresAt" },
       "appendOnly": false,
@@ -151,6 +158,19 @@
       "uniqueIndexes": [["auditEventId"]],
       "access": { "clientRead": "none", "clientWrite": "none", "serviceWrite": "audit_service" },
       "lifecycle": { "mode": "audit_policy_pending", "ttlField": null },
+      "appendOnly": true,
+      "containsMedia": false
+    },
+    {
+      "id": "quota_events",
+      "purpose": "按主体、策略版本和滑动窗口执行分布式评测配额",
+      "primaryKey": "quotaEventId",
+      "tenantKey": "subjectId",
+      "requiredFields": ["quotaEventId", "subjectId", "policyVersion", "occurredAt", "expiresAt"],
+      "uniqueIndexes": [["quotaEventId"]],
+      "queryIndexes": [["expiresAt"]],
+      "access": { "clientRead": "none", "clientWrite": "none", "serviceWrite": "quota_bff" },
+      "lifecycle": { "mode": "ttl_window_expiry", "ttlField": "expiresAt" },
       "appendOnly": true,
       "containsMedia": false
     }

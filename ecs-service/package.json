@@ -1,0 +1,19 @@
+{
+  "name": "@ziyoufang/ecs-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start:api": "node src/server.js",
+    "start:worker": "node src/worker.js",
+    "migrate": "node src/migrate.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "5.2.1",
+    "mysql2": "3.14.4"
+  }
+}

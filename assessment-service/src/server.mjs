@@ -1,40 +1,40 @@
 import { createServer as createHttpServer } from 'node:http'
 import { pathToFileURL } from 'node:url'
 
+import express from 'express'
+
 import { AssessmentOrchestrator } from './orchestrator.mjs'
 import { createApprovedSyntheticPipeline } from './pipeline/approved-synthetic-pipeline.mjs'
-import { FixtureAssessmentProvider } from './providers/fixture-provider.mjs'
+import { SourceHanSerifGlyphProvider } from './providers/source-han-serif-glyph-provider.mjs'
 import { MemoryAssessmentRepository } from './repository.mjs'
 import { NonceReplayGuard, verifyRequest } from './security.mjs'
 import { SafeTelemetry } from './telemetry.mjs'
 
-const json = (response, status, value) => {
-  response.writeHead(status, { 'content-type': 'application/json; charset=utf-8' })
-  response.end(JSON.stringify(value))
-}
-
-const readBody = async (request) => {
-  const chunks = []
-  for await (const chunk of request) chunks.push(chunk)
-  return Buffer.concat(chunks).toString('utf8')
-}
-
-export function createAssessmentServer({
+export function createAssessmentApp({
   secret,
   replayGuard = new NonceReplayGuard(),
   telemetry = new SafeTelemetry(),
-  orchestrator
+  orchestrator,
+  assessmentEnabled = true
 } = {}) {
+  const disabledProvider = {
+    name: 'disabled',
+    async assess() { throw new Error('ASSESSMENT_PROVIDER_NOT_ENABLED') }
+  }
   const effectiveOrchestrator = orchestrator ?? new AssessmentOrchestrator({
     repository: new MemoryAssessmentRepository(),
-    provider: new FixtureAssessmentProvider({ enabled: true }),
+    provider: disabledProvider,
     telemetry
   })
   const effectiveTelemetry = effectiveOrchestrator.telemetry ?? telemetry
-  return createHttpServer(async (request, response) => {
+  const app = express()
+  app.disable('x-powered-by')
+  app.get('/health', (_request, response) => response.status(200).json({ status: 'ok' }))
+  app.use(express.raw({ type: '*/*', limit: '1mb' }))
+  app.use(async (request, response) => {
     try {
       const url = new URL(request.url, 'http://assessment.local')
-      const body = await readBody(request)
+      const body = Buffer.isBuffer(request.body) ? request.body.toString('utf8') : ''
       const timestamp = request.headers['x-request-timestamp']
       const nonce = request.headers['x-request-nonce']
       const signature = request.headers['x-signature']
@@ -45,62 +45,113 @@ export function createAssessmentServer({
         nonce,
         body
       }, signature, secret)
-      if (!verified) return json(response, 401, { error: 'INVALID_SIGNATURE' })
-      if (!replayGuard.consume(nonce)) return json(response, 409, { error: 'REPLAYED_NONCE' })
+      if (!verified) return response.status(401).json({ error: 'INVALID_SIGNATURE' })
+      if (!replayGuard.consume(nonce)) return response.status(409).json({ error: 'REPLAYED_NONCE' })
 
       if (request.method === 'GET' && url.pathname === '/internal/metrics') {
-        return json(response, 200, effectiveTelemetry.snapshot())
+        return response.status(200).json(effectiveTelemetry.snapshot())
       }
 
       if (request.method === 'POST' && url.pathname === '/v1/assessments') {
+        if (!assessmentEnabled) return response.status(503).json({ error: 'ASSESSMENT_PROVIDER_NOT_ENABLED' })
         const task = await effectiveOrchestrator.accept(JSON.parse(body))
-        queueMicrotask(() => effectiveOrchestrator.process(task.taskId).catch(() => undefined))
-        return json(response, 202, {
-          taskId: task.taskId,
-          status: task.status,
-          progressStage: task.progressStage
+        const processed = await effectiveOrchestrator.process(task.taskId)
+        return response.status(202).json({
+          taskId: processed.taskId,
+          status: processed.status,
+          progressStage: processed.progressStage
         })
+      }
+      if (request.method === 'POST' && url.pathname === '/internal/v1/assessments:run') {
+        if (!assessmentEnabled) return response.status(503).json({ error: 'ASSESSMENT_PROVIDER_NOT_ENABLED' })
+        const task = await effectiveOrchestrator.accept(JSON.parse(body))
+        return response.status(200).json(await effectiveOrchestrator.process(task.taskId))
       }
       const match = url.pathname.match(/^\/v1\/assessments\/([^/]+)(\/cancel)?$/)
       if (match && request.method === 'GET' && !match[2]) {
         const task = await effectiveOrchestrator.repository.get(match[1])
-        return task ? json(response, 200, task) : json(response, 404, { error: 'TASK_NOT_FOUND' })
+        return task ? response.status(200).json(task) : response.status(404).json({ error: 'TASK_NOT_FOUND' })
       }
       if (match && request.method === 'POST' && match[2] === '/cancel') {
-        return json(response, 200, await effectiveOrchestrator.cancel(match[1]))
+        return response.status(200).json(await effectiveOrchestrator.cancel(match[1]))
       }
-      return json(response, 404, { error: 'NOT_FOUND' })
+      return response.status(404).json({ error: 'NOT_FOUND' })
     } catch (error) {
-      return json(response, 400, { error: error.message })
+      return response.status(400).json({ error: error.message })
     }
   })
+  app.use((error, _request, response, _next) => {
+    const status = error?.type === 'entity.too.large' ? 413 : 400
+    response.status(status).json({ error: status === 413 ? 'REQUEST_BODY_TOO_LARGE' : 'INVALID_REQUEST_BODY' })
+  })
+  return app
+}
+
+export function createAssessmentServer(options = {}) {
+  return createHttpServer(createAssessmentApp(options))
+}
+
+export function assertProductionSecrets(values) {
+  const entries = Object.entries(values)
+  for (const [name, value] of entries) {
+    if (typeof value !== 'string' || Buffer.byteLength(value, 'utf8') < 32) {
+      throw new Error(`${name}_MINIMUM_32_BYTES_REQUIRED`)
+    }
+  }
+  if (new Set(entries.map(([, value]) => value)).size !== entries.length) {
+    throw new Error('PRODUCTION_SECRETS_MUST_BE_DISTINCT')
+  }
 }
 
 async function main() {
   const providerMode = process.env.ASSESSMENT_PROVIDER_MODE
-  if (!['fixture', 'synthetic-pipeline'].includes(providerMode)) {
+  if (!['fixture', 'synthetic-pipeline', 'font-smoke'].includes(providerMode)) {
     throw new Error('Only approved synthetic providers are enabled; POC gate blocks real providers')
   }
-  if (process.env.NODE_ENV === 'production') throw new Error('SYNTHETIC_PROVIDER_FORBIDDEN_IN_PRODUCTION')
+  if (process.env.NODE_ENV === 'production' && providerMode !== 'font-smoke') {
+    throw new Error('SYNTHETIC_PROVIDER_FORBIDDEN_IN_PRODUCTION')
+  }
   const secret = process.env.BFF_HMAC_SECRET
   if (!secret) throw new Error('BFF_HMAC_SECRET_REQUIRED')
   const taskHashSecret = process.env.TELEMETRY_HASH_SECRET
   if (process.env.NODE_ENV === 'production' && !taskHashSecret) {
     throw new Error('TELEMETRY_HASH_SECRET_REQUIRED')
   }
-  const port = Number(process.env.PORT ?? 8787)
+  if (process.env.NODE_ENV === 'production') {
+    assertProductionSecrets({ BFF_HMAC_SECRET: secret, TELEMETRY_HASH_SECRET: taskHashSecret })
+  }
+  const port = Number(process.env.PORT ?? 8080)
   const telemetry = new SafeTelemetry({ taskHashSecret: taskHashSecret ?? 'local-test-telemetry-secret' })
   let orchestrator
+  let assessmentEnabled = true
+  if (providerMode === 'font-smoke') {
+    if (process.env.GLYPH_PROVIDER_MODE !== 'source-han-serif') {
+      throw new Error('LICENSED_GLYPH_PROVIDER_REQUIRED')
+    }
+    await SourceHanSerifGlyphProvider.create()
+    assessmentEnabled = false
+  }
+  if (providerMode === 'fixture') {
+    const { FixtureAssessmentProvider } = await import('./providers/fixture-provider.mjs')
+    orchestrator = new AssessmentOrchestrator({
+      repository: new MemoryAssessmentRepository(),
+      provider: new FixtureAssessmentProvider({ enabled: true }),
+      telemetry
+    })
+  }
   if (providerMode === 'synthetic-pipeline') {
-    const { provider } = await createApprovedSyntheticPipeline()
+    const glyphProvider = process.env.GLYPH_PROVIDER_MODE === 'source-han-serif'
+      ? await SourceHanSerifGlyphProvider.create()
+      : undefined
+    const { provider } = await createApprovedSyntheticPipeline({ glyphProvider })
     orchestrator = new AssessmentOrchestrator({
       repository: new MemoryAssessmentRepository(),
       provider,
       telemetry
     })
   }
-  const server = createAssessmentServer({ secret, telemetry, orchestrator })
-  server.listen(port, '127.0.0.1', () => console.log(`assessment service listening on ${port}`))
+  const server = createAssessmentServer({ secret, telemetry, orchestrator, assessmentEnabled })
+  server.listen(port, '0.0.0.0', () => console.log(`assessment service listening on ${port}`))
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main()

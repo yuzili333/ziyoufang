@@ -3,7 +3,7 @@
   <view class="meta"><view><text class="muted">目标文字</text><text class="target">{{draft.expectedText}}</text></view><text class="muted">{{sizeText}}</text></view>
   <view class="paper-card quality"><text class="section-title">上传后将检查</text><view><text>✓ 页面方向与透视</text><text>✓ 模糊、过暗、反光</text><text>✓ 方格完整与单字切分</text></view><text class="muted">质量不足时不会强行评分，会给出明确重拍提示。</text></view>
   <view wx:if="{{busy}}" class="upload-progress"><view style="width: {{uploadProgress}}%"></view><text>{{uploadProgress}}%</text></view>
-  <button wx:if="{{busy}}" class="cancel-upload" bindtap="cancelUpload">取消上传</button>
+  <button wx:if="{{busy && uploadingFile}}" class="cancel-upload" bindtap="cancelUpload">取消上传</button>
   <view class="actions"><button class="secondary" disabled="{{busy}}" bindtap="retake">重拍或换图</button><button class="primary" disabled="{{busy}}" bindtap="confirmUpload">确认上传</button></view>
   <button class="offline" disabled="{{busy}}" bindtap="saveOffline">保存到本机，稍后上传</button>
   <button class="cancel" disabled="{{busy}}" bindtap="cancel">取消</button>

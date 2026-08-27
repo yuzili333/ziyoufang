@@ -5,14 +5,17 @@ import { LocalTaskStore } from '../../services/local-task-store'
 import { MediaService } from '../../services/media-service'
 import { TaskMediaStore } from '../../services/task-media-store'
 import { isOnline } from '../../services/network-service'
+import { createLocalId } from '../../utils/id'
 
 Page({
   uploadOperation: null as ReturnType<typeof MediaService.createPrivateUpload> | null,
+  serverTaskId: null as string | null,
   uploadCancelled: false,
   data: {
     draft: null as CaptureDraft | null,
     sizeText: '',
     uploadProgress: 0,
+    uploadingFile: false,
     busy: false
   },
   onLoad() {
@@ -36,7 +39,7 @@ Page({
         expectedText: draft.expectedText,
         consentVersion: CONSENT_VERSION
       })
-      if (!task.privateUploadPath) throw new Error('上传任务缺少私有路径')
+      this.serverTaskId = task.taskId
       TaskMediaStore.bind({
         taskId: task.taskId,
         localTaskId: draft.localTaskId,
@@ -47,19 +50,26 @@ Page({
         createdAt: draft.createdAt
       })
       const digest = await MediaService.sha256(draft.savedFilePath)
+      const ticket = await AssessmentClient.createUploadTicket({
+        taskId: task.taskId,
+        extension: MediaService.extension(draft.mediaFormat)
+      })
       this.uploadCancelled = false
+      this.setData({ uploadingFile: true })
       this.uploadOperation = MediaService.createPrivateUpload(
-        `${task.privateUploadPath}.${MediaService.extension(draft.mediaFormat)}`,
+        ticket,
         draft.savedFilePath,
         (uploadProgress) => this.setData({ uploadProgress })
       )
-      const cloudFileId = await this.uploadOperation.result
+      const uploaded = await this.uploadOperation.result
       await AssessmentClient.submitAssessment({
         taskId: task.taskId,
-        cloudFileId,
-        imageSha256: digest
+        mediaId: uploaded.mediaId,
+        imageSha256: digest,
+        etag: uploaded.etag
       })
       CaptureDraftStore.clear()
+      this.serverTaskId = null
       wx.redirectTo({ url: `/pages/progress/index?taskId=${encodeURIComponent(task.taskId)}` })
     } catch (error) {
       if (!this.uploadCancelled) {
@@ -67,13 +77,30 @@ Page({
       }
     } finally {
       this.uploadOperation = null
+      this.setData({ uploadingFile: false })
       wx.hideLoading()
       this.setData({ busy: false })
     }
   },
-  cancelUpload() {
+  async cancelUpload() {
+    if (!this.data.uploadingFile || this.uploadCancelled) return
     this.uploadCancelled = true
     this.uploadOperation?.abort()
+    const task = await this.cancelServerTask()
+    if (!task) {
+      wx.showToast({ title: '取消同步失败，照片仍保留', icon: 'none' })
+      return
+    }
+    if (['completed', 'partially_completed'].includes(task.status)) {
+      CaptureDraftStore.clear()
+      this.serverTaskId = null
+      return wx.redirectTo({ url: `/pages/results/index?taskId=${encodeURIComponent(task.taskId)}` })
+    }
+    if (task.status !== 'cancelled') {
+      wx.showToast({ title: '任务状态已变化，请稍后查看', icon: 'none' })
+      return
+    }
+    this.rotateCancelledDraft()
     wx.showToast({ title: '已取消上传，照片仍保留', icon: 'none' })
   },
   saveOffline() {
@@ -96,11 +123,13 @@ Page({
   },
   async retake() {
     const target = encodeURIComponent(this.data.draft?.expectedText ?? '')
+    if (!(await this.cancelServerTaskIfNeeded())) return
     if (this.data.draft) await this.removeDraftMedia(this.data.draft)
     CaptureDraftStore.clear()
     wx.reLaunch({ url: `/pages/practice/index?character=${target}&capture=1` })
   },
   async cancel() {
+    if (!(await this.cancelServerTaskIfNeeded())) return
     if (this.data.draft) await this.removeDraftMedia(this.data.draft)
     CaptureDraftStore.clear()
     wx.navigateBack()
@@ -111,5 +140,41 @@ Page({
       ...TaskMediaStore.removeByLocalTaskId(draft.localTaskId)
     ])
     await Promise.all([...paths].map((path) => MediaService.removeSaved(path).catch(() => undefined)))
+  },
+  async cancelServerTask() {
+    if (!this.serverTaskId) return null
+    try {
+      return await AssessmentClient.cancelAssessment(this.serverTaskId)
+    } catch {
+      return null
+    }
+  },
+  async cancelServerTaskIfNeeded() {
+    if (!this.serverTaskId) return true
+    const task = await this.cancelServerTask()
+    if (!task || !['cancelled', 'completed', 'partially_completed'].includes(task.status)) {
+      wx.showToast({ title: '无法确认服务端取消，请稍后重试', icon: 'none' })
+      return false
+    }
+    this.serverTaskId = null
+    if (['completed', 'partially_completed'].includes(task.status)) {
+      CaptureDraftStore.clear()
+      wx.redirectTo({ url: `/pages/results/index?taskId=${encodeURIComponent(task.taskId)}` })
+      return false
+    }
+    return true
+  },
+  rotateCancelledDraft() {
+    const draft = this.data.draft
+    if (!draft) return
+    TaskMediaStore.removeByLocalTaskId(draft.localTaskId)
+    const nextDraft: CaptureDraft = {
+      ...draft,
+      localTaskId: createLocalId('local'),
+      idempotencyKey: createLocalId('idem')
+    }
+    CaptureDraftStore.put(nextDraft)
+    this.serverTaskId = null
+    this.setData({ draft: nextDraft, uploadProgress: 0 })
   }
 })

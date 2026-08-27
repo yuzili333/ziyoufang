@@ -31,13 +31,16 @@ const setup = () => {
   return { repository, gateway, bff }
 }
 
-test('create task is idempotent and never trusts a client identity field', async () => {
-  const { bff } = setup()
+test('create task is idempotent, never trusts a client identity field, and only exposes upload access at creation', async () => {
+  const { bff, repository } = setup()
   const first = await bff.createUploadTask({ ...input, openid: 'attacker' }, context)
   const second = await bff.createUploadTask(input, context)
   assert.equal(first.taskId, 'task_fixed-id')
   assert.deepEqual(second, first)
-  assert.equal(first.subjectId, 'subject-1')
+  assert.equal((await repository.getTask(first.taskId)).subjectId, 'subject-1')
+  assert.ok(first.privateUploadPath)
+  assert.ok(first.uploadPolicy)
+  assert.equal(first.subjectId, undefined)
   assert.equal(first.openid, undefined)
 })
 
@@ -62,8 +65,8 @@ test('new logical tasks consume subject quota while idempotent retries do not', 
   )
 })
 
-test('submit stores a partial multi-character result once', async () => {
-  const { bff, gateway } = setup()
+test('submit stores a partial multi-character result once and records TTL-bound private media metadata', async () => {
+  const { bff, gateway, repository } = setup()
   const task = await bff.createUploadTask(input, context)
   const accepted = await bff.submitAssessment({
     taskId: task.taskId,
@@ -71,8 +74,24 @@ test('submit stores a partial multi-character result once', async () => {
     imageSha256: 'a'.repeat(64)
   }, context)
   assert.equal(accepted.status, 'analyzing')
+  assert.equal(accepted.cloudFileId, undefined)
+  assert.equal(accepted.privateUploadPath, undefined)
+  assert.equal(accepted.imageSha256, undefined)
+  assert.deepEqual(repository.mediaObjects.get('media_task_fixed-id_source'), {
+    mediaId: 'media_task_fixed-id_source',
+    subjectId: 'subject-1',
+    sourceTaskId: task.taskId,
+    kind: 'source_photo',
+    privateObjectRef: cloudFile(task),
+    sha256: 'a'.repeat(64),
+    createdAt: '2026-08-11T10:00:00.000Z',
+    expiresAt: '2026-09-10T10:00:00.000Z',
+    lifecycleStatus: 'active'
+  })
   const result = await bff.getAssessment({ taskId: task.taskId }, context)
   assert.equal(result.status, 'partially_completed')
+  assert.equal(result.cloudFileId, undefined)
+  assert.equal(result.sourceMediaId, undefined)
   assert.equal(result.characters.length, 5)
   await bff.submitAssessment({
     taskId: task.taskId,
@@ -151,6 +170,25 @@ test('cancelling a local upload is idempotent', async () => {
   const second = await bff.cancelAssessment({ taskId: task.taskId }, context)
   assert.equal(first.status, 'cancelled')
   assert.deepEqual(second, first)
+})
+
+test('cancelling an upload checkpoint before server acceptance does not invoke a remote cancellation', async () => {
+  const repository = new MemoryBffRepository()
+  let remoteCancels = 0
+  const bff = createAssessmentBff({
+    repository,
+    gateway: {
+      async start() { throw new Error('start should not be called') },
+      async get() { throw new Error('get should not be called') },
+      async cancel() { remoteCancels += 1; return { status: 'cancelled' } }
+    },
+    consentVersion: 'consent-v1', enforceConsent: false,
+    idFactory: () => 'local-cancel', now: () => '2026-08-11T10:00:00.000Z'
+  })
+  const task = await bff.createUploadTask(input, context)
+  const cancelled = await bff.cancelAssessment({ taskId: task.taskId }, context)
+  assert.equal(cancelled.status, 'cancelled')
+  assert.equal(remoteCancels, 0)
 })
 
 test('cancel never overwrites a result that completed remotely first', async () => {
@@ -451,6 +489,8 @@ test('practice deletion is confirmed, idempotent, removes linked versions, and i
   const duplicate = await bff.deletePractice(deletionInput, context)
   assert.deepEqual(duplicate, job)
   assert.equal(job.status, 'completed')
+  assert.equal(job.objectResults.find((item) => item.objectType === 'media_objects').count, 1)
+  assert.equal(repository.mediaObjects.size, 0)
   assert.equal(job.objectResults.find((item) => item.objectType === 'assessment_tasks').count, 2)
   assert.equal(job.objectResults.find((item) => item.objectType === 'character_results').count, 10)
   assert.equal(deletedFiles.length, 1)
@@ -485,5 +525,6 @@ test('failed private file deletion leaves business records intact and records a 
   }, context)
   assert.equal(job.status, 'failed')
   assert.equal(job.errorCode, 'PRIVATE_STORAGE_TEMPORARY_FAILURE')
+  assert.equal(repository.mediaObjects.size, 1)
   assert.equal((await bff.getAssessment({ taskId: task.taskId }, context)).status, 'partially_completed')
 })

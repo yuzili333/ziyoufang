@@ -40,6 +40,7 @@ required_files=(
   "harness/contracts/assessment-api.md"
   "harness/contracts/assessment-task-state-machine.json"
   "harness/contracts/cloud-data-model.json"
+  "harness/contracts/aliyun-ecs-production-deployment.json"
   "harness/contracts/assessment-result.schema.json"
   "harness/contracts/character-growth.schema.json"
   "harness/contracts/model-advice.schema.json"
@@ -64,6 +65,11 @@ required_files=(
   "harness/validation/cell-visual-evidence-foundation-2026-08-11.md"
   "harness/validation/page-first-ocr-evidence-foundation-2026-08-11.md"
   "harness/validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  "harness/validation/synthetic-page-ocr-pixel-glyph-pipeline-2026-08-12.md"
+  "harness/validation/licensed-glyph-cloud-hosting-foundation-2026-08-12.md"
+  "harness/validation/wechat-production-deployment-foundation-2026-08-12.md"
+  "harness/validation/aliyun-ecs-production-deployment-foundation-2026-08-12.md"
+  "harness/validation/legacy-client-removal-2026-08-12.md"
   "harness/bin/check-development-readiness.mjs"
   "harness/bin/check-development-readiness.test.mjs"
   "harness/bin/check-poc-inputs.mjs"
@@ -72,9 +78,12 @@ required_files=(
   "harness/bin/validate-task-state-machine.test.mjs"
   "harness/bin/validate-cloud-data-model.mjs"
   "harness/bin/validate-cloud-data-model.test.mjs"
+  "harness/bin/check-production-deployment.mjs"
+  "harness/bin/check-production-deployment.test.mjs"
   "package.json"
   "package-lock.json"
   "project.config.json"
+  "miniprogram/config/api-runtime.ts"
   "miniprogram/app.ts"
   "miniprogram/app.json"
   "miniprogram/pages/practice/index.ts"
@@ -94,20 +103,51 @@ required_files=(
   "miniprogram/components/app-tab-bar/index.ts"
   "miniprogram/domain/failure-guidance.ts"
   "miniprogram/services/task-media-store.ts"
+  "miniprogram/services/http-client.ts"
+  "ecs-service/package.json"
+  "ecs-service/package-lock.json"
+  "ecs-service/Dockerfile"
+  "ecs-service/src/api.js"
+  "ecs-service/src/worker.js"
+  "ecs-service/src/mysql-repository.js"
+  "ecs-service/src/job-queue.js"
+  "ecs-service/src/oss-media.js"
+  "ecs-service/migrations/001_initial.sql"
+  "deployment/aliyun/compose.yaml"
+  "deployment/aliyun/compose.host-nginx.yaml"
+  "deployment/aliyun/host-nginx-api-limits.conf"
+  "deployment/aliyun/host-nginx-api-locations.conf"
+  "deployment/aliyun/host-nginx-validation.conf"
+  "deployment/aliyun/nginx.conf"
   "cloudfunctions/assessmentBff/package.json"
   "cloudfunctions/assessmentBff/package-lock.json"
   "cloudfunctions/assessmentBff/index.js"
   "cloudfunctions/assessmentBff/core/bff-core.js"
+  "cloudfunctions/assessmentBff/core/cloud-repository.js"
+  "cloudfunctions/assessmentBff/core/identity.js"
+  "cloudfunctions/assessmentBff/core/cloud-quota-guard.js"
   "cloudfunctions/assessmentBff/core/remote-gateway.js"
+  "cloudfunctions/assessmentBff/core/private-media-access.js"
   "cloudfunctions/assessmentBff/core/growth-engine.js"
   "cloudfunctions/assessmentBff/core/quota-guard.js"
+  "cloudfunctions/assessmentBff/core/secret-policy.js"
   "assessment-service/package.json"
   "assessment-service/package-lock.json"
+  "assessment-service/Dockerfile"
+  "assessment-service/container.config.json"
+  "assessment-service/.dockerignore"
+  "assessment-service/THIRD_PARTY_NOTICES.md"
+  "assessment-service/assets/fonts/source-han-serif-sc-2.003R/SourceHanSerifSC-Regular.otf"
+  "assessment-service/assets/fonts/source-han-serif-sc-2.003R/LICENSE.txt"
+  "assessment-service/assets/fonts/source-han-serif-sc-2.003R/font-asset.json"
   "assessment-service/src/server.mjs"
   "assessment-service/src/orchestrator.mjs"
   "assessment-service/src/telemetry.mjs"
   "assessment-service/src/providers/tencent-cloud-ocr-provider.mjs"
+  "assessment-service/src/providers/approved-fixture-glyph-provider.mjs"
+  "assessment-service/src/providers/source-han-serif-glyph-provider.mjs"
   "assessment-service/src/providers/page-first-ocr-evidence-provider.mjs"
+  "assessment-service/src/providers/synthetic-page-ocr-provider.mjs"
   "assessment-service/src/providers/hunyuan-vision-correction-provider.mjs"
   "assessment-service/src/providers/rule-template-correction-provider.mjs"
   "assessment-service/src/providers/request-json.mjs"
@@ -130,6 +170,20 @@ required_files=(
   "assessment-service/test/cell-image.test.mjs"
   "assessment-service/test/page-first-ocr-evidence-provider.test.mjs"
   "assessment-service/test/pixel-glyph-feature-provider.test.mjs"
+  "assessment-service/test/approved-synthetic-pipeline.test.mjs"
+  "assessment-service/test/source-han-serif-glyph-provider.test.mjs"
+  "assessment-service/test/character-decision-engine.test.mjs"
+  "cloudfunctions/assessmentBff/test/cloud-repository.test.mjs"
+  "cloudfunctions/assessmentBff/test/identity.test.mjs"
+  "cloudfunctions/assessmentBff/test/cloud-quota-guard.test.mjs"
+  "cloudfunctions/assessmentBff/test/private-media-access.test.mjs"
+  "cloudfunctions/assessmentBff/test/secret-policy.test.mjs"
+  "cloudfunctions/databaseMaintenance/package.json"
+  "cloudfunctions/databaseMaintenance/package-lock.json"
+  "cloudfunctions/databaseMaintenance/config.json"
+  "cloudfunctions/databaseMaintenance/index.js"
+  "cloudfunctions/databaseMaintenance/core/expiration-cleanup.js"
+  "cloudfunctions/databaseMaintenance/test/expiration-cleanup.test.mjs"
   "packages/contracts/src/index.mjs"
   "packages/contracts/generated/assessment-result.schema.json"
   "packages/contracts/generated/fixtures/assessment-result-v2.contract.json"
@@ -137,6 +191,8 @@ required_files=(
   "tests/vertical-slice.test.mjs"
   "tests/miniprogram-flow.test.mjs"
   "scripts/validate-implementation.mjs"
+  "scripts/scan-sensitive-artifacts.mjs"
+  "tests/sensitive-artifact-scan.test.mjs"
   "prototype/mobile-v2/README.md"
   "prototype/mobile-v2/package.json"
   "prototype/mobile-v2/src/Prototype.tsx"
@@ -146,13 +202,11 @@ required_files=(
   "prototype/mobile-v2/qa-comparison-v4.png"
   "prototype/mobile-v2/qa-pad-layout-scaled.jpg"
   "prototype/mobile-v2/public/pad-preview.html"
-  "client/README.md"
-  "client/contracts/assessment-api.md"
-  "client/contracts/assessment-result.schema.json"
 )
 
 required_development_paths=(
   "miniprogram"
+  "ecs-service"
   "cloudfunctions/assessmentBff"
   "assessment-service"
   "packages/contracts"
@@ -215,7 +269,7 @@ if ! sed -n '/^  joint_review_packet:/,/^  technology_selection:/p' "${HARNESS_D
   echo "joint review packet must be marked complete" >&2
   failed=1
 fi
-if ! sed -n '/^  assessment_poc:/,/^  legacy_client:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "blocked"'; then
+if ! sed -n '/^  assessment_poc:/,/^  legacy_client_removal:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "blocked"'; then
   echo "assessment POC must remain blocked before prototype approval" >&2
   failed=1
 fi
@@ -251,7 +305,7 @@ assert_contains "${HARNESS_DIR}/manifest.yaml" 'prototype_growth_visual: "protot
   "manifest must reference the selected growth visual"
 assert_contains "${HARNESS_DIR}/decisions/technology-selection.md" '状态：`accepted`' \
   "technology selection must be accepted"
-assert_contains "${HARNESS_DIR}/decisions/technology-selection.md" '微信原生小程序 TypeScript + 微信云开发 + 独立智能评测服务' \
+assert_contains "${HARNESS_DIR}/decisions/technology-selection.md" '微信原生小程序 TypeScript + 阿里云 ECS 一体化 BFF/Worker + MySQL + 私有 OSS + 智能评测服务' \
   "technology selection must adopt the WeChat Mini Program architecture"
 assert_contains "${HARNESS_DIR}/decisions/assessment-pipeline.md" 'OCR + 确定性图像算法 + 多模态大模型解释' \
   "assessment pipeline decision is missing"
@@ -265,8 +319,41 @@ if ! sed -n '/^  pixel_glyph_feature_foundation:/,/^  assessment_poc:/p' "${HARN
   echo "pixel glyph feature foundation must be verified only with synthetic glyphs" >&2
   failed=1
 fi
-assert_contains "${PROJECT_ROOT}/client/README.md" '状态：`legacy-frozen`' \
-  "legacy ArkUI-X client must be frozen"
+assert_contains "${HARNESS_DIR}/validation/synthetic-page-ocr-pixel-glyph-pipeline-2026-08-12.md" '状态：`verified-local-synthetic-glyph`' \
+  "synthetic page OCR and pixel glyph pipeline evidence is required"
+if ! sed -n '/^  synthetic_page_ocr_pixel_glyph_pipeline:/,/^  assessment_poc:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "verified-local-synthetic-glyph"'; then
+  echo "synthetic page OCR and pixel glyph pipeline must remain a non-production synthetic verification" >&2
+  failed=1
+fi
+assert_contains "${HARNESS_DIR}/validation/licensed-glyph-cloud-hosting-foundation-2026-08-12.md" '状态：`verified-local-licensed-glyph`' \
+  "licensed glyph and ECS foundation evidence is required"
+assert_contains "${HARNESS_DIR}/requirements/miniprogram-mvp-backlog.md" '| PRE-06 | 思源宋体参考字形许可证确认 | complete |' \
+  "licensed glyph gate PRE-06 must be complete"
+if ! sed -n '/^  licensed_glyph_ecs_foundation:/,/^  assessment_poc:/p' "${HARNESS_DIR}/manifest.yaml" | grep -q 'status: "verified-local-licensed-glyph"'; then
+  echo "licensed glyph and ECS foundation must be verified" >&2
+  failed=1
+fi
+
+font_sha="$(shasum -a 256 "${PROJECT_ROOT}/assessment-service/assets/fonts/source-han-serif-sc-2.003R/SourceHanSerifSC-Regular.otf" | awk '{print $1}')"
+license_sha="$(shasum -a 256 "${PROJECT_ROOT}/assessment-service/assets/fonts/source-han-serif-sc-2.003R/LICENSE.txt" | awk '{print $1}')"
+if [[ "${font_sha}" != "78aa7a328fd974df2d688c8a9fd74a33d8334dfa84ab24d9d11efb2ffc464117" ]]; then
+  echo "licensed Source Han Serif asset hash changed" >&2
+  failed=1
+fi
+if [[ "${license_sha}" != "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903" ]]; then
+  echo "Source Han Serif OFL license hash changed" >&2
+  failed=1
+fi
+if find "${PROJECT_ROOT}/miniprogram" -type f \( -name '*.otf' -o -name '*.ttf' -o -name '*.woff' -o -name '*.woff2' \) | grep -q .; then
+  echo "font binaries must not enter the WeChat Mini Program package" >&2
+  failed=1
+fi
+if [[ -d "${PROJECT_ROOT}/client" ]]; then
+  echo "legacy ArkUI-X client must remain removed after migration verification" >&2
+  failed=1
+fi
+assert_contains "${HARNESS_DIR}/validation/legacy-client-removal-2026-08-12.md" '状态：`removed-after-migration-verification`' \
+  "legacy client removal record is required"
 
 selected_visual_sha="$(shasum -a 256 "${HARNESS_DIR}/prototypes/assets/mobile-v2-option-2-selected.png" | awk '{print $1}')"
 growth_visual_sha="$(shasum -a 256 "${HARNESS_DIR}/prototypes/assets/mobile-v2-option-2-growth-v2.png" | awk '{print $1}')"
@@ -313,6 +400,15 @@ if command -v node >/dev/null 2>&1; then
     echo "cloud data model tests failed" >&2
     failed=1
   fi
+  if ! node --test "${HARNESS_DIR}/bin/check-production-deployment.test.mjs"; then
+    echo "production deployment gate tests failed" >&2
+    failed=1
+  fi
+  deployment_output="$(node "${HARNESS_DIR}/bin/check-production-deployment.mjs")"
+  if ! grep -q 'production deployment contract is structurally valid but externally blocked' <<<"${deployment_output}"; then
+    echo "production deployment checker must preserve the current external blockers" >&2
+    failed=1
+  fi
   readiness_output="$(node "${HARNESS_DIR}/bin/check-development-readiness.mjs")"
   if ! grep -q 'development readiness: READY_FOR_IMPLEMENTATION_TRANSITION' <<<"${readiness_output}"; then
     echo "development readiness checker must approve the signed six-role review" >&2
@@ -321,10 +417,6 @@ if command -v node >/dev/null 2>&1; then
   poc_input_output="$(node "${HARNESS_DIR}/bin/check-poc-inputs.mjs")"
   if ! grep -q 'POC inputs: PENDING' <<<"${poc_input_output}"; then
     echo "POC input checker must report the current unapproved targets and dataset as pending" >&2
-    failed=1
-  fi
-  if ! node --test "${PROJECT_ROOT}/client/scripts/"*.test.mjs; then
-    echo "legacy contract and fixture tests failed; migration source is not stable" >&2
     failed=1
   fi
   if ! (cd "${PROJECT_ROOT}" && npm test); then

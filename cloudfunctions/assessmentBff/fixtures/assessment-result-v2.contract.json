@@ -37,6 +37,7 @@
       },
       "issueCodes": [],
       "issues": [],
+      "differenceAnnotations": [],
       "correctionSteps": [],
       "needsRetry": false,
       "growthSummary": {
@@ -84,6 +85,9 @@
           "title": "目标字与识别字不同",
           "detail": "两次稳定识别均为“出”，目标字为“山”。"
         }
+      ],
+      "differenceAnnotations": [
+        { "code": "CONTENT_MISMATCH", "anchor": "center", "label": "目标字不一致" }
       ],
       "correctionSteps": ["先看目标字的三竖结构。", "注意不要多写中间一横。"],
       "needsRetry": false,
@@ -133,6 +137,9 @@
           "detail": "手写字重心位于田字格中线左侧。"
         }
       ],
+      "differenceAnnotations": [
+        { "code": "CENTER_OFFSET_LEFT", "anchor": "left", "label": "整体偏左" }
+      ],
       "correctionSteps": ["下笔前先看田字格中线。"],
       "needsRetry": false,
       "growthSummary": {
@@ -181,6 +188,7 @@
           "detail": "两次识别结果不一致，不能形成确定结论。"
         }
       ],
+      "differenceAnnotations": [],
       "correctionSteps": ["请拍清楚一些，或确认目标文字。"],
       "needsRetry": true,
       "growthSummary": {
@@ -229,6 +237,7 @@
           "detail": "当前单格无法完成识别和对比。"
         }
       ],
+      "differenceAnnotations": [],
       "correctionSteps": ["请重新拍摄这一页。"],
       "needsRetry": true,
       "growthSummary": {

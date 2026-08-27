@@ -12,7 +12,7 @@ source_of_truth:
 stage:
   id: "implementation-validation"
   status: "active"
-  allowed_deliverable: "formal-miniprogram-cloud-functions-bff-assessment-service-and-validation-evidence"
+  allowed_deliverable: "formal-miniprogram-aliyun-ecs-bff-worker-assessment-service-and-validation-evidence"
   prohibited_deliverable: "production-release-or-real-student-data-before-compliance-and-release-gates"
 
 gates:
@@ -65,6 +65,12 @@ gates:
   pixel_glyph_feature_foundation:
     status: "verified-local-synthetic-glyph"
     record: "validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  synthetic_page_ocr_pixel_glyph_pipeline:
+    status: "verified-local-synthetic-glyph"
+    record: "validation/synthetic-page-ocr-pixel-glyph-pipeline-2026-08-12.md"
+  licensed_glyph_ecs_foundation:
+    status: "verified-local-licensed-glyph"
+    record: "validation/licensed-glyph-cloud-hosting-foundation-2026-08-12.md"
   assessment_poc:
     status: "blocked"
     record: "validation/assessment-poc-plan.md"
@@ -73,12 +79,9 @@ gates:
       - "仅使用合成、脱敏或有证明的授权样本"
       - "POC 指标目标与评测集清单由产品、算法、测试共同批准"
       - "node harness/bin/check-poc-inputs.mjs --require-ready 通过"
-  legacy_client:
-    status: "frozen"
-    record: "../client/README.md"
-    delete_when:
-      - "prototype_review.status == approved"
-      - "公共契约、Schema 与 fixture 已迁移并通过验证"
+  legacy_client_removal:
+    status: "removed"
+    record: "validation/legacy-client-removal-2026-08-12.md"
   development_scaffold:
     status: "verified"
     record: "validation/vertical-slice-a-2026-08-11.md"
@@ -100,6 +103,16 @@ gates:
   observability_security_cost_foundation:
     status: "verified-local-synthetic"
     record: "validation/observability-security-cost-foundation-2026-08-11.md"
+  aliyun_ecs_production_environment:
+    status: "blocked-external-console"
+    record: "validation/aliyun-ecs-production-deployment-foundation-2026-08-12.md"
+    unblock_when:
+      - "lilicoconut.me DNS、证书、网站共存路由与微信 request 合法域名验证通过"
+      - "MySQL VPC 地址、库名、TLS 与恢复演练验证通过"
+      - "成都私有 OSS Bucket 的RAM角色、V4直传、签名访问与生命周期验证通过"
+      - "平台主责与后端备份责任人实名登记"
+      - "已公开 CLI 密钥吊销、轮换和调用记录检查完成"
+      - "真实 MySQL 表、索引、事务、任务租约和定时清理验证通过"
   responsive_client_foundation:
     status: "verified-static"
     record: "validation/responsive-client-foundation-2026-08-11.md"
@@ -126,6 +139,7 @@ catalog:
   assessment_api_draft: "contracts/assessment-api.md"
   assessment_task_state_machine: "contracts/assessment-task-state-machine.json"
   cloud_data_model: "contracts/cloud-data-model.json"
+  aliyun_ecs_production_deployment: "contracts/aliyun-ecs-production-deployment.json"
   assessment_result_schema: "contracts/assessment-result.schema.json"
   character_growth_schema: "contracts/character-growth.schema.json"
   model_advice_schema: "contracts/model-advice.schema.json"
@@ -145,6 +159,7 @@ catalog:
   development_readiness_checker: "bin/check-development-readiness.mjs"
   task_state_machine_validator: "bin/validate-task-state-machine.mjs"
   cloud_data_model_validator: "bin/validate-cloud-data-model.mjs"
+  production_deployment_checker: "bin/check-production-deployment.mjs"
   clickable_prototype: "../prototype/mobile-v2/README.md"
   prototype_design_qa: "../prototype/mobile-v2/design-qa.md"
   privacy_and_data_compliance: "reviews/privacy-and-data-compliance.md"
@@ -160,6 +175,7 @@ catalog:
   feedback_reassessment_foundation_validation: "validation/feedback-reassessment-foundation-2026-08-11.md"
   privacy_actions_foundation_validation: "validation/privacy-actions-foundation-2026-08-11.md"
   observability_security_cost_foundation_validation: "validation/observability-security-cost-foundation-2026-08-11.md"
+  aliyun_ecs_production_deployment_validation: "validation/aliyun-ecs-production-deployment-foundation-2026-08-12.md"
   provider_adapter_foundation_validation: "validation/provider-adapter-foundation-2026-08-11.md"
   responsive_client_foundation_validation: "validation/responsive-client-foundation-2026-08-11.md"
   synthetic_assessment_pipeline_validation: "validation/synthetic-assessment-pipeline-2026-08-11.md"
@@ -169,6 +185,8 @@ catalog:
   cell_visual_evidence_foundation_validation: "validation/cell-visual-evidence-foundation-2026-08-11.md"
   page_first_ocr_evidence_foundation_validation: "validation/page-first-ocr-evidence-foundation-2026-08-11.md"
   pixel_glyph_feature_foundation_validation: "validation/pixel-glyph-feature-foundation-2026-08-11.md"
+  synthetic_page_ocr_pixel_glyph_pipeline_validation: "validation/synthetic-page-ocr-pixel-glyph-pipeline-2026-08-12.md"
+  licensed_glyph_ecs_foundation_validation: "validation/licensed-glyph-cloud-hosting-foundation-2026-08-12.md"
   legacy_prototype: "prototypes/mobile-v1.md"
   legacy_prototype_review: "reviews/prototype-review-2026-08-07.md"
-  legacy_client: "../client/README.md"
+  legacy_client_removal: "validation/legacy-client-removal-2026-08-12.md"

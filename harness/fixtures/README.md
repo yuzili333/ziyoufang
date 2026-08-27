@@ -16,14 +16,13 @@
 - `expected/character-growth-v1.contract.json`：覆盖五维评分、四次成长曲线和重点字库入库状态的契约样例。
 - `expected/image-quality-v1.json`：三张图片的质量处理期望。
 - `metadata/multi-grid-v1.json`：来源、字体用途、尺寸和 SHA-256。
+- `references/synthetic-glyph-*.png`：仅用于本地像素评分回归的合成字形引用；每张均在元数据中由字符、文件名、用途、版本和 SHA-256 固定。它们不是可投产的标准宋体，也不能被客户端或服务端生产模式使用。
 
-遗留图片生成脚本仍位于冻结的 `client/` 验证链中；重新生成后必须运行以下命令校验哈希、尺寸、V1 迁移来源和 V2 契约草案：
+夹具生成脚本由 Harness 维护；重新生成后必须运行以下命令校验哈希、尺寸和 V2 契约：
 
 ```bash
-cd client
 npm run fixtures:generate
 npm test
-cd ..
 ./harness/bin/validate
 ```
 
@@ -36,4 +35,4 @@ cd ..
 - 训练数据、演示数据和验收数据必须隔离，避免评估污染。
 - 不用单一“正确答案”掩盖书写评价中的合理主观差异；争议样例应保留复核记录。
 
-`multi-grid-v1` 由仓库脚本在本机生成，不包含姓名、账号或真实书写轨迹。脚本仅将 macOS 系统自带 `HanziPenSC-W3` 栅格化为内部非发布测试图片，不复制或分发字体文件；该夹具不能作为模型准确率或教育评价基线。
+`multi-grid-v1` 由仓库脚本在本机生成，不包含姓名、账号或真实书写轨迹。脚本仅将 macOS 系统自带 `HanziPenSC-W3` 栅格化为内部非发布测试图片，不复制或分发字体文件；该夹具及其字形引用不能作为模型准确率、教育评价或投产标准字形基线。

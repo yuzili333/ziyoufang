@@ -8,6 +8,16 @@ const emptyCrop = () => ({
   cropImageStyle: ''
 })
 
+const normalizeCharacter = (character: CharacterResult): CharacterResult => ({
+  ...character,
+  differenceAnnotations: character.differenceAnnotations ?? []
+})
+
+const normalizeTask = (task: AssessmentTask): AssessmentTask => ({
+  ...task,
+  characters: task.characters?.map(normalizeCharacter)
+})
+
 const cropPresentation = (selected: CharacterResult | null, taskId: string) => {
   const media = TaskMediaStore.get(taskId)
   const polygon = selected?.polygon
@@ -52,7 +62,7 @@ Page({
   async onPullDownRefresh() { await this.loadResult(); wx.stopPullDownRefresh() },
   async loadResult() {
     try {
-      const task = await AssessmentClient.getAssessment(this.data.taskId)
+      const task = normalizeTask(await AssessmentClient.getAssessment(this.data.taskId))
       const selected = task.characters?.[this.data.selectedIndex] ?? null
       this.setData({
         task,

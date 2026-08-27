@@ -2,13 +2,11 @@ import type {
   AssessmentTask, CharacterGrowth, DeletionJob, FeedbackRecord, RedactedSharePayload,
   ShareCardResult, WordbookEntry
 } from '../domain/types'
+import type { UploadTicket } from '../domain/types'
+import { HttpClient } from './http-client'
 
 const call = async <T>(action: string, payload: Record<string, unknown>): Promise<T> => {
-  const response = await wx.cloud.callFunction<T>({
-    name: 'assessmentBff',
-    data: { action, payload }
-  })
-  return response.result
+  return HttpClient.request<T>('/api/v1/actions', { data: { action, payload } })
 }
 
 export const CONSENT_VERSION = 'mvp-consent-draft-v1'
@@ -44,7 +42,10 @@ export const AssessmentClient = {
   }) {
     return call<AssessmentTask>('createUploadTask', input)
   },
-  submitAssessment(input: { taskId: string; cloudFileId: string; imageSha256: string }) {
+  createUploadTicket(input: { taskId: string; extension: 'jpg' | 'jpeg' | 'png' }) {
+    return HttpClient.request<UploadTicket>('/api/v1/media/upload-ticket', { data: input })
+  },
+  submitAssessment(input: { taskId: string; mediaId: string; imageSha256: string; etag: string }) {
     return call<AssessmentTask>('submitAssessment', input)
   },
   retryAssessment(taskId: string) {
@@ -79,8 +80,8 @@ export const AssessmentClient = {
     })
   },
   getSharedCard(shareToken: string) {
-    return call<{ status: 'active'; expiresAt: string; payload: RedactedSharePayload }>(
-      'getSharedCard', { shareToken }
+    return HttpClient.request<{ status: 'active'; expiresAt: string; payload: RedactedSharePayload }>(
+      `/api/v1/share-cards/${encodeURIComponent(shareToken)}`, { method: 'GET', authenticated: false }
     )
   },
   revokeShareCard(shareCardId: string) {

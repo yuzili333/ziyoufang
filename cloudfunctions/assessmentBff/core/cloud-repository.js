@@ -5,17 +5,40 @@ const documentId = (...parts) => createHash('sha256').update(parts.join('\u0000'
 
 function createCloudRepository(db) {
   const tasks = db.collection('assessment_tasks')
+  const subjectAccounts = db.collection('subject_accounts')
+  const missingDocument = (error) => /NOT_FOUND|NOT_EXISTED/.test(String(error?.errCode ?? error?.message ?? error))
 
   return {
+    async upsertSubjectAccount(account) {
+      let existing = null
+      try {
+        existing = (await subjectAccounts.doc(account.subjectId).get()).data ?? null
+      } catch (error) {
+        if (!missingDocument(error)) throw error
+      }
+      const next = {
+        ...account,
+        createdAt: existing?.createdAt ?? account.createdAt,
+        updatedAt: account.updatedAt
+      }
+      await subjectAccounts.doc(account.subjectId).set({ data: { ...next, _id: account.subjectId } })
+      return next
+    },
     async findByIdempotency(subjectId, idempotencyKey) {
       const result = await tasks.where({ subjectId, idempotencyKey }).limit(1).get()
       return result.data[0] ?? null
     },
     async createTask(task) {
-      const existing = await this.findByIdempotency(task.subjectId, task.idempotencyKey)
-      if (existing) return existing
-      await tasks.doc(task.taskId).set({ data: { ...task, _id: task.taskId } })
-      return task
+      return db.runTransaction(async (transaction) => {
+        const transactionTasks = transaction.collection('assessment_tasks')
+        const existing = await transactionTasks.where({
+          subjectId: task.subjectId,
+          idempotencyKey: task.idempotencyKey
+        }).limit(1).get()
+        if (existing.data[0]) return existing.data[0]
+        await transactionTasks.doc(task.taskId).set({ data: { ...task, _id: task.taskId } })
+        return task
+      })
     },
     async getTask(taskId) {
       try {
@@ -223,6 +246,21 @@ function createCloudRepository(db) {
       const latest = await this.getConsentStatus(subjectId, purpose)
       return latest?.decision === 'granted' && latest.consentVersion === consentVersion ? latest : null
     },
+    async upsertMediaObject(media) {
+      await db.collection('media_objects').doc(media.mediaId).set({
+        data: { ...media, _id: media.mediaId }
+      })
+      return media
+    },
+    async getMediaObject(mediaId) {
+      try {
+        const result = await db.collection('media_objects').doc(mediaId).get()
+        return result.data ?? null
+      } catch (error) {
+        if (missingDocument(error)) return null
+        throw error
+      }
+    },
     async findFeedbackByIdempotency(subjectId, key) {
       const result = await db.collection('feedback_records')
         .where({ subjectId, feedbackIdempotencyKey: key })
@@ -328,6 +366,7 @@ function createCloudRepository(db) {
       }
       const affectedCharacters = new Set()
       let characterResults = 0
+      let mediaObjects = 0
       for (const taskId of taskIds) {
         const rows = await db.collection('character_results').where({ subjectId, taskId }).get()
         for (const row of rows.data) affectedCharacters.add(row.expectedCharacter)
@@ -337,6 +376,11 @@ function createCloudRepository(db) {
         await db.collection('feedback_records').where({ subjectId, reassessmentTaskId: taskId }).remove()
         await db.collection('share_cards').where({ subjectId, sourceTaskId: taskId }).remove()
         await db.collection('assessment_tasks').doc(taskId).remove()
+      }
+      for (const taskId of taskIds) {
+        const media = await db.collection('media_objects').where({ subjectId, sourceTaskId: taskId }).get()
+        mediaObjects += media.data.length
+        await db.collection('media_objects').where({ subjectId, sourceTaskId: taskId }).remove()
       }
       for (const character of affectedCharacters) {
         await db.collection('wordbook_entries').where({ subjectId, targetCharacter: character }).remove()
@@ -413,6 +457,7 @@ function createCloudRepository(db) {
         taskIds: [...taskIds],
         counts: {
           assessmentTasks: taskIds.size,
+          mediaObjects,
           characterResults,
           affectedCharacters: affectedCharacters.size
         }

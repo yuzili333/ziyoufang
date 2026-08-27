@@ -86,6 +86,7 @@
         "scoreBreakdown",
         "issueCodes",
         "issues",
+        "differenceAnnotations",
         "correctionSteps",
         "growthSummary",
         "versions"
@@ -153,6 +154,11 @@
             }
           }
         },
+        "differenceAnnotations": {
+          "type": "array",
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/differenceAnnotation" }
+        },
         "correctionSteps": {
           "type": "array",
           "maxItems": 3,
@@ -197,6 +203,16 @@
             "model": { "type": "string", "minLength": 1 }
           }
         }
+      }
+    },
+    "differenceAnnotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "anchor", "label"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "anchor": { "enum": ["top", "right", "bottom", "left", "center", "edge"] },
+        "label": { "type": "string", "minLength": 1, "maxLength": 24 }
       }
     }
   }

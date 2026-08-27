@@ -30,12 +30,14 @@
               <image wx:if="{{selected.expectedCharacter === '月'}}" src="/assets/main-glyph-overlay.png" mode="aspectFit" />
               <text wx:else>{{selected.expectedCharacter}}</text>
             </block>
+            <view wx:for="{{selected.differenceAnnotations}}" wx:key="code" class="difference-marker marker-{{item.anchor}}">{{item.label}}</view>
             <text class="view-label">叠加对比</text>
           </view>
           <view wx:else class="parallel-glyphs">
             <view class="glyph paper-card">
               <view wx:if="{{localCropAvailable}}" class="crop-window"><image class="crop-image" src="{{localMediaPath}}" style="{{cropImageStyle}}" mode="widthFix" binderror="onLocalMediaError" /></view>
               <text wx:else class="handwritten">{{selected.recognizedCharacter || selected.expectedCharacter}}</text>
+              <view wx:for="{{selected.differenceAnnotations}}" wx:key="code" class="difference-marker marker-{{item.anchor}}">{{item.label}}</view>
               <text class="view-label">本次书写</text>
             </view>
             <view class="glyph paper-card"><text>{{selected.expectedCharacter}}</text><text class="view-label">标准字</text></view>
@@ -46,6 +48,7 @@
 
         <view class="insight-panel">
           <view class="issue"><text class="section-title">{{selected.category === 'wrong' ? '错字' : selected.category === 'needs_correction' ? '待纠偏' : selected.category === 'uncertain' ? '还不能确定' : selected.category === 'failed' ? '这个字没有分析成功' : '书写清楚'}}</text><text wx:for="{{issueTexts}}" wx:key="*this">{{item}}</text></view>
+          <view wx:if="{{selected.differenceAnnotations.length}}" class="annotation-legend"><text>朱红标注：{{selected.differenceAnnotations.length}} 处可观察差异</text></view>
           <view class="dimensions paper-card">
             <view><text>笔画规范</text><text>{{selected.scoreBreakdown.strokeStandard === null ? '—' : selected.scoreBreakdown.strokeStandard}}</text></view>
             <view><text>间架结构</text><text>{{selected.scoreBreakdown.frameStructure === null ? '—' : selected.scoreBreakdown.frameStructure}}</text></view>

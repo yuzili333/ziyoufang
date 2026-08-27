@@ -7,6 +7,7 @@
 - 默认候选：腾讯云 OCR 与腾讯混元兼容接口；两者都必须通过 Provider 接口，可在同一评测集替换比较。
 - 数据边界：只允许合成、脱敏或具有可核验证明的授权样本；隐私评审批准前禁止真实学生数据进入 POC 环境。
 - 输出边界：POC 用于形成基线、选择供应商和校准阈值，不得作为教育评价标准或产品准确率宣传。
+- 已满足外部输入：思源宋体简体中文 Regular `2.003R` 的 `OFL-1.1`、未修改字体文件、服务器渲染、测试再分发及阿里云 ECS 私有评测容器专用部署范围已登记；生产合规台账仍须在发布门禁重新签署。
 - 机器输入计划：[`poc-evaluation-plan.json`](./poc-evaluation-plan.json)。当前只登记了哈希校验通过的 `multi-grid-v1` 合成冒烟集，尚无获批验证集或指标目标。
 - 就绪检查：`node harness/bin/check-poc-inputs.mjs`；原型已批准，但只有该命令以 `--require-ready` 成功后才可启动真实 Provider POC。
 
@@ -15,7 +16,7 @@
 1. `prototype_review.status == approved`。
 2. 产品、算法和测试共同批准评测集清单、标注口径、指标目标和误差处理方式。
 3. 每个非合成样本具备来源、授权范围、到期时间和可删除证明。
-4. 标准宋体文件的商用、服务器渲染和测试再分发许可已确认。
+4. 标准参考字形固定为 Adobe 思源宋体简体中文 Regular `2.003R`，`OFL-1.1`；字体/许可证哈希和部署范围见 [`licensed-glyph-cloud-hosting-foundation-2026-08-12.md`](./licensed-glyph-cloud-hosting-foundation-2026-08-12.md)（已满足）。
 5. OCR/模型凭据只注入服务端受控环境，不写入仓库、客户端、fixture 或日志。
 6. [`poc-evaluation-plan.json`](./poc-evaluation-plan.json) 状态为 `approved`，所有指标目标由产品、后端/算法和测试签署，且固定文件哈希无漂移。
 

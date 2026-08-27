@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "timeout": 60,
+  "envVariables": {
+    "EXPIRATION_CLEANUP_BATCH_LIMIT": "100"
+  },
+  "triggers": [
+    {
+      "name": "hourly-expiration-cleanup",
+      "type": "timer",
+      "config": "0 0 * * * * *"
+    }
+  ]
+}

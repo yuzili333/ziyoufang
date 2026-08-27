@@ -4,19 +4,25 @@
 
 统一图片入口限制 15MB 和 2000 万像素，只接受 PNG/JPEG；空文件、损坏内容、未知格式和超限图片均返回不可重试的稳定输入错误。JPEG 当前使用锁定的纯 JavaScript 解码依赖，真实负载后仍需评估工作线程或独立图像处理服务。
 
-真实媒体边界使用 BFF 每次新换取的短时 HTTPS 授权。编排器不会持久化 URL、微信云文件 ID 或上传路径；`PrivateHttpMediaLoader` 要求生产配置精确主机白名单，禁止重定向，并在有界流式下载后复核 SHA-256。当前该链路只经过模拟云接口/HTTP 测试，真实微信云环境仍受部署门禁约束。
+真实媒体边界使用 Worker 每次认领任务后新换取的OSS短时 HTTPS 授权。编排器不会持久化 URL、OSS对象引用或上传路径；`PrivateHttpMediaLoader` 要求生产配置精确主机白名单，禁止重定向，并在有界流式下载后复核 SHA-256。当前该链路已完成本地模拟验证，真实ECS/OSS环境仍受部署门禁约束。
 
 切格后会生成临时的真实单字 PNG：默认去除 2% 网格边缘，最长边限制为 1024px，OCR 每批不超过 32 格。问题字的裁剪图、OCR 候选和确定性特征按最多 8 字交给建议层；视觉模型还必须取得版本一致、许可证已批准的标准字引用。视觉证据不会写入结果或遥测，缺少标准字时组合 Provider 使用规则模板降级。
 
 `PageFirstOcrEvidenceProvider` 将页级字符坐标映射到方格。高置信目标字不重复调用；缺失、冲突、低于 0.90 或疑似错字的方格使用单字 PNG 复识。疑似错字只有两份高置信结果一致时才可判错；响应数量或 `cellId` 错位会整批拒绝。正式四维分数仍必须来自独立特征 Provider，OCR 适配器不会生成虚假评分。
 
-`PixelGlyphFeatureProvider` 已实现四项静态评分的本地工程基础：标准字与手写字经过二值化和包围盒归一化后，使用掩码交并比、骨架 F1、墨迹比例、象限/投影分布、连通部件、宽高占格和重心偏移形成笔画规范、间架结构、字形比例、位置布局。它强制依赖外部版本化 `GlyphProvider`，仓库不内置未授权字体；当前仅通过合成几何字形回归，参数未经授权样本与专家标定。稳定性仍由成长服务在至少三次同版本可比练习后计算。
+`PixelGlyphFeatureProvider` 已实现四项静态评分的本地工程基础：标准字与手写字经过二值化和包围盒归一化后，使用掩码交并比、骨架 F1、墨迹比例、象限/投影分布、连通部件、宽高占格和重心偏移形成笔画规范、间架结构、字形比例、位置布局。投产候选 `SourceHanSerifGlyphProvider` 使用 `OFL-1.1` 的思源宋体简体中文 Regular `2.003R`，启动时校验字体与许可证哈希，并以字体哈希和渲染器版本形成成长曲线版本边界。评分参数仍未经授权样本与专家标定；稳定性仍由成长服务在至少三次同版本可比练习后计算。
+
+批准的 `synthetic-pipeline` 现在完整装配了页级合成 OCR、按需单格复识和哈希验证的合成字形引用，再调用像素字形特征 Provider；因此它不再依赖预填四维分数。引用图片仅用于非发布的合成回归，不能替代已获许可的标准宋体，也不会在生产模式启用。
 
 ```bash
 ASSESSMENT_PROVIDER_MODE=fixture BFF_HMAC_SECRET=local-only-secret npm start
 ```
 
 执行像素级合成流水线可将模式改为 `synthetic-pipeline`。两种模式在 `NODE_ENV=production` 下都会被拒绝。
+
+阿里云 ECS 使用本目录 `Dockerfile` 构建私有 Express 评测容器。当前生产规格容器默认进入 `font-smoke`：加载并验证许可字体、开放无敏感信息的 `GET /health`，但对评测创建请求返回 `503 ASSESSMENT_PROVIDER_NOT_ENABLED`；真实 OCR、评分与模型 POC 门禁通过后再启用生产评测模式。部署时必须通过主机受限环境文件注入 `BFF_HMAC_SECRET` 和 `TELEMETRY_HASH_SECRET`，不得写入镜像。
+
+GitHub Actions 对 `main` 推送运行完整测试并构建本目录镜像，但不自动部署生产。`deployment/aliyun/compose.yaml` 只在受保护的人工发布工作流中更新 ECS；Docker 的 `verified` 阶段运行安全、签名、健康检查、字体哈希和 Provider 边界测试，再生成不含测试目录的运行镜像。`container.config.json` 仅作为被替代的微信云托管历史配置保留，不进入现行发布链。
 
 服务端不得接收微信 `openid`、真实姓名或长期公开图片 URL。
 

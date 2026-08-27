@@ -18,16 +18,23 @@ declare namespace WechatMiniprogram {
 }
 
 declare const wx: {
-  cloud: {
-    init(options: { traceUser: boolean }): void
-    callFunction<T>(options: { name: string; data: unknown }): Promise<{ result: T }>
-    uploadFile(options: {
-      cloudPath: string
-      filePath: string
-      success(result: { fileID: string }): void
-      fail(error: unknown): void
-    }): WechatMiniprogram.UploadTask
-  }
+  login(options: { success(result: { code: string }): void; fail(error: unknown): void }): void
+  request<T>(options: {
+    url: string
+    method: 'GET' | 'POST'
+    data?: unknown
+    header?: Record<string, string>
+    success(response: { statusCode: number; data: T; header: Record<string, string> }): void
+    fail(error: unknown): void
+  }): void
+  uploadFile(options: {
+    url: string
+    filePath: string
+    name: string
+    formData: Record<string, string>
+    success(result: { statusCode: number; data: string; header: Record<string, string> }): void
+    fail(error: unknown): void
+  }): WechatMiniprogram.UploadTask
   chooseMedia(options: {
     count: number
     mediaType: string[]
@@ -45,6 +52,8 @@ declare const wx: {
     removeSavedFile(options: { filePath: string; success(): void; fail(error: unknown): void }): void
   }
   getNetworkType(options: { success(result: { networkType: string }): void; fail(error: unknown): void }): void
+  onNetworkStatusChange(listener: (result: { isConnected: boolean; networkType: string }) => void): void
+  offNetworkStatusChange(listener?: (result: { isConnected: boolean; networkType: string }) => void): void
   getStorageSync<T>(key: string): T
   setStorageSync(key: string, value: unknown): void
   removeStorageSync(key: string): void

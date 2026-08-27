@@ -1,0 +1,35 @@
+name: Deploy ECS production
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Tested main-branch commit SHA
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+      - name: Verify selected commit belongs to main
+        run: git merge-base --is-ancestor HEAD origin/main
+      - name: Deploy tested source over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_DEPLOY_USER }}
+          key: ${{ secrets.ECS_DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /opt/ziyoufang/app
+            git fetch origin main
+            git checkout ${{ inputs.commit_sha }}
+            ./deployment/aliyun/deploy.sh
+            curl --fail --silent https://${{ vars.PRODUCTION_API_HOST }}/api/v1/health

@@ -8,6 +8,7 @@ import ImageIO
 import UniformTypeIdentifiers
 
 private let canvasSize = 1600
+private let glyphCanvasSize = 360
 private let margin = 80
 private let columns = 4
 private let rows = 4
@@ -113,6 +114,34 @@ private func makeCanvas() throws -> CGImage {
     return image
 }
 
+private func makeReferenceGlyph(_ character: Character) throws -> CGImage {
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    guard let context = CGContext(data: nil, width: glyphCanvasSize, height: glyphCanvasSize,
+                                  bitsPerComponent: 8, bytesPerRow: glyphCanvasSize * 4,
+                                  space: colorSpace,
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+        throw FixtureError.contextCreation
+    }
+    context.setFillColor(CGColor(gray: 1, alpha: 1))
+    context.fill(CGRect(x: 0, y: 0, width: glyphCanvasSize, height: glyphCanvasSize))
+    let font = CTFontCreateWithName("HanziPen SC" as CFString, 248, nil)
+    let attributes: [CFString: Any] = [
+        kCTFontAttributeName: font,
+        kCTForegroundColorAttributeName: CGColor(gray: 0.06, alpha: 1)
+    ]
+    let attributed = CFAttributedStringCreate(nil, String(character) as CFString,
+                                               attributes as CFDictionary)!
+    let line = CTLineCreateWithAttributedString(attributed)
+    let bounds = CTLineGetBoundsWithOptions(line, [.useGlyphPathBounds])
+    context.textPosition = CGPoint(
+        x: CGFloat(glyphCanvasSize) / 2 - bounds.midX,
+        y: CGFloat(glyphCanvasSize) / 2 - bounds.midY
+    )
+    CTLineDraw(line, context)
+    guard let image = context.makeImage() else { throw FixtureError.imageCreation }
+    return image
+}
+
 private func writePNG(_ image: CGImage, to url: URL) throws {
     guard let destination = CGImageDestinationCreateWithURL(url as CFURL,
                                                              UTType.png.identifier as CFString,
@@ -188,7 +217,8 @@ private func main() throws {
     let inputRoot = fixtureRoot.appendingPathComponent("inputs", isDirectory: true)
     let expectedRoot = fixtureRoot.appendingPathComponent("expected", isDirectory: true)
     let metadataRoot = fixtureRoot.appendingPathComponent("metadata", isDirectory: true)
-    for directory in [inputRoot, expectedRoot, metadataRoot] {
+    let referenceRoot = fixtureRoot.appendingPathComponent("references", isDirectory: true)
+    for directory in [inputRoot, expectedRoot, metadataRoot, referenceRoot] {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     }
 
@@ -241,6 +271,17 @@ private func main() throws {
     ], to: expectedRoot.appendingPathComponent("image-quality-v1.json"))
 
     let font = CTFontCreateWithName("HanziPen SC" as CFString, 248, nil)
+    var glyphReferences: [[String: Any]] = []
+    for (index, character) in expectedCharacters.enumerated() {
+        let fileName = String(format: "synthetic-glyph-%02d.png", index)
+        let url = referenceRoot.appendingPathComponent(fileName)
+        try writePNG(try makeReferenceGlyph(character), to: url)
+        glyphReferences.append([
+            "character": String(character),
+            "file": fileName,
+            "sha256": try sha256(url)
+        ])
+    }
     try writeJSON([
         "schemaVersion": 1,
         "fixtureId": "multi-grid-v1",
@@ -249,6 +290,9 @@ private func main() throws {
         "generator": "generate-grid-fixtures.swift",
         "fontPostScriptName": CTFontCopyPostScriptName(font) as String,
         "fontUse": "Local macOS system font rasterized for non-shipping test input; no font file is redistributed.",
+        "glyphReferenceVersion": "hanzi-pen-synthetic-reference-v1",
+        "glyphReferenceUse": "Non-shipping synthetic regression only; not an approved product standard glyph.",
+        "glyphReferences": glyphReferences,
         "targetText": String(expectedCharacters),
         "renderedText": String(renderedCharacters),
         "grid": ["rows": rows, "columns": columns, "sourceWidth": canvasSize, "sourceHeight": canvasSize],

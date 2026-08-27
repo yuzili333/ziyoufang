@@ -1,14 +1,16 @@
 # 微信小程序与智能评测接口草案 V2
 
-本契约是小程序、云函数/BFF 与独立评测服务的实现基线。合成数据范围内的授权、上传、异步任务、像素质量检查、固定 4×4 切格、结果、字本和成长接口已经实现；真实 OCR、通用图像算法和模型 Provider 仍受 POC 门禁阻塞。小程序只调用云函数/BFF。
+本契约是小程序、阿里云 ECS BFF/Worker 与独立评测服务的实现基线。合成数据范围内的授权、OSS直传、可靠任务、像素质量检查、固定 4×4 切格、结果、字本和成长接口已经实现；真实 OCR、通用图像算法和模型 Provider 仍受 POC 门禁阻塞。小程序只调用备案 HTTPS BFF。
 
 ## 通用规则
 
-- 所有任务使用客户端生成的 `localTaskId` 和稳定 `idempotencyKey`。
-- 云函数从微信运行环境获取主体身份，禁止信任客户端自报 `openid`。
+- 所有任务使用客户端生成的 `localTaskId` 和稳定 `idempotencyKey`；BFF 在 MySQL 事务内按主体和幂等键查询/创建任务，并发重复请求返回同一个逻辑任务。
+- 小程序以`wx.login`临时code换取两小时随机会话令牌；BFF调用`code2Session`后即时派生主体键，禁止信任客户端自报`openid`或`subjectId`，不保存原始OpenID和`session_key`。
+- BFF首次或后续请求幂等维护 `subject_accounts`：仅记录域隔离的 HMAC `wechatSubjectKey`、状态和时间；练习删除不影响账户生命周期。
 - 文件必须属于当前主体且处于私有存储；客户端不得向评测服务传长期公开 URL。
 - 时间使用 ISO 8601 UTC；坐标使用相对原图的 `0–1` 比例。
 - 取消、反馈、删除和分享撤回必须幂等。
+- 新建逻辑评测任务使用按主体和策略版本的滑动窗口配额；生产环境使用MySQL命名锁和`quota_events`唯一键，同一幂等键只占用一次额度。业务先执行逻辑过期，每小时Worker完成物理清理。
 - 任务状态和合法迁移以 [`assessment-task-state-machine.json`](./assessment-task-state-machine.json) 为唯一契约；当前名称固定为 `pending_local`，不得沿用遗留 ArkUI-X 的 `local_pending`。
 
 ## 任务状态与检查点
@@ -21,23 +23,31 @@
 - `progressStage` 只在 `analyzing` 中推进；无问题字或策略关闭模型时可从 `comparing` 跳过 `generating_advice`，模型失败则使用模板建议继续到 `persisting_result`。
 - 结果、单字和字本写入分别使用契约中的唯一键提交一次；学生反馈重新评测属于关联的新任务，不属于原任务重试。
 
-## 小程序调用云函数
+## 小程序调用 HTTPS BFF
+
+公网基址固定为`https://lilicoconut.me`，现有网站继续使用根路径，BFF只接管`/api/v1/*`。`GET /api/v1/health`返回API和MySQL就绪状态；容器`GET /health`只供Docker健康检查。
+
+### `POST /api/v1/auth/wechat`
+
+输入：`wx.login`返回的一次性`code`。输出：随机会话`token`和`expiresAt`。令牌有效期两小时，仅在小程序当前运行内存持有；服务端只保存加盐哈希。
 
 ### `createUploadTask`
 
 输入：`localTaskId`、`idempotencyKey`、`expectedText`、`consentVersion`。
 
-输出：`taskId`、`privateUploadPath`、`uploadPolicy.allowedExtensions/maxBytes/expiresAt`。
+输出：`taskId`和上传状态，不返回OSS对象键或私有路径。随后调用`POST /api/v1/media/upload-ticket`，输入`taskId`和扩展名，取得15分钟有效的OSS V4 `UploadTicket`：`mediaId`、`uploadUrl`、`formFields`和`expiresAt`。
 
 行为：验证授权状态，重复调用返回同一逻辑任务；不接收客户端传入的微信主体标识。
 
 ### `submitAssessment`
 
-输入：`taskId`、`cloudFileId`、`imageSha256`；目标文字和客户端创建时间沿用已绑定任务，不能在提交阶段替换。
+输入：`taskId`、`mediaId`、`imageSha256`、OSS响应`etag`；目标文字和客户端创建时间沿用已绑定任务，不能在提交阶段替换。
 
-输出：任务粗粒度状态和 `progressStage`。
+输出：任务粗粒度状态和 `progressStage`，不包含私有文件标识、上传路径、图片摘要或内部媒体记录。
 
-行为：校验有效授权、上传票据期限、文件路径归属和哈希后异步提交评测；BFF 不在一次云函数调用内长轮询。远端结果在 `getAssessment` 时同步并幂等持久化。
+行为：BFF通过OSS内网Endpoint执行`HeadObject`并校验有效授权、对象路径归属、大小和ETag，在同一MySQL事务内更新任务、登记媒体并创建队列作业。API不执行长评测；Worker使用五分钟租约处理并幂等保存结果。返回小程序的上传和短期下载地址只能使用公网Bucket域名，不能泄露内网Endpoint。
+
+提交成功时，BFF 同步写入一条私有 `media_objects` 元数据：引用任务、私有对象标识、SHA-256、创建时间、30 天原型到期时间和生命周期状态。该元数据只在服务端使用，不返回临时访问 URL；用户删除练习时与私有文件、任务和结果一并删除。
 
 ### `retryAssessment`
 
@@ -45,15 +55,17 @@
 
 输出：复用原任务的 `analyzing` 状态和当前检查点。
 
-行为：仅允许 `failed && retryable=true` 且已保存云文件/摘要的任务重试；复用原 `taskId`、幂等键和上传检查点，并递增重试次数。授权已撤回时拒绝重试。
+行为：仅允许 `failed && retryable=true` 且已保存私有OSS对象/摘要的任务重试；复用原 `taskId`、幂等键和上传检查点，并递增重试次数。授权已撤回时拒绝重试。
 
 ### `getAssessment`
 
 输入：`taskId`、可选 `resultVersion`。
 
-输出：符合 [`assessment-result.schema.json`](./assessment-result.schema.json) 的任务结果。
+输出：符合 [`assessment-result.schema.json`](./assessment-result.schema.json) 的任务结果；不返回私有文件标识、上传路径、图片摘要、内部主体标识或媒体记录。
 
-行为：本地任务仍在分析时向评测服务读取一次当前状态；终态结果只提交一次，非终态只更新 `progressStage`。
+行为：从MySQL读取Worker持久化的阶段和结果；终态结果只提交一次，API不得以内存状态作为事实源。
+
+单字结果中的 `differenceAnnotations` 是用于结果页朱红提示的结构化、确定性差异标注：每项只返回问题代码、相对锚点和不超过 24 字的标签；最多三项且同一锚点只保留一项，完整问题仍以 `issues` 为准。仅对错字或待纠偏的可观察证据生成，`uncertain`、`failed` 与没有问题的字返回空数组；不传输热力图、原始掩码、骨架或裁剪图。
 
 ### `getConsentStatus` / `recordConsent` / `withdrawConsent`
 
@@ -110,9 +122,9 @@
 
 评测结果持久化时由 BFF 幂等更新，不由客户端直接写入。达到三次可比练习后，最近三次均分或稳定性低于 POC 入库阈值 `70` 时进入；满足 POC 退出阈值 `80` 的连续达标规则时退出。阈值与公式通过版本化服务端配置提供。
 
-## BFF 调用评测服务
+## Worker 调用评测服务
 
-### `POST /v1/assessments`
+### `POST /internal/v1/assessments:run`
 
 请求头：
 
@@ -122,9 +134,9 @@
 - `X-Request-Nonce`
 - `X-Signature`
 
-请求体只传最小任务字段和短期媒体访问授权。BFF 在每次开始或重试前换取最长 10 分钟的 HTTPS 授权；`cloudFileId`、私有上传路径、微信授权版本和上传票据不得跨入评测服务。评测服务校验授权剩余时间与主机白名单，只在当前处理进程内持有 URL，并在完成、失败或取消后清除。
+请求体只传最小任务字段和短期媒体访问授权。Worker在每次认领或重试后换取最长10分钟的OSS HTTPS授权；OSS对象引用、私有上传路径、微信授权版本和上传票据不得跨入评测服务。评测服务校验授权剩余时间与主机白名单，只在当前处理进程内持有URL，并在完成、失败或取消后清除。
 
-成功返回 `202`：`taskId`、`status=analyzing`、`progressStage=quality_checking`。
+成功同步返回最终评测结果；Worker在调用期间每30秒续租，完成后在MySQL事务中保存结果并完成队列作业。API响应后的后台微任务不属于生产路径。
 
 ### `GET /v1/assessments/{taskId}`
 
@@ -165,8 +177,8 @@
 
 ## 持久化边界
 
-- 云数据库集合、主体隔离、唯一索引、媒体 TTL、删除覆盖和禁止字段以 [`cloud-data-model.json`](./cloud-data-model.json) 为唯一模型。
-- 小程序不直写云数据库；所有读写由从微信运行环境确定 `subjectId` 的 BFF 执行，不接受客户端自报 `openid`。
+- 逻辑实体、主体隔离、唯一索引、媒体TTL、删除覆盖和禁止字段以[`cloud-data-model.json`](./cloud-data-model.json)为领域模型；物理表由`ecs-service/migrations`定义。
+- 小程序不直写MySQL或OSS私有对象；所有业务读写由会话确定`subjectId`的BFF执行，不接受客户端自报`openid`，上传只使用单对象短期表单授权。
 - `assessment_tasks` 以主体和幂等键唯一，`character_results` 以任务/结果版本/字序唯一，`wordbook_entries` 以主体/目标字唯一，成长曲线按评分与标准字版本分段。
 - 结果终态只能在单字结果和派生字本/成长写入按唯一键提交后持久化；不确定和失败单字不进入字本或成长点。
 - 原图、裁剪图和差异图只保存私有对象引用与哈希，默认原型 TTL 为 30 天但仍受合规批准；分享卡只保存脱敏载荷和令牌哈希。

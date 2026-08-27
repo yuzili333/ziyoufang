@@ -1,4 +1,5 @@
 import type { SupportedImageFormat } from '../domain/types'
+import type { UploadTicket } from '../domain/types'
 
 const promiseFromCallback = <T>(executor: (resolve: (value: T) => void, reject: (reason?: unknown) => void) => void) =>
   new Promise<T>(executor)
@@ -67,20 +68,29 @@ export const MediaService = {
       fail: reject
     }))
   },
-  createPrivateUpload(cloudPath: string, filePath: string, onProgress?: (progress: number) => void) {
+  createPrivateUpload(ticket: UploadTicket, filePath: string, onProgress?: (progress: number) => void) {
     let uploadTask: WechatMiniprogram.UploadTask | null = null
-    const result = promiseFromCallback<string>((resolve, reject) => {
-      uploadTask = wx.cloud.uploadFile({
-        cloudPath,
+    const result = promiseFromCallback<{ mediaId: string; etag: string }>((resolve, reject) => {
+      uploadTask = wx.uploadFile({
+        url: ticket.uploadUrl,
         filePath,
-        success: (result) => resolve(result.fileID),
+        name: 'file',
+        formData: ticket.formFields,
+        success: (response) => {
+          if (response.statusCode < 200 || response.statusCode >= 300) {
+            return reject(new Error(`OSS_UPLOAD_${response.statusCode}`))
+          }
+          const etag = response.header.ETag ?? response.header.Etag ?? response.header.etag
+          if (!etag) return reject(new Error('OSS_UPLOAD_ETAG_MISSING'))
+          resolve({ mediaId: ticket.mediaId, etag: etag.replace(/"/g, '') })
+        },
         fail: reject
       })
       if (onProgress) uploadTask.onProgressUpdate((result) => onProgress(result.progress))
     })
     return { result, abort: () => uploadTask?.abort() }
   },
-  uploadPrivate(cloudPath: string, filePath: string, onProgress?: (progress: number) => void): Promise<string> {
-    return this.createPrivateUpload(cloudPath, filePath, onProgress).result
+  uploadPrivate(ticket: UploadTicket, filePath: string, onProgress?: (progress: number) => void) {
+    return this.createPrivateUpload(ticket, filePath, onProgress).result
   }
 }
