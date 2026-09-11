@@ -17,10 +17,10 @@ const bearer = (request) => {
 
 function statusFor(error) {
   const code = String(error?.message ?? '')
-  if (/REQUIRED|INVALID|MISMATCH|INCOMPLETE/.test(code)) return 400
   if (/SESSION|IDENTITY/.test(code)) return 401
+  if (/REQUIRED|INVALID|MISMATCH|INCOMPLETE/.test(code)) return 400
   if (/FORBIDDEN|OWNERSHIP/.test(code)) return 403
-  if (/NOT_FOUND/.test(code)) return 404
+  if (/NOT_FOUND|SHARE_CARD_UNAVAILABLE/.test(code)) return 404
   if (/QUOTA/.test(code)) return 429
   if (/UNAVAILABLE|UPSTREAM|FAILED/.test(code)) return 503
   return 409
@@ -72,7 +72,10 @@ function createApiApp({
     try {
       await pool.query('SELECT 1')
       response.status(200).json({ status: 'ok', database: 'ready' })
-    } catch {
+    } catch (error) {
+      const databaseErrorCode = String(error?.code ?? 'DATABASE_HEALTH_CHECK_FAILED')
+        .replace(/[^A-Z0-9_]/gi, '_').slice(0, 64)
+      console.error(`database health check failed: ${databaseErrorCode}`)
       response.status(503).json({ status: 'not_ready', database: 'unavailable' })
     }
   }
@@ -138,6 +141,10 @@ function createApiApp({
     try {
       response.status(200).json(await bff.getSharedCard({ shareToken: request.params.shareToken }))
     } catch (error) { next(error) }
+  })
+
+  app.use('/api/v1', (_request, response) => {
+    response.status(404).json({ error: 'API_ROUTE_NOT_FOUND' })
   })
 
   app.use((error, _request, response, _next) => {

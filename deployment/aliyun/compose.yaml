@@ -31,12 +31,12 @@ services:
     expose: ["3306"]
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql/ziyoufang.cnf:/etc/my.cnf.d/ziyoufang.cnf:ro
+      - ./mysql/ziyoufang.cnf:/etc/mysql/conf.d/ziyoufang.cnf:ro
       - /opt/ziyoufang/secrets/mysql-ca.pem:/etc/mysql/ziyoufang-ca.pem:ro
       - /opt/ziyoufang/secrets/mysql-server-cert.pem:/etc/mysql/ziyoufang-server-cert.pem:ro
       - /opt/ziyoufang/secrets/mysql-server-key.pem:/etc/mysql/ziyoufang-server-key.pem:ro
     healthcheck:
-      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysqladmin ping --socket=/var/lib/mysql/mysql.sock --user=root --silent"]
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysqladmin ping --socket=/var/run/mysqld/mysqld.sock --user=root --silent"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -78,6 +78,12 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     mem_limit: 512m
 
   worker:

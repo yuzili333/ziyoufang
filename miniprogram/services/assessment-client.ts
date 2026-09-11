@@ -9,9 +9,9 @@ const call = async <T>(action: string, payload: Record<string, unknown>): Promis
   return HttpClient.request<T>('/api/v1/actions', { data: { action, payload } })
 }
 
-export const CONSENT_VERSION = 'mvp-consent-draft-v1'
-export const SHARE_CONSENT_VERSION = 'mvp-share-consent-draft-v1'
-export const DELETION_CONFIRMATION_VERSION = 'mvp-deletion-confirm-draft-v1'
+export const CONSENT_VERSION = 'compliance-approved-v1'
+export const SHARE_CONSENT_VERSION = 'share-approved-v1'
+export const DELETION_CONFIRMATION_VERSION = 'deletion-approved-v1'
 
 export interface ConsentStatus {
   consentVersion: string

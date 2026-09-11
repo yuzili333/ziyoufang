@@ -89,12 +89,24 @@ test('non-retryable image quality failures route to specific retake guidance', (
   assert.match(progress, /expectedText/)
 })
 
-test('draft consent cannot silently become a production authorization', () => {
+test('client consent versions match the registered production versions and remain server-authoritative', () => {
   const cloudEntry = read('cloudfunctions/assessmentBff/index.js')
   assert.match(cloudEntry, /PRODUCTION_CONSENT_VERSION_NOT_APPROVED/)
   assert.match(cloudEntry, /enforceConsent: true/)
+  const client = read('miniprogram/services/assessment-client.ts')
+  const productionEnvironment = read('deployment/aliyun/prod.env.example')
+  for (const [name, version] of [
+    ['CONSENT_VERSION', 'compliance-approved-v1'],
+    ['SHARE_CONSENT_VERSION', 'share-approved-v1'],
+    ['DELETION_CONFIRMATION_VERSION', 'deletion-approved-v1']
+  ]) {
+    assert.match(client, new RegExp(`export const ${name} = '${version}'`))
+    assert.match(productionEnvironment, new RegExp(`^${name}=${version}$`, 'm'))
+  }
+  assert.doesNotMatch(client, /mvp-.*-draft-v1/)
   const consentPage = read('miniprogram/pages/consent/index.wxml')
-  assert.match(consentPage, /当前版本仅供研发验证/)
+  assert.match(consentPage, /原图默认保留30天/)
+  assert.doesNotMatch(consentPage, /当前版本仅供研发验证/)
 })
 
 test('previously synchronized consent permits offline local capture but not server upload authority', () => {

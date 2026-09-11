@@ -9,6 +9,37 @@ server_key="$secret_dir/mysql-server-key.pem"
 server_csr="$secret_dir/mysql-server.csr"
 server_cert="$secret_dir/mysql-server-cert.pem"
 
+validate_identity() {
+  openssl x509 -in "$ca_cert" -noout -checkend 2592000 >/dev/null
+  openssl x509 -in "$server_cert" -noout -checkend 2592000 >/dev/null
+  openssl x509 -in "$ca_cert" -noout -text |
+    grep -A1 'Basic Constraints' | grep -q 'CA:TRUE'
+  openssl verify -purpose sslserver -verify_hostname ziyoufang-mysql \
+    -CAfile "$ca_cert" "$server_cert" >/dev/null
+
+  ca_cert_public_key=$(
+    openssl x509 -in "$ca_cert" -pubkey -noout |
+      openssl pkey -pubin -outform DER 2>/dev/null |
+      openssl sha256
+  )
+  ca_private_key_public_key=$(
+    openssl pkey -in "$ca_key" -pubout -outform DER 2>/dev/null |
+      openssl sha256
+  )
+  server_cert_public_key=$(
+    openssl x509 -in "$server_cert" -pubkey -noout |
+      openssl pkey -pubin -outform DER 2>/dev/null |
+      openssl sha256
+  )
+  server_private_key_public_key=$(
+    openssl pkey -in "$server_key" -pubout -outform DER 2>/dev/null |
+      openssl sha256
+  )
+
+  [ "$ca_cert_public_key" = "$ca_private_key_public_key" ]
+  [ "$server_cert_public_key" = "$server_private_key_public_key" ]
+}
+
 if [ "$(id -u)" -ne 0 ]; then
   echo 'run this script as root' >&2
   exit 1
@@ -22,8 +53,7 @@ for file in "$ca_key" "$ca_cert" "$server_key" "$server_cert"; do
 done
 
 if [ "$existing" -eq 4 ]; then
-  openssl verify -CAfile "$ca_cert" "$server_cert" >/dev/null
-  openssl x509 -in "$server_cert" -noout -checkhost ziyoufang-mysql >/dev/null
+  validate_identity
   echo 'existing MySQL TLS identity is valid'
   exit 0
 fi
@@ -45,6 +75,9 @@ EOF
 umask 077
 openssl req -x509 -newkey rsa:3072 -nodes -sha256 -days 3650 \
   -subj '/CN=ziyoufang MySQL private CA' \
+  -addext 'basicConstraints=critical,CA:TRUE,pathlen:0' \
+  -addext 'keyUsage=critical,keyCertSign,cRLSign' \
+  -addext 'subjectKeyIdentifier=hash' \
   -keyout "$ca_key" -out "$ca_cert"
 openssl req -newkey rsa:3072 -nodes -sha256 \
   -subj '/CN=ziyoufang-mysql' \
@@ -61,6 +94,5 @@ chmod 0400 "$ca_key"
 chmod 0444 "$ca_cert" "$server_cert"
 chmod 0440 "$server_key"
 
-openssl verify -CAfile "$ca_cert" "$server_cert"
-openssl x509 -in "$server_cert" -noout -checkhost ziyoufang-mysql
+validate_identity
 echo 'MySQL TLS identity created; keep mysql-ca-key.pem off application containers'

@@ -6,8 +6,9 @@
 
 1. 将`host-nginx-api-limits.conf`包含到 Nginx `http`上下文。
 2. 将`host-nginx-api-locations.conf`包含到`lilicoconut.me`现有 HTTPS `server`块。
-3. 保留网站原有根路径、证书和HSTS配置；修改前备份主机Nginx配置。
-4. 执行`nginx -t`，只有成功后才允许`nginx -s reload`。
+3. 将`host-nginx-api-http-redirect.conf`包含到`lilicoconut.me`现有 HTTP `server`块，只强制`/api/v1`使用HTTPS。
+4. 保留网站原有根路径、证书和HSTS配置；修改前备份主机Nginx配置。
+5. 执行`nginx -t`，只有成功后才允许`nginx -s reload`。
 
 生产环境文件固定为`/opt/ziyoufang/secrets/prod.env`，权限仅允许部署用户读取。MySQL CA固定挂载到`/opt/ziyoufang/secrets/mysql-ca.pem`。域名配置使用：
 
@@ -50,6 +51,8 @@ MYSQL_SSL_CA_FILE=/run/secrets/mysql-ca.pem
 ```
 
 `prepare-mysql-tls.sh`生成私有CA和SAN包含`ziyoufang-mysql`的服务端证书；MySQL强制安全传输，API使用`VERIFY_IDENTITY`校验服务身份。CA私钥不得挂载到任何应用容器。
+
+MySQL官方镜像从`/etc/mysql/conf.d`读取项目配置，Unix socket位于`/var/run/mysqld/mysqld.sock`。若启动日志出现`tls-certificates-enforced-validation`校验失败，应先读取同一段日志中的`MY-015011`具体原因，再检查证书有效期、CA约束、证书链和公私钥匹配。轮换证书前先把`/opt/ziyoufang/secrets/mysql-*.pem`移动到仅root可读的备份目录；不得删除`ziyoufang_mysql_data`数据卷。
 
 MySQL官方镜像只在空数据卷首次初始化时读取`MYSQL_DATABASE`、`MYSQL_USER`、`MYSQL_PASSWORD`和`MYSQL_ROOT_PASSWORD`。初始化后不得只修改环境变量来轮换数据库密码，应使用`ALTER USER`完成轮换并同步更新环境文件。
 

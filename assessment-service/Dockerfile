@@ -3,7 +3,9 @@ FROM node:20-bookworm-slim AS verified
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci \
+    && npm ls --omit=dev --all \
+    && node --input-type=module -e "await import('express'); await import('@napi-rs/canvas')"
 
 COPY src ./src
 COPY test ./test

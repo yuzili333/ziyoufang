@@ -58,6 +58,11 @@ compose() {
 
 compose --profile migration run --rm migrate
 compose up -d --build --remove-orphans
+# Bind-mounted CA contents do not change the Compose service definition. Always
+# recreate long-running database clients so a certificate rotation is loaded
+# into their in-memory TLS contexts.
+compose up -d --force-recreate --no-deps api worker
+compose up -d --wait --wait-timeout 120
 compose ps
 compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" mysql --host=ziyoufang-mysql --user="$MYSQL_USER" --database="$MYSQL_DATABASE" --ssl-mode=VERIFY_IDENTITY --ssl-ca=/etc/mysql/ziyoufang-ca.pem --batch --skip-column-names --execute="SELECT 1"' >/dev/null
 curl --fail --silent http://127.0.0.1:18080/health >/dev/null
